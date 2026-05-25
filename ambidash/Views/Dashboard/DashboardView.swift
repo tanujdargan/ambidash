@@ -85,7 +85,7 @@ struct DashboardView: View {
                         .padding(.horizontal)
                     }
 
-                    InsightCardView()
+                    InsightCardView(goals: goals, snapshot: todaySnapshot)
                         .padding(.horizontal)
                 }
                 .padding(.vertical)
