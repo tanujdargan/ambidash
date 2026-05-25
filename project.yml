@@ -27,9 +27,15 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
         SWIFT_EMIT_LOC_STRINGS: true
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app
+        INFOPLIST_KEY_NSHealthShareUsageDescription: "ambidash reads your health data (sleep, steps, workouts, heart rate) to power your self-awareness dashboard and personalize your daily plan."
+        INFOPLIST_KEY_NSHealthUpdateUsageDescription: "ambidash does not write health data."
+        INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "ambidash reads your calendar to find free time for your daily action plan and understand how you spend your time."
+        INFOPLIST_KEY_NSRemindersFullAccessUsageDescription: "ambidash reads your reminders to understand what tasks are on your mind."
     entitlements:
       path: ambidash/ambidash.entitlements
       properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
         com.apple.developer.icloud-container-identifiers:
           - "iCloud.com.ambidash.app"
         com.apple.developer.icloud-services:
