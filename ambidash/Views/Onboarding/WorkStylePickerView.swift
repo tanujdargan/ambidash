@@ -74,7 +74,7 @@ struct WorkStylePickerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .navigationDestination(isPresented: $showComplete) {
-            OnboardingCompleteView()
+            IntegrationSetupView()
         }
     }
 
