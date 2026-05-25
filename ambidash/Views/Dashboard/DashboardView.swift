@@ -14,6 +14,10 @@ struct DashboardView: View {
         profile?.goals.filter(\.isActive) ?? []
     }
 
+    private var streakSummary: StreakService.StreakSummary {
+        StreakService.summary(for: goals)
+    }
+
     private var dimensionScores: [LifeDimension: Int] {
         DimensionScoreCalculator.scores(from: goals, snapshot: todaySnapshot)
     }
@@ -49,6 +53,38 @@ struct DashboardView: View {
                         GoalStripView(goals: goals)
                     }
 
+                    // Streak summary
+                    if streakSummary.totalActiveStreaks > 0 {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "flame.fill")
+                                    .foregroundStyle(.orange)
+                                Text("\(streakSummary.totalActiveStreaks) active streak\(streakSummary.totalActiveStreaks == 1 ? "" : "s")")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Spacer()
+                                Text("Best: \(streakSummary.longestCurrentStreak)d")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            ForEach(streakSummary.atRiskStreaks, id: \.goalTitle) { risk in
+                                HStack(spacing: 6) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.caption2)
+                                        .foregroundStyle(.orange)
+                                    Text("\(risk.goalTitle) streak (\(risk.count)d) ends tonight")
+                                        .font(.caption)
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                    }
+
                     InsightCardView()
                         .padding(.horizontal)
                 }
@@ -57,6 +93,10 @@ struct DashboardView: View {
             .task {
                 await manager.requestAllPermissions()
                 await manager.refreshTodaySnapshot(in: modelContext)
+                await NotificationService.requestPermission()
+                NotificationService.scheduleDailyReminder()
+                NotificationService.scheduleMorningPlan()
+                StreakService.scheduleWarnings(for: goals)
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)
