@@ -18,13 +18,13 @@ private struct MainTabView18: View {
                 DashboardView()
             }
             Tab("Today", systemImage: "play.fill") {
-                Text("Today — Plan 3")
+                TodayView()
             }
             Tab("Goals", systemImage: "target") {
                 GoalListView()
             }
             Tab("Reflect", systemImage: "pencil.line") {
-                Text("Reflect — Plan 3")
+                ReflectView()
             }
         }
     }
@@ -37,7 +37,7 @@ private struct MainTabView17: View {
                 .tabItem {
                     Label("Dashboard", systemImage: "circle.grid.3x3")
                 }
-            Text("Today — Plan 3")
+            TodayView()
                 .tabItem {
                     Label("Today", systemImage: "play.fill")
                 }
@@ -45,7 +45,7 @@ private struct MainTabView17: View {
                 .tabItem {
                     Label("Goals", systemImage: "target")
                 }
-            Text("Reflect — Plan 3")
+            ReflectView()
                 .tabItem {
                     Label("Reflect", systemImage: "pencil.line")
                 }
