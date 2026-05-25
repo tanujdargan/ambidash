@@ -8,12 +8,37 @@
 
 /* Begin PBXBuildFile section */
 		05C34778BE561C1120E5EDB6 /* GoalDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */; };
+		1BA8B68F4A3816AFDA505B61 /* AssessmentFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D8C1F4A2DBFE2EA96A5863 /* AssessmentFlowView.swift */; };
+		1F8A1E1EA102D6C80718A641 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99293D596B35EC9D61FFE9E2 /* Goal.swift */; };
+		2808079C5A85336AED273C59 /* IntegrationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */; };
+		2CABC22C4FB5FEFC5B6AF2CC /* WorkStylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */; };
 		34FD720A94B510E303172982 /* GoalStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45E866B8C0DAA8861F70564 /* GoalStatus.swift */; };
+		40421C6CA3534056AF5ADBD5 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54C8F7D558E93707C5C545A /* DailyPlan.swift */; };
+		454505233B70E8234667734E /* OnboardingCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE95BEBDD012D7AFC4BFEE10 /* OnboardingCompleteView.swift */; };
+		4669AF4D42EFE3C7C2B722AD /* GoalDeclarationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83302B08A2C9BF4EA6CE66ED /* GoalDeclarationView.swift */; };
+		4E793F43F77306F5E866ABCC /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F4231A3DF75758EE3BA8D1 /* MainTabView.swift */; };
+		51F95F75A464BD2C74FB13FC /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBA3CF05356C43A16071009 /* WelcomeView.swift */; };
+		523116C7FB5732C11AF149E1 /* GoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */; };
+		58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */; };
 		637813F66460983915A480D0 /* SanityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB53322A625D21C309B8444F /* SanityTests.swift */; };
+		6ED1E00B86F4364ACC9479EC /* AssessmentQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A95307873AA574033BE1DC /* AssessmentQuestionView.swift */; };
 		70849E13A9A45DEE1B248606 /* PlanFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */; };
+		7EC47396C51CCE81CED961CA /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09115618227349FA26D9E136 /* DashboardView.swift */; };
 		8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED6CAF811845880023A84FC /* LifeDimension.swift */; };
+		ABA8A64FD3BF98840F07A44A /* PlannedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */; };
+		B6286A73918220AECC1C2831 /* CoreAssessmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */; };
+		B7CF693AF84AC25D8745E33D /* Reflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A43853C2967CC34AAA86A7 /* Reflection.swift */; };
+		B89DFDDB97B0B9EDB55E6A05 /* CoreAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A38222B4230E1501AA0726E /* CoreAssessment.swift */; };
+		BBB3D552D40C210D8372E92A /* DomainAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A4F1A74BE0216D3C7B2886 /* DomainAssessment.swift */; };
+		BF7B417354D625B13969A6E5 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB77796CED406ECEB71F9B1D /* UserProfile.swift */; };
 		C76B5C540C4F5784CCF0EE62 /* GoalDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F202B9C638DCBD1709A4A /* GoalDomainTests.swift */; };
+		C8DD5AC6929AC0EBE8AF59CE /* GoalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B140A14EEEE8BC6C70F1A8F /* GoalListView.swift */; };
 		D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557698237B86451559706D44 /* AmbidashApp.swift */; };
+		DB70F50DF61D7AD483458228 /* GoalProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C90553BD1F33180D9B0A91 /* GoalProgress.swift */; };
+		DD346661F70EA3838978CC92 /* Streak.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28E88B33A2DF877FBC2E57E /* Streak.swift */; };
+		F1806EB4832A5DECBD2DE525 /* AssessmentQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343F2BAD8B05D6F390651E44 /* AssessmentQuestion.swift */; };
+		F672462D0640E3EB97773133 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A308453BB4EB34BA47F56D /* RootView.swift */; };
+		F814CCC16A1F7D15B6E7D7FF /* WorkStylePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = D33FBBB2BFDC2B4185FE6C8C /* WorkStylePreference.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,22 +52,49 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		09115618227349FA26D9E136 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		0BCCF7FED119C86AD1B00F9B /* ambidash.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ambidash.entitlements; sourceTree = "<group>"; };
+		11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkStylePickerView.swift; sourceTree = "<group>"; };
 		1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ambidashTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		343F2BAD8B05D6F390651E44 /* AssessmentQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentQuestion.swift; sourceTree = "<group>"; };
+		50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannedAction.swift; sourceTree = "<group>"; };
 		557698237B86451559706D44 /* AmbidashApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashApp.swift; sourceTree = "<group>"; };
+		56C90553BD1F33180D9B0A91 /* GoalProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProgress.swift; sourceTree = "<group>"; };
+		5B140A14EEEE8BC6C70F1A8F /* GoalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalListView.swift; sourceTree = "<group>"; };
 		5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanFormat.swift; sourceTree = "<group>"; };
 		644F202B9C638DCBD1709A4A /* GoalDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDomainTests.swift; sourceTree = "<group>"; };
+		6CBA3CF05356C43A16071009 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		72A308453BB4EB34BA47F56D /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentorFeedback.swift; sourceTree = "<group>"; };
+		83302B08A2C9BF4EA6CE66ED /* GoalDeclarationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDeclarationView.swift; sourceTree = "<group>"; };
+		89A4F1A74BE0216D3C7B2886 /* DomainAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainAssessment.swift; sourceTree = "<group>"; };
+		89A95307873AA574033BE1DC /* AssessmentQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentQuestionView.swift; sourceTree = "<group>"; };
+		8A38222B4230E1501AA0726E /* CoreAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessment.swift; sourceTree = "<group>"; };
+		962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationSnapshot.swift; sourceTree = "<group>"; };
+		98A43853C2967CC34AAA86A7 /* Reflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reflection.swift; sourceTree = "<group>"; };
+		99293D596B35EC9D61FFE9E2 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
+		A28E88B33A2DF877FBC2E57E /* Streak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Streak.swift; sourceTree = "<group>"; };
 		B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDomain.swift; sourceTree = "<group>"; };
+		B8D8C1F4A2DBFE2EA96A5863 /* AssessmentFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentFlowView.swift; sourceTree = "<group>"; };
 		BB53322A625D21C309B8444F /* SanityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SanityTests.swift; sourceTree = "<group>"; };
 		BE58D6B581720991895E3987 /* ambidash.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ambidash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BED6CAF811845880023A84FC /* LifeDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeDimension.swift; sourceTree = "<group>"; };
+		CB77796CED406ECEB71F9B1D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		D33FBBB2BFDC2B4185FE6C8C /* WorkStylePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkStylePreference.swift; sourceTree = "<group>"; };
 		D45E866B8C0DAA8861F70564 /* GoalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStatus.swift; sourceTree = "<group>"; };
+		DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessmentTests.swift; sourceTree = "<group>"; };
+		DE95BEBDD012D7AFC4BFEE10 /* OnboardingCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCompleteView.swift; sourceTree = "<group>"; };
+		E4F4231A3DF75758EE3BA8D1 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		E54C8F7D558E93707C5C545A /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
+		FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		16832A482158174130D3E1E1 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */,
+				FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -86,6 +138,7 @@
 		5354077B4D6E80BABC8E7CEC /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				343F2BAD8B05D6F390651E44 /* AssessmentQuestion.swift */,
 				B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */,
 				D45E866B8C0DAA8861F70564 /* GoalStatus.swift */,
 				BED6CAF811845880023A84FC /* LifeDimension.swift */,
@@ -97,6 +150,7 @@
 		56A532DC9C35D2764CB9FDDF /* Goals */ = {
 			isa = PBXGroup;
 			children = (
+				5B140A14EEEE8BC6C70F1A8F /* GoalListView.swift */,
 			);
 			path = Goals;
 			sourceTree = "<group>";
@@ -122,6 +176,8 @@
 			isa = PBXGroup;
 			children = (
 				557698237B86451559706D44 /* AmbidashApp.swift */,
+				E4F4231A3DF75758EE3BA8D1 /* MainTabView.swift */,
+				72A308453BB4EB34BA47F56D /* RootView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -150,6 +206,12 @@
 		CB1B2886C9F39F6F403E1C5C /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				B8D8C1F4A2DBFE2EA96A5863 /* AssessmentFlowView.swift */,
+				89A95307873AA574033BE1DC /* AssessmentQuestionView.swift */,
+				83302B08A2C9BF4EA6CE66ED /* GoalDeclarationView.swift */,
+				DE95BEBDD012D7AFC4BFEE10 /* OnboardingCompleteView.swift */,
+				6CBA3CF05356C43A16071009 /* WelcomeView.swift */,
+				11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -157,6 +219,7 @@
 		CC7D77DED9CB521CAA213F2C /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
+				09115618227349FA26D9E136 /* DashboardView.swift */,
 			);
 			path = Dashboard;
 			sourceTree = "<group>";
@@ -164,6 +227,18 @@
 		D9A680A2C34508411EFBA1EE /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8A38222B4230E1501AA0726E /* CoreAssessment.swift */,
+				E54C8F7D558E93707C5C545A /* DailyPlan.swift */,
+				89A4F1A74BE0216D3C7B2886 /* DomainAssessment.swift */,
+				99293D596B35EC9D61FFE9E2 /* Goal.swift */,
+				56C90553BD1F33180D9B0A91 /* GoalProgress.swift */,
+				962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */,
+				7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */,
+				50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */,
+				98A43853C2967CC34AAA86A7 /* Reflection.swift */,
+				A28E88B33A2DF877FBC2E57E /* Streak.swift */,
+				CB77796CED406ECEB71F9B1D /* UserProfile.swift */,
+				D33FBBB2BFDC2B4185FE6C8C /* WorkStylePreference.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -243,10 +318,33 @@
 			buildActionMask = 2147483647;
 			files = (
 				D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */,
+				1BA8B68F4A3816AFDA505B61 /* AssessmentFlowView.swift in Sources */,
+				F1806EB4832A5DECBD2DE525 /* AssessmentQuestion.swift in Sources */,
+				6ED1E00B86F4364ACC9479EC /* AssessmentQuestionView.swift in Sources */,
+				B89DFDDB97B0B9EDB55E6A05 /* CoreAssessment.swift in Sources */,
+				40421C6CA3534056AF5ADBD5 /* DailyPlan.swift in Sources */,
+				7EC47396C51CCE81CED961CA /* DashboardView.swift in Sources */,
+				BBB3D552D40C210D8372E92A /* DomainAssessment.swift in Sources */,
+				1F8A1E1EA102D6C80718A641 /* Goal.swift in Sources */,
+				4669AF4D42EFE3C7C2B722AD /* GoalDeclarationView.swift in Sources */,
 				05C34778BE561C1120E5EDB6 /* GoalDomain.swift in Sources */,
+				C8DD5AC6929AC0EBE8AF59CE /* GoalListView.swift in Sources */,
+				DB70F50DF61D7AD483458228 /* GoalProgress.swift in Sources */,
 				34FD720A94B510E303172982 /* GoalStatus.swift in Sources */,
+				2808079C5A85336AED273C59 /* IntegrationSnapshot.swift in Sources */,
 				8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */,
+				4E793F43F77306F5E866ABCC /* MainTabView.swift in Sources */,
+				58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */,
+				454505233B70E8234667734E /* OnboardingCompleteView.swift in Sources */,
 				70849E13A9A45DEE1B248606 /* PlanFormat.swift in Sources */,
+				ABA8A64FD3BF98840F07A44A /* PlannedAction.swift in Sources */,
+				B7CF693AF84AC25D8745E33D /* Reflection.swift in Sources */,
+				F672462D0640E3EB97773133 /* RootView.swift in Sources */,
+				DD346661F70EA3838978CC92 /* Streak.swift in Sources */,
+				BF7B417354D625B13969A6E5 /* UserProfile.swift in Sources */,
+				51F95F75A464BD2C74FB13FC /* WelcomeView.swift in Sources */,
+				2CABC22C4FB5FEFC5B6AF2CC /* WorkStylePickerView.swift in Sources */,
+				F814CCC16A1F7D15B6E7D7FF /* WorkStylePreference.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,7 +352,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6286A73918220AECC1C2831 /* CoreAssessmentTests.swift in Sources */,
 				C76B5C540C4F5784CCF0EE62 /* GoalDomainTests.swift in Sources */,
+				523116C7FB5732C11AF149E1 /* GoalTests.swift in Sources */,
 				637813F66460983915A480D0 /* SanityTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
