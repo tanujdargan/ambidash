@@ -17,6 +17,7 @@
 		23D30FEF3895CE79E050A119 /* IntegrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A33E9CED2D0772100C550 /* IntegrationManager.swift */; };
 		24FDA9B6ABFF5CB69741C235 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE9BC2C6D2DB031A788193C /* AIService.swift */; };
 		25BCD30136EDBDDADB9F9EBA /* ReflectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73107790D53825C77448FC4E /* ReflectView.swift */; };
+		275B6E00406F18ECBF29EA34 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0078242D4C8C835AAF607D /* PaywallView.swift */; };
 		2808079C5A85336AED273C59 /* IntegrationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */; };
 		2CABC22C4FB5FEFC5B6AF2CC /* WorkStylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */; };
 		2F2D10F9D9FCB47C08357338 /* AddGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097D73995EC9BBD4FF1739A4 /* AddGoalView.swift */; };
@@ -31,6 +32,8 @@
 		523116C7FB5732C11AF149E1 /* GoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */; };
 		58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */; };
 		6096EDCF76376AF5B685B038 /* PulseScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5814DA0A6050161ED197CBC /* PulseScoreView.swift */; };
+		60C2E35CE35FEA13BBECB005 /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC183A57A063887061AA22C /* NotionService.swift */; };
+		636A5873CB39E24586D37034 /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */; };
 		637813F66460983915A480D0 /* SanityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB53322A625D21C309B8444F /* SanityTests.swift */; };
 		6ED1E00B86F4364ACC9479EC /* AssessmentQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A95307873AA574033BE1DC /* AssessmentQuestionView.swift */; };
 		70849E13A9A45DEE1B248606 /* PlanFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */; };
@@ -56,6 +59,7 @@
 		B6286A73918220AECC1C2831 /* CoreAssessmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */; };
 		B7CF693AF84AC25D8745E33D /* Reflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A43853C2967CC34AAA86A7 /* Reflection.swift */; };
 		B89DFDDB97B0B9EDB55E6A05 /* CoreAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A38222B4230E1501AA0726E /* CoreAssessment.swift */; };
+		B98436EEC2041FD122703B60 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3398562C23BA55AF8165BB /* SettingsView.swift */; };
 		BB0F6E8E8F8ADA5968DB21C2 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B607B9E2BC8919E3F0D2E809 /* NotificationService.swift */; };
 		BBB3D552D40C210D8372E92A /* DomainAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A4F1A74BE0216D3C7B2886 /* DomainAssessment.swift */; };
 		BF7B417354D625B13969A6E5 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB77796CED406ECEB71F9B1D /* UserProfile.swift */; };
@@ -102,6 +106,7 @@
 		343F2BAD8B05D6F390651E44 /* AssessmentQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentQuestion.swift; sourceTree = "<group>"; };
 		36F3135818AB6A21667C3011 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		3CBBFA170B33B17B4FE7BE90 /* DimensionBarsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DimensionBarsView.swift; sourceTree = "<group>"; };
+		3FC183A57A063887061AA22C /* NotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionService.swift; sourceTree = "<group>"; };
 		42DF12417DA900E106F77CE9 /* QuickStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickStatsView.swift; sourceTree = "<group>"; };
 		481505C42AF83DFCBBF91CF4 /* InsightCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCardView.swift; sourceTree = "<group>"; };
 		50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannedAction.swift; sourceTree = "<group>"; };
@@ -125,6 +130,7 @@
 		89A4F1A74BE0216D3C7B2886 /* DomainAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainAssessment.swift; sourceTree = "<group>"; };
 		89A95307873AA574033BE1DC /* AssessmentQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentQuestionView.swift; sourceTree = "<group>"; };
 		8A38222B4230E1501AA0726E /* CoreAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessment.swift; sourceTree = "<group>"; };
+		8F3398562C23BA55AF8165BB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationSnapshot.swift; sourceTree = "<group>"; };
 		98A43853C2967CC34AAA86A7 /* Reflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reflection.swift; sourceTree = "<group>"; };
 		99293D596B35EC9D61FFE9E2 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
@@ -144,6 +150,7 @@
 		CB77796CED406ECEB71F9B1D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		CEADC98E3A42D24399274700 /* PriorityListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriorityListView.swift; sourceTree = "<group>"; };
 		D33FBBB2BFDC2B4185FE6C8C /* WorkStylePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkStylePreference.swift; sourceTree = "<group>"; };
+		D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionService.swift; sourceTree = "<group>"; };
 		D45E866B8C0DAA8861F70564 /* GoalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStatus.swift; sourceTree = "<group>"; };
 		D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseScoreCalculator.swift; sourceTree = "<group>"; };
 		DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessmentTests.swift; sourceTree = "<group>"; };
@@ -155,6 +162,7 @@
 		EF13B66F23BBABD3F2AD0064 /* PlanGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanGenerator.swift; sourceTree = "<group>"; };
 		F5F622E2B5F7A018C1B3EA3C /* GoalHealthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalHealthService.swift; sourceTree = "<group>"; };
 		FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTests.swift; sourceTree = "<group>"; };
+		FF0078242D4C8C835AAF607D /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -165,6 +173,15 @@
 				FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		1AB1B0FCEF2902204935DF95 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				FF0078242D4C8C835AAF607D /* PaywallView.swift */,
+				8F3398562C23BA55AF8165BB /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		26AB357E15C09823B6F61870 /* Today */ = {
@@ -249,6 +266,7 @@
 				56A532DC9C35D2764CB9FDDF /* Goals */,
 				CB1B2886C9F39F6F403E1C5C /* Onboarding */,
 				A3DF7DB27BADD0238A3A3808 /* Reflect */,
+				1AB1B0FCEF2902204935DF95 /* Settings */,
 				26AB357E15C09823B6F61870 /* Today */,
 			);
 			path = Views;
@@ -266,10 +284,12 @@
 				198A33E9CED2D0772100C550 /* IntegrationManager.swift */,
 				88911E206DDFC07ECF427A18 /* MentorPromptBuilder.swift */,
 				B607B9E2BC8919E3F0D2E809 /* NotificationService.swift */,
+				3FC183A57A063887061AA22C /* NotionService.swift */,
 				EF13B66F23BBABD3F2AD0064 /* PlanGenerator.swift */,
 				D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */,
 				671B9B4705A3549951558745 /* SnapshotBuilder.swift */,
 				1D85C97171671F9FEA4F482F /* StreakService.swift */,
+				D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -471,7 +491,9 @@
 				58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */,
 				97C1BAFAEF7B9EE9BD0527A0 /* MentorPromptBuilder.swift in Sources */,
 				BB0F6E8E8F8ADA5968DB21C2 /* NotificationService.swift in Sources */,
+				60C2E35CE35FEA13BBECB005 /* NotionService.swift in Sources */,
 				454505233B70E8234667734E /* OnboardingCompleteView.swift in Sources */,
+				275B6E00406F18ECBF29EA34 /* PaywallView.swift in Sources */,
 				70849E13A9A45DEE1B248606 /* PlanFormat.swift in Sources */,
 				A6D9BD7C7ED985DED7045432 /* PlanGenerator.swift in Sources */,
 				ABA8A64FD3BF98840F07A44A /* PlannedAction.swift in Sources */,
@@ -483,10 +505,12 @@
 				B7CF693AF84AC25D8745E33D /* Reflection.swift in Sources */,
 				013BBFA03FB4FBAEC49AEC68 /* ReflectionFormView.swift in Sources */,
 				F672462D0640E3EB97773133 /* RootView.swift in Sources */,
+				B98436EEC2041FD122703B60 /* SettingsView.swift in Sources */,
 				C3DB89D255DEBA07C3919307 /* SingleActionView.swift in Sources */,
 				0E52B9416614A9425F2A8FBE /* SnapshotBuilder.swift in Sources */,
 				DD346661F70EA3838978CC92 /* Streak.swift in Sources */,
 				FA51486D160E2D60E98F332C /* StreakService.swift in Sources */,
+				636A5873CB39E24586D37034 /* SubscriptionService.swift in Sources */,
 				8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */,
 				BF7B417354D625B13969A6E5 /* UserProfile.swift in Sources */,
 				51F95F75A464BD2C74FB13FC /* WelcomeView.swift in Sources */,
