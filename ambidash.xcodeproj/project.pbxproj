@@ -1,0 +1,505 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05C34778BE561C1120E5EDB6 /* GoalDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */; };
+		34FD720A94B510E303172982 /* GoalStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45E866B8C0DAA8861F70564 /* GoalStatus.swift */; };
+		637813F66460983915A480D0 /* SanityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB53322A625D21C309B8444F /* SanityTests.swift */; };
+		70849E13A9A45DEE1B248606 /* PlanFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */; };
+		8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED6CAF811845880023A84FC /* LifeDimension.swift */; };
+		C76B5C540C4F5784CCF0EE62 /* GoalDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F202B9C638DCBD1709A4A /* GoalDomainTests.swift */; };
+		D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557698237B86451559706D44 /* AmbidashApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		43827592A6A9DFDA07CEBD40 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 021C71ADDCFCB90366084403 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C509A9FC71A7CED2FCA21F3A;
+			remoteInfo = ambidash;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0BCCF7FED119C86AD1B00F9B /* ambidash.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ambidash.entitlements; sourceTree = "<group>"; };
+		1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ambidashTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		557698237B86451559706D44 /* AmbidashApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashApp.swift; sourceTree = "<group>"; };
+		5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanFormat.swift; sourceTree = "<group>"; };
+		644F202B9C638DCBD1709A4A /* GoalDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDomainTests.swift; sourceTree = "<group>"; };
+		B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDomain.swift; sourceTree = "<group>"; };
+		BB53322A625D21C309B8444F /* SanityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SanityTests.swift; sourceTree = "<group>"; };
+		BE58D6B581720991895E3987 /* ambidash.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ambidash.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BED6CAF811845880023A84FC /* LifeDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeDimension.swift; sourceTree = "<group>"; };
+		D45E866B8C0DAA8861F70564 /* GoalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStatus.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		16832A482158174130D3E1E1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4347CC4E7EF9EC2D288E34F7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		49CDB32D36924640688BB51E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BE58D6B581720991895E3987 /* ambidash.app */,
+				1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4CD021A9F4970677C078D701 /* ambidashTests */ = {
+			isa = PBXGroup;
+			children = (
+				BB53322A625D21C309B8444F /* SanityTests.swift */,
+				16832A482158174130D3E1E1 /* Models */,
+				4347CC4E7EF9EC2D288E34F7 /* Services */,
+				94BDDF96E63154D039616730 /* Utilities */,
+			);
+			path = ambidashTests;
+			sourceTree = "<group>";
+		};
+		4F1FB24143821D30D94B4576 = {
+			isa = PBXGroup;
+			children = (
+				9AF0F69B308DBCDE37605B0E /* ambidash */,
+				4CD021A9F4970677C078D701 /* ambidashTests */,
+				49CDB32D36924640688BB51E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5354077B4D6E80BABC8E7CEC /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */,
+				D45E866B8C0DAA8861F70564 /* GoalStatus.swift */,
+				BED6CAF811845880023A84FC /* LifeDimension.swift */,
+				5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		56A532DC9C35D2764CB9FDDF /* Goals */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Goals;
+			sourceTree = "<group>";
+		};
+		72119CB2F63CF325CAA1EEBA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CC7D77DED9CB521CAA213F2C /* Dashboard */,
+				56A532DC9C35D2764CB9FDDF /* Goals */,
+				CB1B2886C9F39F6F403E1C5C /* Onboarding */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		77AE9CA326E2701429A96362 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		87716DA0021AC292C5013046 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				557698237B86451559706D44 /* AmbidashApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		94BDDF96E63154D039616730 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				644F202B9C638DCBD1709A4A /* GoalDomainTests.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		9AF0F69B308DBCDE37605B0E /* ambidash */ = {
+			isa = PBXGroup;
+			children = (
+				0BCCF7FED119C86AD1B00F9B /* ambidash.entitlements */,
+				87716DA0021AC292C5013046 /* App */,
+				D9A680A2C34508411EFBA1EE /* Models */,
+				77AE9CA326E2701429A96362 /* Services */,
+				5354077B4D6E80BABC8E7CEC /* Utilities */,
+				72119CB2F63CF325CAA1EEBA /* Views */,
+			);
+			path = ambidash;
+			sourceTree = "<group>";
+		};
+		CB1B2886C9F39F6F403E1C5C /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		CC7D77DED9CB521CAA213F2C /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		D9A680A2C34508411EFBA1EE /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		55E449DF7F2940133ACE3A79 /* ambidashTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9690FE68EE276A86AC32F1F /* Build configuration list for PBXNativeTarget "ambidashTests" */;
+			buildPhases = (
+				B37CE8328F80A38529394357 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D38CDAE4F6E96E9CA26B4595 /* PBXTargetDependency */,
+			);
+			name = ambidashTests;
+			packageProductDependencies = (
+			);
+			productName = ambidashTests;
+			productReference = 1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C509A9FC71A7CED2FCA21F3A /* ambidash */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B6A812A2FED503F0BC856D73 /* Build configuration list for PBXNativeTarget "ambidash" */;
+			buildPhases = (
+				2A68DF3DA458B84007CDABFF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ambidash;
+			packageProductDependencies = (
+			);
+			productName = ambidash;
+			productReference = BE58D6B581720991895E3987 /* ambidash.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		021C71ADDCFCB90366084403 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = B9C5711E1001E4923C5F6A47 /* Build configuration list for PBXProject "ambidash" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 4F1FB24143821D30D94B4576;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 49CDB32D36924640688BB51E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C509A9FC71A7CED2FCA21F3A /* ambidash */,
+				55E449DF7F2940133ACE3A79 /* ambidashTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2A68DF3DA458B84007CDABFF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */,
+				05C34778BE561C1120E5EDB6 /* GoalDomain.swift in Sources */,
+				34FD720A94B510E303172982 /* GoalStatus.swift in Sources */,
+				8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */,
+				70849E13A9A45DEE1B248606 /* PlanFormat.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B37CE8328F80A38529394357 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C76B5C540C4F5784CCF0EE62 /* GoalDomainTests.swift in Sources */,
+				637813F66460983915A480D0 /* SanityTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D38CDAE4F6E96E9CA26B4595 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C509A9FC71A7CED2FCA21F3A /* ambidash */;
+			targetProxy = 43827592A6A9DFDA07CEBD40 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		44A375E8D26E6624193CE831 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ambidash/ambidash.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7F725722D4D7633678FABDF9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ambidash.app/ambidash";
+			};
+			name = Release;
+		};
+		806CC4D9E98B59B510CA1D4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ambidash/ambidash.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9379865A9CAA6E6160FBCAE0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		C8731E67EE57F452CAC1A39D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		F1CA04AAE4D8D59B3CA9236D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ambidash.app/ambidash";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B6A812A2FED503F0BC856D73 /* Build configuration list for PBXNativeTarget "ambidash" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44A375E8D26E6624193CE831 /* Debug */,
+				806CC4D9E98B59B510CA1D4D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B9C5711E1001E4923C5F6A47 /* Build configuration list for PBXProject "ambidash" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C8731E67EE57F452CAC1A39D /* Debug */,
+				9379865A9CAA6E6160FBCAE0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C9690FE68EE276A86AC32F1F /* Build configuration list for PBXNativeTarget "ambidashTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F1CA04AAE4D8D59B3CA9236D /* Debug */,
+				7F725722D4D7633678FABDF9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 021C71ADDCFCB90366084403 /* Project object */;
+}
