@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct DashboardView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var manager = IntegrationManager()
     @Query private var profiles: [UserProfile]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
 
@@ -51,6 +53,13 @@ struct DashboardView: View {
                         .padding(.horizontal)
                 }
                 .padding(.vertical)
+            }
+            .task {
+                await manager.requestAllPermissions()
+                await manager.refreshTodaySnapshot(in: modelContext)
+            }
+            .refreshable {
+                await manager.refreshTodaySnapshot(in: modelContext)
             }
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.inline)
