@@ -12,6 +12,8 @@ enum SnapshotBuilder {
         var screenTimeHours: Double = 0
         var screenCategories: [String: Double] = [:]
         var pickups: Int = 0
+        var notionPagesEditedToday: Int = 0
+        var obsidianNotesModifiedToday: Int = 0
     }
 
     static func build(from raw: RawData, for date: Date) -> IntegrationSnapshot {
@@ -33,6 +35,8 @@ enum SnapshotBuilder {
         snapshot.screenTimeHours = raw.screenTimeHours
         snapshot.screenCategories = raw.screenCategories
         snapshot.pickups = raw.pickups
+        snapshot.notionPagesEditedToday = raw.notionPagesEditedToday
+        snapshot.obsidianNotesModifiedToday = raw.obsidianNotesModifiedToday
     }
 
     private static func computeSleepScore(hours: Double) -> Int {

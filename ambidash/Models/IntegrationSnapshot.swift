@@ -13,6 +13,8 @@ final class IntegrationSnapshot {
     var screenCategories: [String: Double]
     var pickups: Int
     var calendarFreeMinutes: Int
+    var notionPagesEditedToday: Int
+    var obsidianNotesModifiedToday: Int
 
     init(date: Date = .now) {
         self.id = UUID()
@@ -25,5 +27,7 @@ final class IntegrationSnapshot {
         self.screenCategories = [:]
         self.pickups = 0
         self.calendarFreeMinutes = 0
+        self.notionPagesEditedToday = 0
+        self.obsidianNotesModifiedToday = 0
     }
 }

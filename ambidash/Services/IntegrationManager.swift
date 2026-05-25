@@ -7,6 +7,8 @@ import SwiftData
 final class IntegrationManager {
     private let healthKit = HealthKitService.shared
     private let eventKit = EventKitService.shared
+    private let notion = NotionService.shared
+    private let obsidian = ObsidianService.shared
 
     var healthAuthorized = false
     var calendarAuthorized = false
@@ -49,6 +51,16 @@ final class IntegrationManager {
 
         if remindersAuthorized {
             raw.overdueReminders = await eventKit.fetchOverdueReminderCount()
+        }
+
+        if notion.isConnected {
+            let notionActivity = await notion.fetchRecentActivity()
+            raw.notionPagesEditedToday = notionActivity.pagesEditedToday
+        }
+
+        if obsidian.isConnected {
+            let obsidianActivity = await obsidian.fetchVaultActivity()
+            raw.obsidianNotesModifiedToday = obsidianActivity.notesModifiedToday
         }
 
         let calendar = Calendar.current
