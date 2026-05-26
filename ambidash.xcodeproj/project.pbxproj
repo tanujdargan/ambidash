@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0093C21321F7521D38AF99D3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CCF9FD3FC9D95230E9390295 /* Assets.xcassets */; };
 		013BBFA03FB4FBAEC49AEC68 /* ReflectionFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67E63BAAE2E6E6E7B901C53F /* ReflectionFormView.swift */; };
 		02B10DD492BB40E914814603 /* QuickStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42DF12417DA900E106F77CE9 /* QuickStatsView.swift */; };
 		05C34778BE561C1120E5EDB6 /* GoalDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */; };
@@ -24,6 +25,7 @@
 		2808079C5A85336AED273C59 /* IntegrationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */; };
 		2CABC22C4FB5FEFC5B6AF2CC /* WorkStylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */; };
 		2F2D10F9D9FCB47C08357338 /* AddGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097D73995EC9BBD4FF1739A4 /* AddGoalView.swift */; };
+		331B02D2EB6C3B1FFF162090 /* AmbidashTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3DBC8F6AC246D974F0209D8 /* AmbidashTheme.swift */; };
 		34AA7E63B7BF264A58D392C9 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F03206FDBB4076414660C33D /* DeviceActivity.framework */; };
 		34FD720A94B510E303172982 /* GoalStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45E866B8C0DAA8861F70564 /* GoalStatus.swift */; };
 		3F0A99685AE6C9DB9DCE79E2 /* WeeklyReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8718928D7E27FCE4BC3824 /* WeeklyReviewView.swift */; };
@@ -35,6 +37,7 @@
 		48AF52AD1EAB3CA54801F763 /* ActionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7B874FEB8C7A81FF93AD44 /* ActionRow.swift */; };
 		4BDDB06FAAC8CF015BBE0565 /* SkipAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9029079DA9843B1733B7A26 /* SkipAnalysisService.swift */; };
 		4E793F43F77306F5E866ABCC /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F4231A3DF75758EE3BA8D1 /* MainTabView.swift */; };
+		4EBEC68E0B32FBD6E4E19CBD /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079C72EA0A694EB8858FDFBC /* Components.swift */; };
 		51F95F75A464BD2C74FB13FC /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBA3CF05356C43A16071009 /* WelcomeView.swift */; };
 		523116C7FB5732C11AF149E1 /* GoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */; };
 		58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */; };
@@ -104,6 +107,7 @@
 
 /* Begin PBXFileReference section */
 		009036D3AB170DBC5C917DD4 /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
+		079C72EA0A694EB8858FDFBC /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		09115618227349FA26D9E136 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		097D73995EC9BBD4FF1739A4 /* AddGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalView.swift; sourceTree = "<group>"; };
 		0BCCF7FED119C86AD1B00F9B /* ambidash.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ambidash.entitlements; sourceTree = "<group>"; };
@@ -173,6 +177,7 @@
 		BE58D6B581720991895E3987 /* ambidash.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ambidash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BED6CAF811845880023A84FC /* LifeDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeDimension.swift; sourceTree = "<group>"; };
 		CB77796CED406ECEB71F9B1D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		CCF9FD3FC9D95230E9390295 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CEADC98E3A42D24399274700 /* PriorityListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriorityListView.swift; sourceTree = "<group>"; };
 		D33FBBB2BFDC2B4185FE6C8C /* WorkStylePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkStylePreference.swift; sourceTree = "<group>"; };
 		D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionService.swift; sourceTree = "<group>"; };
@@ -180,6 +185,7 @@
 		D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseScoreCalculator.swift; sourceTree = "<group>"; };
 		DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessmentTests.swift; sourceTree = "<group>"; };
 		DE95BEBDD012D7AFC4BFEE10 /* OnboardingCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCompleteView.swift; sourceTree = "<group>"; };
+		E3DBC8F6AC246D974F0209D8 /* AmbidashTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashTheme.swift; sourceTree = "<group>"; };
 		E4F4231A3DF75758EE3BA8D1 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		E54C8F7D558E93707C5C545A /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
 		E7F2B2B739FF4A7D8AD0A113 /* DimensionScoreCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DimensionScoreCalculatorTests.swift; sourceTree = "<group>"; };
@@ -369,13 +375,24 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		970D9C84A2BE2818A219A923 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				E3DBC8F6AC246D974F0209D8 /* AmbidashTheme.swift */,
+				079C72EA0A694EB8858FDFBC /* Components.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
 		9AF0F69B308DBCDE37605B0E /* ambidash */ = {
 			isa = PBXGroup;
 			children = (
 				0BCCF7FED119C86AD1B00F9B /* ambidash.entitlements */,
+				CCF9FD3FC9D95230E9390295 /* Assets.xcassets */,
 				87716DA0021AC292C5013046 /* App */,
 				D9A680A2C34508411EFBA1EE /* Models */,
 				77AE9CA326E2701429A96362 /* Services */,
+				970D9C84A2BE2818A219A923 /* Theme */,
 				5354077B4D6E80BABC8E7CEC /* Utilities */,
 				72119CB2F63CF325CAA1EEBA /* Views */,
 			);
@@ -494,6 +511,7 @@
 			buildConfigurationList = B6A812A2FED503F0BC856D73 /* Build configuration list for PBXNativeTarget "ambidash" */;
 			buildPhases = (
 				2A68DF3DA458B84007CDABFF /* Sources */,
+				598A6AD6C58EA6811A6889EF /* Resources */,
 			);
 			buildRules = (
 			);
@@ -538,6 +556,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		598A6AD6C58EA6811A6889EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0093C21321F7521D38AF99D3 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		2A68DF3DA458B84007CDABFF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -548,9 +577,11 @@
 				48AF52AD1EAB3CA54801F763 /* ActionRow.swift in Sources */,
 				2F2D10F9D9FCB47C08357338 /* AddGoalView.swift in Sources */,
 				D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */,
+				331B02D2EB6C3B1FFF162090 /* AmbidashTheme.swift in Sources */,
 				1BA8B68F4A3816AFDA505B61 /* AssessmentFlowView.swift in Sources */,
 				F1806EB4832A5DECBD2DE525 /* AssessmentQuestion.swift in Sources */,
 				6ED1E00B86F4364ACC9479EC /* AssessmentQuestionView.swift in Sources */,
+				4EBEC68E0B32FBD6E4E19CBD /* Components.swift in Sources */,
 				B89DFDDB97B0B9EDB55E6A05 /* CoreAssessment.swift in Sources */,
 				40421C6CA3534056AF5ADBD5 /* DailyPlan.swift in Sources */,
 				45BF4289781912862F0C468E /* DailySummaryView.swift in Sources */,
