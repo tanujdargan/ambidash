@@ -44,4 +44,10 @@ enum StreakService {
             }
         }
     }
+
+    static func scheduleDriftNudges(for goals: [Goal]) {
+        for goal in goals where goal.isActive && goal.neglectDays >= 5 {
+            NotificationService.scheduleGoalDriftNudge(goalTitle: goal.title, neglectDays: goal.neglectDays)
+        }
+    }
 }

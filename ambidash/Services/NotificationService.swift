@@ -65,4 +65,37 @@ enum NotificationService {
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         center.add(request)
     }
+
+    static func scheduleGoalDriftNudge(goalTitle: String, neglectDays: Int) {
+        let center = UNUserNotificationCenter.current()
+        let id = "drift-\(goalTitle.lowercased().replacingOccurrences(of: " ", with: "-"))"
+        center.removePendingNotificationRequests(withIdentifiers: [id])
+
+        let content = UNMutableNotificationContent()
+        content.title = "\(goalTitle) is slipping"
+        content.body = "You haven't made progress on \(goalTitle) in \(neglectDays) days. At this rate, you're moving backwards."
+        content.sound = .default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3600, repeats: false)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        center.add(request)
+    }
+
+    static func scheduleLossFramingNudge(metric: String, currentValue: String, previousValue: String) {
+        let center = UNUserNotificationCenter.current()
+        let id = "loss-\(metric.lowercased())"
+        center.removePendingNotificationRequests(withIdentifiers: [id])
+
+        let content = UNMutableNotificationContent()
+        content.title = "\(metric) is getting worse"
+        content.body = "Your \(metric.lowercased()) went from \(previousValue) to \(currentValue). You're undoing progress."
+        content.sound = .default
+
+        var dateComponents = DateComponents()
+        dateComponents.hour = 14
+        dateComponents.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        center.add(request)
+    }
 }

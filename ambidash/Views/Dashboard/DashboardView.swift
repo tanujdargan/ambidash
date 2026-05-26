@@ -15,6 +15,11 @@ struct DashboardView: View {
         profile?.goals.filter(\.isActive) ?? []
     }
 
+    private var yesterdaySnapshot: IntegrationSnapshot? {
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
+        return snapshots.first { Calendar.current.isDate($0.date, inSameDayAs: yesterday) }
+    }
+
     private var streakSummary: StreakService.StreakSummary {
         StreakService.summary(for: goals)
     }
@@ -47,7 +52,7 @@ struct DashboardView: View {
                     DimensionBarsView(scores: dimensionScores)
                         .padding(.horizontal)
 
-                    QuickStatsView(snapshot: todaySnapshot)
+                    QuickStatsView(snapshot: todaySnapshot, previousSnapshot: yesterdaySnapshot)
                         .padding(.horizontal)
 
                     if !goals.isEmpty {
@@ -98,6 +103,7 @@ struct DashboardView: View {
                 NotificationService.scheduleDailyReminder()
                 NotificationService.scheduleMorningPlan()
                 StreakService.scheduleWarnings(for: goals)
+                StreakService.scheduleDriftNudges(for: goals)
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)
