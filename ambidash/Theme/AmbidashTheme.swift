@@ -39,31 +39,39 @@ enum ThemeTypography: String, CaseIterable, Codable, Identifiable {
         }
     }
 
-    var serif: String {
-        switch self {
-        case .editorial: "InstrumentSerif-Regular"
-        case .modern: "Newsreader-Regular"
-        case .technical: "Newsreader-Regular"
-        }
-    }
-
-    var sans: String {
-        switch self {
-        case .editorial: ".AppleSystemUIFont"
-        case .modern: ".AppleSystemUIFont"
-        case .technical: ".AppleSystemUIFont"
-        }
-    }
-
-    var mono: String {
-        "Menlo"
-    }
+    var serifDesign: Font.Design { .serif }
+    var sansDesign: Font.Design { .default }
+    var monoDesign: Font.Design { .monospaced }
 
     var serifWeight: Font.Weight {
         switch self {
         case .editorial: .regular
         case .modern: .regular
         case .technical: .medium
+        }
+    }
+
+    var headingWeight: Font.Weight {
+        switch self {
+        case .editorial: .regular
+        case .modern: .medium
+        case .technical: .semibold
+        }
+    }
+
+    var bodySize: CGFloat {
+        switch self {
+        case .editorial: 15
+        case .modern: 14
+        case .technical: 13
+        }
+    }
+
+    var monoSize: CGFloat {
+        switch self {
+        case .editorial: 11
+        case .modern: 11
+        case .technical: 10
         }
     }
 }
