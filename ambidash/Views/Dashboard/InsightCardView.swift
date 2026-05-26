@@ -55,6 +55,11 @@ struct InsightCardView: View {
     }
 
     private func fetchInsight() async {
+        guard PremiumGateService.canFetchInsight() else {
+            insight = "You've used your free insight for today. Upgrade to Premium for unlimited insights."
+            return
+        }
+
         isLoading = true
         hasAttempted = true
         defer { isLoading = false }
@@ -68,6 +73,7 @@ struct InsightCardView: View {
 
         do {
             insight = try await AIService.generateInsight(goals: capturedGoals, snapshot: capturedSnapshot, streakSummary: streakInfo)
+            PremiumGateService.recordInsightFetch()
         } catch {
             insight = nil
         }

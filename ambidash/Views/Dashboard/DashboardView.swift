@@ -104,6 +104,12 @@ struct DashboardView: View {
                 NotificationService.scheduleMorningPlan()
                 StreakService.scheduleWarnings(for: goals)
                 StreakService.scheduleDriftNudges(for: goals)
+                if let profile {
+                    if let newLevel = ScaffoldingService.shouldUpdateLevel(for: profile) {
+                        profile.scaffoldLevel = newLevel.rawValue
+                        try? modelContext.save()
+                    }
+                }
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)

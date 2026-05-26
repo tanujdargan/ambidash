@@ -123,7 +123,8 @@ struct TodayView: View {
                             .foregroundStyle(.white)
                     }
                 } else {
-                    Text(AIConfig.isConfigured ? "Generate AI Plan" : "Generate Today's Plan")
+                    let remaining = PremiumGateService.remainingPlans
+                    Text(remaining > 0 ? (AIConfig.isConfigured ? "Generate AI Plan" : "Generate Plan") : "Upgrade for more plans")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(.white)
                 }
@@ -145,6 +146,7 @@ struct TodayView: View {
 
         Task {
             defer { isGenerating = false }
+            guard PremiumGateService.canGeneratePlan() else { return }
 
             let goals = profile?.goals ?? []
             let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
@@ -154,6 +156,7 @@ struct TodayView: View {
                 if let aiPlan = await generateAIPlan(goals: goals, maxActions: maxActions) {
                     modelContext.insert(aiPlan)
                     try? modelContext.save()
+                    PremiumGateService.recordPlanGeneration()
                     return
                 }
             }
@@ -179,6 +182,7 @@ struct TodayView: View {
 
             modelContext.insert(plan)
             try? modelContext.save()
+            PremiumGateService.recordPlanGeneration()
         }
     }
 
