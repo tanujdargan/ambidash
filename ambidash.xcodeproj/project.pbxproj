@@ -50,7 +50,6 @@
 		83916156AA043F544442BCC8 /* DomainAssessmentQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54A9BFF9287FAC9BE85BE5C /* DomainAssessmentQuestions.swift */; };
 		87C3AE7CC9AF7F96FCA6BA0C /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE6A075761C5F7C13EF2BE1 /* GoalDetailView.swift */; };
 		881E5E27FE3684D31251CB79 /* PriorityListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEADC98E3A42D24399274700 /* PriorityListView.swift */; };
-		89B23DE45174D83F5FA4487F /* ambidash-monitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1CBD2F70C369469AD6F4E148 /* ambidash-monitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F3135818AB6A21667C3011 /* TodayView.swift */; };
 		8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED6CAF811845880023A84FC /* LifeDimension.swift */; };
 		95AB685CED015CDD01A32795 /* PulseScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A26D142678147B1F2B091 /* PulseScoreCalculatorTests.swift */; };
@@ -101,28 +100,7 @@
 			remoteGlobalIDString = C509A9FC71A7CED2FCA21F3A;
 			remoteInfo = ambidash;
 		};
-		9027361F738F7EDC8689EA94 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 021C71ADDCFCB90366084403 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B3DCD28A9232CB58123E071D;
-			remoteInfo = "ambidash-monitor";
-		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		DEAF3A67BBA204325BCCEAEA /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				89B23DE45174D83F5FA4487F /* ambidash-monitor.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		009036D3AB170DBC5C917DD4 /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
@@ -516,12 +494,10 @@
 			buildConfigurationList = B6A812A2FED503F0BC856D73 /* Build configuration list for PBXNativeTarget "ambidash" */;
 			buildPhases = (
 				2A68DF3DA458B84007CDABFF /* Sources */,
-				DEAF3A67BBA204325BCCEAEA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B652CDB3468E34E6A827E6CD /* PBXTargetDependency */,
 			);
 			name = ambidash;
 			packageProductDependencies = (
@@ -668,11 +644,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		B652CDB3468E34E6A827E6CD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B3DCD28A9232CB58123E071D /* ambidash-monitor */;
-			targetProxy = 9027361F738F7EDC8689EA94 /* PBXContainerItemProxy */;
-		};
 		D38CDAE4F6E96E9CA26B4595 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C509A9FC71A7CED2FCA21F3A /* ambidash */;
@@ -711,8 +682,7 @@
 		799311AEE718B0ABABF48523 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = com.apple.deviceactivity.monitor;
+				INFOPLIST_FILE = "ambidash-monitor/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -907,8 +877,7 @@
 		FEB54C356F6E27D515504135 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = com.apple.deviceactivity.monitor;
+				INFOPLIST_FILE = "ambidash-monitor/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

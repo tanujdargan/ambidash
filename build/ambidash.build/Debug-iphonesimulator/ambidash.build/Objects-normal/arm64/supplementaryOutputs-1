@@ -1,0 +1,23 @@
+{
+  "/Users/tanujd/dev/ambidash/ambidash/App/AmbidashApp.swift" : {
+    "const-values" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/AmbidashApp.swiftconstvalues",
+    "dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/AmbidashApp.d",
+    "diagnostics" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/AmbidashApp.dia",
+    "object" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/AmbidashApp.o",
+    "swift-dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/AmbidashApp.swiftdeps"
+  },
+  "/Users/tanujd/dev/ambidash/ambidash/Models/CoreAssessment.swift" : {
+    "const-values" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/CoreAssessment.swiftconstvalues",
+    "dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/CoreAssessment.d",
+    "diagnostics" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/CoreAssessment.dia",
+    "object" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/CoreAssessment.o",
+    "swift-dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/CoreAssessment.swiftdeps"
+  },
+  "/Users/tanujd/dev/ambidash/ambidash/Models/DailyPlan.swift" : {
+    "const-values" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DailyPlan.swiftconstvalues",
+    "dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DailyPlan.d",
+    "diagnostics" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DailyPlan.dia",
+    "object" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DailyPlan.o",
+    "swift-dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DailyPlan.swiftdeps"
+  }
+}

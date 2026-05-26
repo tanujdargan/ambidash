@@ -1,0 +1,16 @@
+{
+  "source": "/Users/tanujd/dev/ambidash/ambidash/Views/Today/PriorityListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 27
+        }
+      }
+    ]
+  },
+  "version": 1
+}

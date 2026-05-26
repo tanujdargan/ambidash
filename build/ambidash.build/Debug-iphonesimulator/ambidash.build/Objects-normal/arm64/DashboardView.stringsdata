@@ -1,0 +1,40 @@
+{
+  "source": "/Users/tanujd/dev/ambidash/ambidash/Views/Dashboard/DashboardView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Dashboard",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 117
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld active streak%@",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 68
+        }
+      },
+      {
+        "comment": "",
+        "key": "Best: %lldd",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ streak (%lldd) ends tonight",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 82
+        }
+      }
+    ]
+  },
+  "version": 1
+}

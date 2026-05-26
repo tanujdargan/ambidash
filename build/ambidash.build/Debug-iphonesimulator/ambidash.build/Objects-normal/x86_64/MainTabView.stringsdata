@@ -1,0 +1,72 @@
+{
+  "source": "/Users/tanujd/dev/ambidash/ambidash/App/MainTabView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Dashboard",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 17
+        }
+      },
+      {
+        "comment": "",
+        "key": "Today",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "Goals",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reflect",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Dashboard",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Today",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Goals",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reflect",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 50
+        }
+      }
+    ]
+  },
+  "version": 1
+}

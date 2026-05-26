@@ -1,0 +1,40 @@
+{
+  "source": "/Users/tanujd/dev/ambidash/ambidash/Views/Reflect/HonestMirrorView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Tap to get honest feedback on your day.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "HONEST MIRROR",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 17
+        }
+      },
+      {
+        "comment": "",
+        "key": "HONEST MIRROR",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Upgrade to Premium for AI-powered honest feedback on your day.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 52
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,72 @@
+{
+  "source": "/Users/tanujd/dev/ambidash/ambidash/Views/Today/SingleActionView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Focus on this now",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld/%lld done",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld minutes",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 47
+        }
+      },
+      {
+        "comment": "",
+        "key": "Why this matters",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Mark Done",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 70
+        }
+      },
+      {
+        "comment": "",
+        "key": "Skip",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "All done for today!",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "You completed %lld action%@. Great work.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 104
+        }
+      }
+    ]
+  },
+  "version": 1
+}

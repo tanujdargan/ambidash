@@ -1,0 +1,23 @@
+{
+  "/Users/tanujd/dev/ambidash/ambidash/Models/DomainAssessment.swift" : {
+    "const-values" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DomainAssessment.swiftconstvalues",
+    "dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DomainAssessment.d",
+    "diagnostics" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DomainAssessment.dia",
+    "object" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DomainAssessment.o",
+    "swift-dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DomainAssessment.swiftdeps"
+  },
+  "/Users/tanujd/dev/ambidash/ambidash/Models/Goal.swift" : {
+    "const-values" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/Goal.swiftconstvalues",
+    "dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/Goal.d",
+    "diagnostics" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/Goal.dia",
+    "object" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/Goal.o",
+    "swift-dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/Goal.swiftdeps"
+  },
+  "/Users/tanujd/dev/ambidash/ambidash/Views/Dashboard/DashboardView.swift" : {
+    "const-values" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DashboardView.swiftconstvalues",
+    "dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DashboardView.d",
+    "diagnostics" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DashboardView.dia",
+    "object" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DashboardView.o",
+    "swift-dependencies" : "/Users/tanujd/dev/ambidash/build/ambidash.build/Debug-iphonesimulator/ambidash.build/Objects-normal/arm64/DashboardView.swiftdeps"
+  }
+}
