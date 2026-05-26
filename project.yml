@@ -40,6 +40,9 @@ targets:
           - "iCloud.com.ambidash.app"
         com.apple.developer.icloud-services:
           - "CloudKit"
+    dependencies:
+      - target: ambidash-monitor
+        embed: true
 
   ambidashTests:
     type: bundle.unit-test
@@ -52,3 +55,17 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: true
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.tests
+
+  ambidash-monitor:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ambidash-monitor
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.monitor
+        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.deviceactivity.monitor
+    dependencies:
+      - sdk: DeviceActivity.framework
+      - sdk: ManagedSettings.framework

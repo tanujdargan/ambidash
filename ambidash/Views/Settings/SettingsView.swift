@@ -125,6 +125,23 @@ struct SettingsView: View {
                             .font(.caption)
                         }
                     }
+
+                    HStack {
+                        Image(systemName: "hourglass")
+                            .foregroundStyle(.orange)
+                        Text("Screen Time")
+                        Spacer()
+                        if ScreenTimeService.shared.isAuthorized {
+                            Text("Connected")
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                        } else {
+                            Button("Connect") {
+                                Task { await ScreenTimeService.shared.requestAuthorization() }
+                            }
+                            .font(.caption)
+                        }
+                    }
                 }
 
                 Section("AI Scaffolding") {

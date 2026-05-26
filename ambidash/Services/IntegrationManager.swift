@@ -9,6 +9,7 @@ final class IntegrationManager {
     private let eventKit = EventKitService.shared
     private let notion = NotionService.shared
     private let obsidian = ObsidianService.shared
+    private let screenTime = ScreenTimeService.shared
 
     var healthAuthorized = false
     var calendarAuthorized = false
@@ -61,6 +62,13 @@ final class IntegrationManager {
         if obsidian.isConnected {
             let obsidianActivity = await obsidian.fetchVaultActivity()
             raw.obsidianNotesModifiedToday = obsidianActivity.notesModifiedToday
+        }
+
+        if screenTime.isAuthorized {
+            let screenData = await screenTime.fetchTodayScreenTime()
+            raw.screenTimeHours = screenData.totalHours
+            raw.screenCategories = screenData.categories
+            raw.pickups = screenData.pickups
         }
 
         let calendar = Calendar.current
