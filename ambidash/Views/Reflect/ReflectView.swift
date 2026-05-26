@@ -26,6 +26,7 @@ struct ReflectView: View {
                 Picker("Review Type", selection: $selectedTab) {
                     Text("Daily").tag(0)
                     Text("Weekly").tag(1)
+                    Text("Monthly").tag(2)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
@@ -58,8 +59,10 @@ struct ReflectView: View {
                         }
                         .padding()
                     }
-                } else {
+                } else if selectedTab == 1 {
                     WeeklyReviewView()
+                } else if selectedTab == 2 {
+                    MonthlyReviewView()
                 }
             }
             .navigationTitle("Reflect")
