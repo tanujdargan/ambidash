@@ -34,67 +34,97 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(greeting)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        Text(Date.now.formatted(.dateTime.weekday(.wide).month().day()))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
+            ZStack(alignment: .top) {
+                AmbidashTheme.bgBase
+                    .ignoresSafeArea()
 
-                    PulseScoreView(score: pulseScore, trend: 0)
+                ScrollView {
+                    VStack(spacing: AmbidashTheme.spacingLG) {
 
-                    DimensionBarsView(scores: dimensionScores)
-                        .padding(.horizontal)
-
-                    QuickStatsView(snapshot: todaySnapshot, previousSnapshot: yesterdaySnapshot)
-                        .padding(.horizontal)
-
-                    if !goals.isEmpty {
-                        GoalStripView(goals: goals)
-                    }
-
-                    // Streak summary
-                    if streakSummary.totalActiveStreaks > 0 {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "flame.fill")
-                                    .foregroundStyle(.orange)
-                                Text("\(streakSummary.totalActiveStreaks) active streak\(streakSummary.totalActiveStreaks == 1 ? "" : "s")")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                Spacer()
-                                Text("Best: \(streakSummary.longestCurrentStreak)d")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        // Custom header
+                        HStack(alignment: .bottom) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(Date.now.formatted(.dateTime.weekday(.wide).month().day()))
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundStyle(AmbidashTheme.textTertiary)
+                                    .tracking(0.3)
+                                Text(greeting)
+                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .foregroundStyle(AmbidashTheme.textPrimary)
                             }
-
-                            ForEach(streakSummary.atRiskStreaks, id: \.goalTitle) { risk in
-                                HStack(spacing: 6) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .font(.caption2)
-                                        .foregroundStyle(.orange)
-                                    Text("\(risk.goalTitle) streak (\(risk.count)d) ends tonight")
-                                        .font(.caption)
-                                        .foregroundStyle(.orange)
-                                }
+                            Spacer()
+                            Button {
+                                showSettings = true
+                            } label: {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 18, weight: .medium))
+                                    .foregroundStyle(AmbidashTheme.textSecondary)
+                                    .frame(width: 36, height: 36)
+                                    .background(AmbidashTheme.bgElevated)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Circle()
+                                            .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                                    )
                             }
                         }
-                        .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .padding(.horizontal)
-                    }
+                        .padding(.horizontal, AmbidashTheme.spacingMD)
+                        .padding(.top, AmbidashTheme.spacingSM)
 
-                    InsightCardView(goals: goals, snapshot: todaySnapshot)
-                        .padding(.horizontal)
+                        PulseScoreView(score: pulseScore, trend: 0)
+
+                        CardView {
+                            DimensionBarsView(scores: dimensionScores)
+                        }
+                        .padding(.horizontal, AmbidashTheme.spacingMD)
+
+                        QuickStatsView(snapshot: todaySnapshot, previousSnapshot: yesterdaySnapshot)
+                            .padding(.horizontal, AmbidashTheme.spacingMD)
+
+                        if !goals.isEmpty {
+                            VStack(alignment: .leading, spacing: AmbidashTheme.spacingSM) {
+                                SectionHeader(title: "Active Goals")
+                                    .padding(.horizontal, AmbidashTheme.spacingMD)
+                                GoalStripView(goals: goals)
+                            }
+                        }
+
+                        // Streak summary
+                        if streakSummary.totalActiveStreaks > 0 {
+                            CardView {
+                                VStack(alignment: .leading, spacing: AmbidashTheme.spacingSM) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "flame.fill")
+                                            .foregroundStyle(AmbidashTheme.statusWarn)
+                                        Text("\(streakSummary.totalActiveStreaks) active streak\(streakSummary.totalActiveStreaks == 1 ? "" : "s")")
+                                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                            .foregroundStyle(AmbidashTheme.textPrimary)
+                                        Spacer()
+                                        Text("Best: \(streakSummary.longestCurrentStreak)d")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundStyle(AmbidashTheme.textTertiary)
+                                    }
+
+                                    ForEach(streakSummary.atRiskStreaks, id: \.goalTitle) { risk in
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                                .font(.caption2)
+                                                .foregroundStyle(AmbidashTheme.statusWarn)
+                                            Text("\(risk.goalTitle) streak (\(risk.count)d) ends tonight")
+                                                .font(.system(size: 12))
+                                                .foregroundStyle(AmbidashTheme.statusWarn)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, AmbidashTheme.spacingMD)
+                        }
+
+                        InsightCardView(goals: goals, snapshot: todaySnapshot)
+                            .padding(.horizontal, AmbidashTheme.spacingMD)
+                    }
+                    .padding(.vertical, AmbidashTheme.spacingMD)
                 }
-                .padding(.vertical)
             }
             .task {
                 await manager.requestAllPermissions()
@@ -114,21 +144,12 @@ struct DashboardView: View {
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)
             }
-            .navigationTitle("Dashboard")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                }
-            }
+            .navigationBarHidden(true)
             .sheet(isPresented: $showSettings) {
                 SettingsView()
             }
         }
+        .preferredColorScheme(.dark)
     }
 
     private var greeting: String {

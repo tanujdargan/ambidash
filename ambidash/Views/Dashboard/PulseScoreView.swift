@@ -5,39 +5,41 @@ struct PulseScoreView: View {
     let trend: Int
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             ZStack {
+                // Glow behind ring
                 Circle()
-                    .stroke(Color(.systemGray5), lineWidth: 8)
+                    .frame(width: 130, height: 130)
+                    .shadow(color: AmbidashTheme.accentGlow.opacity(0.3), radius: 20)
+
+                // Background ring
+                Circle()
+                    .stroke(AmbidashTheme.bgElevated, lineWidth: 8)
                     .frame(width: 120, height: 120)
 
+                // Progress ring
                 Circle()
                     .trim(from: 0, to: CGFloat(score) / 100)
-                    .stroke(scoreColor, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                    .stroke(AmbidashTheme.accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                     .frame(width: 120, height: 120)
                     .rotationEffect(.degrees(-90))
 
                 VStack(spacing: 2) {
                     Text("\(score)")
-                        .font(.system(size: 36, weight: .bold, design: .rounded))
+                        .font(.system(size: 40, weight: .heavy, design: .rounded))
+                        .foregroundStyle(AmbidashTheme.textPrimary)
                     Text("PULSE")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .tracking(1)
+                        .foregroundStyle(AmbidashTheme.textTertiary)
+                        .tracking(2)
                 }
             }
 
             if trend != 0 {
                 Text("\(trend > 0 ? "▲" : "▼") \(abs(trend)) from yesterday")
-                    .font(.caption)
-                    .foregroundStyle(trend > 0 ? .green : .red)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(trend > 0 ? AmbidashTheme.statusGood : AmbidashTheme.statusBad)
             }
         }
-    }
-
-    private var scoreColor: Color {
-        if score >= 70 { return .green }
-        if score >= 45 { return .orange }
-        return .red
     }
 }

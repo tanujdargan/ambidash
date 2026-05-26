@@ -30,65 +30,60 @@ struct SingleActionView: View {
     private func actionCard(_ action: PlannedAction) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
-                Text("Focus on this now")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                Text("RIGHT NOW")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(AmbidashTheme.accent)
+                    .tracking(1.2)
                     .textCase(.uppercase)
                 Spacer()
                 Text("\(completedCount)/\(actions.count) done")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
             }
 
             VStack(alignment: .leading, spacing: 12) {
                 Text(action.title)
                     .font(.title2.weight(.bold))
+                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                 Label("\(action.durationMinutes) minutes", systemImage: "clock")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
 
                 if !action.whyReasoning.isEmpty {
                     Divider()
+                        .background(AmbidashTheme.border)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Why this matters")
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(AmbidashTheme.textTertiary)
                             .textCase(.uppercase)
 
                         Text(action.whyReasoning)
                             .font(.body)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
 
-            HStack(spacing: 16) {
-                Button(action: { onDone(action) }) {
-                    Label("Mark Done", systemImage: "checkmark.circle.fill")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.green, in: RoundedRectangle(cornerRadius: 12))
+            VStack(spacing: 10) {
+                AccentButton("Mark Done", icon: "checkmark.circle.fill") {
+                    onDone(action)
                 }
-                .buttonStyle(.plain)
-
-                Button(action: { onSkip(action) }) {
-                    Label("Skip", systemImage: "forward.fill")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color(.systemGray5), in: RoundedRectangle(cornerRadius: 12))
+                GhostButton(title: "Skip") {
+                    onSkip(action)
                 }
-                .buttonStyle(.plain)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+        .padding(AmbidashTheme.spacingMD)
+        .background(AmbidashTheme.bgCard)
+        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .overlay(
+            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
+                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+        )
     }
 
     @ViewBuilder
@@ -96,18 +91,24 @@ struct SingleActionView: View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 56))
-                .foregroundStyle(.green)
+                .foregroundStyle(AmbidashTheme.statusGood)
 
             Text("All done for today!")
                 .font(.title2.weight(.bold))
+                .foregroundStyle(AmbidashTheme.textPrimary)
 
             Text("You completed \(completedCount) action\(completedCount == 1 ? "" : "s"). Great work.")
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AmbidashTheme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(32)
-        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+        .background(AmbidashTheme.bgCard)
+        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .overlay(
+            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
+                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+        )
     }
 }

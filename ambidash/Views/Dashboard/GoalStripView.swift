@@ -10,7 +10,7 @@ struct GoalStripView: View {
                     GoalChip(goal: goal)
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, AmbidashTheme.spacingMD)
         }
     }
 }
@@ -18,21 +18,41 @@ struct GoalStripView: View {
 private struct GoalChip: View {
     let goal: Goal
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(goal.title)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .lineLimit(1)
-
-            Text(GoalHealthService.summaryText(for: goal))
-                .font(.caption2)
-                .foregroundStyle(goal.computedStatus.color)
-                .lineLimit(1)
+    private var statusColor: Color {
+        switch goal.computedStatus {
+        case .onTrack: AmbidashTheme.statusGood
+        case .needsAttention: AmbidashTheme.statusWarn
+        case .slipping: AmbidashTheme.statusBad
+        case .paused: AmbidashTheme.textTertiary
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // Left accent border
+            Rectangle()
+                .fill(AmbidashTheme.dimensionColor(for: goal.domain.dimension))
+                .frame(width: 3)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(goal.title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .lineLimit(1)
+
+                Text(GoalHealthService.summaryText(for: goal))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(statusColor)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+        }
+        .background(AmbidashTheme.bgCard)
+        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+        .overlay(
+            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+        )
     }
 }

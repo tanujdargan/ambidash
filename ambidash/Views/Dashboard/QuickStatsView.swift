@@ -12,25 +12,22 @@ struct QuickStatsView: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             StatBox(
                 value: snapshot.map { String(format: "%.1fh", $0.sleepHours) } ?? "—",
                 label: "Sleep",
-                color: .purple,
                 trend: trend(current: snapshot?.sleepHours ?? 0, previous: previousSnapshot?.sleepHours),
                 trendIsGood: (snapshot?.sleepHours ?? 0) >= (previousSnapshot?.sleepHours ?? 0)
             )
             StatBox(
                 value: snapshot.map { String(format: "%.1fh", $0.screenTimeHours) } ?? "—",
                 label: "Screen",
-                color: .red,
                 trend: trend(current: snapshot?.screenTimeHours ?? 0, previous: previousSnapshot?.screenTimeHours),
                 trendIsGood: (snapshot?.screenTimeHours ?? 0) <= (previousSnapshot?.screenTimeHours ?? 0)
             )
             StatBox(
                 value: snapshot.map { "\(String(format: "%.1f", Double($0.steps) / 1000))k" } ?? "—",
                 label: "Steps",
-                color: .green,
                 trend: trend(current: Double(snapshot?.steps ?? 0), previous: previousSnapshot.map { Double($0.steps) }),
                 trendIsGood: (snapshot?.steps ?? 0) >= (previousSnapshot?.steps ?? 0)
             )
@@ -41,29 +38,32 @@ struct QuickStatsView: View {
 private struct StatBox: View {
     let value: String
     let label: String
-    let color: Color
     var trend: String? = nil
     var trendIsGood: Bool = true
 
     var body: some View {
-        VStack(spacing: 4) {
-            HStack(spacing: 2) {
+        VStack(spacing: 5) {
+            HStack(spacing: 3) {
                 Text(value)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundStyle(color)
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundStyle(AmbidashTheme.textPrimary)
                 if let trend {
                     Text(trend)
-                        .font(.system(size: 10))
-                        .foregroundStyle(trendIsGood ? .green : .red)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(trendIsGood ? AmbidashTheme.statusGood : AmbidashTheme.statusBad)
                 }
             }
             Text(label)
-                .font(.system(size: 10))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(AmbidashTheme.textTertiary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.vertical, 14)
+        .background(AmbidashTheme.bgCard)
+        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+        .overlay(
+            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+        )
     }
 }

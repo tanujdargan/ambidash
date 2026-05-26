@@ -10,38 +10,50 @@ struct InsightCardView: View {
     @State private var hasAttempted = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("PATTERN SPOTTED")
-                .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(.blue)
-                .tracking(0.5)
+        HStack(spacing: 0) {
+            // Left accent border
+            Rectangle()
+                .fill(AmbidashTheme.accent)
+                .frame(width: 3)
 
-            if isLoading {
-                HStack(spacing: 8) {
-                    ProgressView()
-                        .controlSize(.small)
-                    Text("Analyzing your patterns...")
+            VStack(alignment: .leading, spacing: 8) {
+                Text("PATTERN SPOTTED")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(AmbidashTheme.accent)
+                    .tracking(1.2)
+
+                if isLoading {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                            .tint(AmbidashTheme.accent)
+                        Text("Analyzing your patterns...")
+                            .font(.subheadline)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
+                    }
+                } else if let insight {
+                    Text(insight)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AmbidashTheme.textPrimary)
+                } else if !AIConfig.isConfigured {
+                    Text("Set your Anthropic API key in Settings to unlock AI-powered insights.")
+                        .font(.subheadline)
+                        .foregroundStyle(AmbidashTheme.textSecondary)
+                } else {
+                    Text("Tap to generate an insight about your patterns.")
+                        .font(.subheadline)
+                        .foregroundStyle(AmbidashTheme.textSecondary)
                 }
-            } else if let insight {
-                Text(insight)
-                    .font(.subheadline)
-                    .foregroundStyle(.primary)
-            } else if !AIConfig.isConfigured {
-                Text("Set your Anthropic API key in Settings to unlock AI-powered insights.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("Tap to generate an insight about your patterns.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
             }
+            .padding(AmbidashTheme.spacingMD)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(AmbidashTheme.bgCard)
+        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .overlay(
+            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
+                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+        )
         .onTapGesture {
             if !isLoading && AIConfig.isConfigured {
                 Task { await fetchInsight() }
