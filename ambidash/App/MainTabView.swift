@@ -26,6 +26,9 @@ private struct MainTabView18: View {
             Tab("Reflect", systemImage: "pencil.line") {
                 ReflectView()
             }
+            Tab("Mentor", systemImage: "envelope") {
+                MentorView()
+            }
         }
     }
 }
@@ -48,6 +51,10 @@ private struct MainTabView17: View {
             ReflectView()
                 .tabItem {
                     Label("Reflect", systemImage: "pencil.line")
+                }
+            MentorView()
+                .tabItem {
+                    Label("Mentor", systemImage: "envelope")
                 }
         }
     }
