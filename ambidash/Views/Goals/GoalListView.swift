@@ -17,25 +17,34 @@ struct GoalListView: View {
                 let paused = goals.filter { !$0.isActive }
 
                 if !active.isEmpty {
-                    Section("Active") {
+                    Section {
                         ForEach(active) { goal in
                             NavigationLink(value: goal.id) {
                                 GoalRow(goal: goal)
                             }
+                            .listRowBackground(AmbidashTheme.bgCard)
                         }
+                    } header: {
+                        SectionHeader(title: "Active")
                     }
                 }
 
                 if !paused.isEmpty {
-                    Section("Paused") {
+                    Section {
                         ForEach(paused) { goal in
                             NavigationLink(value: goal.id) {
                                 GoalRow(goal: goal)
                             }
+                            .listRowBackground(AmbidashTheme.bgCard)
                         }
+                    } header: {
+                        SectionHeader(title: "Paused")
                     }
                 }
             }
+            .listStyle(.plain)
+            .background(AmbidashTheme.bgBase)
+            .scrollContentBackground(.hidden)
             .navigationTitle("Goals")
             .navigationDestination(for: UUID.self) { goalId in
                 if let goal = goals.first(where: { $0.id == goalId }) {
@@ -77,6 +86,7 @@ private struct GoalRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(goal.title)
                     .font(.body)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
                 Text(GoalHealthService.summaryText(for: goal))
                     .font(.caption)
                     .foregroundStyle(goal.computedStatus.color)
@@ -88,10 +98,10 @@ private struct GoalRow: View {
                 HStack(spacing: 2) {
                     Image(systemName: "flame.fill")
                         .font(.caption2)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(AmbidashTheme.statusWarn)
                     Text("\(streak.currentCount)")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AmbidashTheme.textSecondary)
                 }
             }
         }

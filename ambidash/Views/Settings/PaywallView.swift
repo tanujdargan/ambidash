@@ -13,15 +13,16 @@ struct PaywallView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 48))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(AmbidashTheme.accent)
 
                         Text("ambidash Premium")
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundStyle(AmbidashTheme.accent)
 
                         Text("Unlock the full AI mentor experience")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                     }
                     .padding(.top, 32)
 
@@ -37,14 +38,15 @@ struct PaywallView: View {
 
                     if subscription.isLoading {
                         ProgressView()
+                            .tint(AmbidashTheme.accent)
                     } else if subscription.products.isEmpty {
                         VStack(spacing: 12) {
                             Text("Products not available")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AmbidashTheme.textSecondary)
                             Text("Subscription products will be available once configured in App Store Connect.")
                                 .font(.caption)
-                                .foregroundStyle(.tertiary)
+                                .foregroundStyle(AmbidashTheme.textTertiary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding()
@@ -61,17 +63,23 @@ struct PaywallView: View {
                                         VStack(alignment: .leading) {
                                             Text(product.displayName)
                                                 .font(.headline)
+                                                .foregroundStyle(AmbidashTheme.textPrimary)
                                             Text(product.description)
                                                 .font(.caption)
-                                                .foregroundStyle(.secondary)
+                                                .foregroundStyle(AmbidashTheme.textSecondary)
                                         }
                                         Spacer()
                                         Text(product.displayPrice)
                                             .font(.headline)
+                                            .foregroundStyle(AmbidashTheme.accent)
                                     }
                                     .padding()
-                                    .background(Color(.secondarySystemBackground))
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .background(AmbidashTheme.bgCard)
+                                    .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                                            .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                                    )
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -83,9 +91,10 @@ struct PaywallView: View {
                         Task { await subscription.restorePurchases() }
                     }
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
                 }
             }
+            .background(AmbidashTheme.bgBase)
             .navigationTitle("Premium")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -107,10 +116,11 @@ private struct FeatureRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundStyle(.blue)
+                .foregroundStyle(AmbidashTheme.accent)
                 .frame(width: 24)
             Text(text)
                 .font(.subheadline)
+                .foregroundStyle(AmbidashTheme.textPrimary)
         }
     }
 }

@@ -10,11 +10,12 @@ struct AssessmentQuestionView: View {
                 Text(question.text)
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                 if !question.subtitle.isEmpty {
                     Text(question.subtitle)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AmbidashTheme.textSecondary)
                 }
             }
 
@@ -38,25 +39,26 @@ struct AssessmentQuestionView: View {
                                 Text(option.label)
                                     .font(.body)
                                     .fontWeight(isSelected ? .semibold : .regular)
+                                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                                 if !option.description.isEmpty {
                                     Text(option.description)
                                         .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(AmbidashTheme.textSecondary)
                                 }
                             }
                             Spacer()
                             if isSelected {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(AmbidashTheme.accent)
                             }
                         }
                         .padding(14)
-                        .background(isSelected ? Color.blue.opacity(0.1) : Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .background(isSelected ? AmbidashTheme.accent.opacity(0.15) : AmbidashTheme.bgCard)
+                        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1.5)
+                            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                                .stroke(isSelected ? AmbidashTheme.accent : AmbidashTheme.border, lineWidth: isSelected ? 1.5 : 0.5)
                         )
                     }
                     .buttonStyle(.plain)

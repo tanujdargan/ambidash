@@ -25,89 +25,80 @@ struct WeeklyReviewView: View {
                 Text("Weekly Review")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                 // Action Stats
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("ACTIONS")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.secondary)
-                        .tracking(0.5)
+                CardView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        SectionHeader(title: "Actions")
 
-                    let totalActions = weekPlans.flatMap(\.actions)
-                    let doneCount = totalActions.filter { $0.statusRaw == "done" }.count
-                    let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
+                        let totalActions = weekPlans.flatMap(\.actions)
+                        let doneCount = totalActions.filter { $0.statusRaw == "done" }.count
+                        let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
 
-                    HStack(spacing: 24) {
-                        StatColumn(value: "\(doneCount)", label: "Completed", color: .green)
-                        StatColumn(value: "\(skippedCount)", label: "Skipped", color: .red)
-                        StatColumn(value: "\(weekPlans.count)", label: "Plans Made", color: .blue)
+                        HStack(spacing: 24) {
+                            StatColumn(value: "\(doneCount)", label: "Completed", color: AmbidashTheme.statusGood)
+                            StatColumn(value: "\(skippedCount)", label: "Skipped", color: AmbidashTheme.statusBad)
+                            StatColumn(value: "\(weekPlans.count)", label: "Plans Made", color: AmbidashTheme.accent)
+                        }
                     }
                 }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 // Health Averages
                 if !weekSnapshots.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("HEALTH AVERAGES")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.secondary)
-                            .tracking(0.5)
+                    CardView {
+                        VStack(alignment: .leading, spacing: 8) {
+                            SectionHeader(title: "Health Averages")
 
-                        let avgSleep = weekSnapshots.map(\.sleepHours).reduce(0, +) / Double(weekSnapshots.count)
-                        let avgScreen = weekSnapshots.map(\.screenTimeHours).reduce(0, +) / Double(weekSnapshots.count)
-                        let avgSteps = weekSnapshots.map { Double($0.steps) }.reduce(0, +) / Double(weekSnapshots.count)
+                            let avgSleep = weekSnapshots.map(\.sleepHours).reduce(0, +) / Double(weekSnapshots.count)
+                            let avgScreen = weekSnapshots.map(\.screenTimeHours).reduce(0, +) / Double(weekSnapshots.count)
+                            let avgSteps = weekSnapshots.map { Double($0.steps) }.reduce(0, +) / Double(weekSnapshots.count)
 
-                        HStack(spacing: 24) {
-                            StatColumn(value: String(format: "%.1fh", avgSleep), label: "Avg Sleep", color: avgSleep >= 7 ? .green : .orange)
-                            StatColumn(value: String(format: "%.1fh", avgScreen), label: "Avg Screen", color: avgScreen <= 3 ? .green : .red)
-                            StatColumn(value: String(format: "%.0f", avgSteps), label: "Avg Steps", color: avgSteps >= 8000 ? .green : .orange)
+                            HStack(spacing: 24) {
+                                StatColumn(value: String(format: "%.1fh", avgSleep), label: "Avg Sleep", color: avgSleep >= 7 ? AmbidashTheme.statusGood : AmbidashTheme.statusWarn)
+                                StatColumn(value: String(format: "%.1fh", avgScreen), label: "Avg Screen", color: avgScreen <= 3 ? AmbidashTheme.statusGood : AmbidashTheme.statusBad)
+                                StatColumn(value: String(format: "%.0f", avgSteps), label: "Avg Steps", color: avgSteps >= 8000 ? AmbidashTheme.statusGood : AmbidashTheme.statusWarn)
+                            }
                         }
                     }
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
                 // Goal Health
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("GOAL HEALTH")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.secondary)
-                        .tracking(0.5)
+                CardView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        SectionHeader(title: "Goal Health")
 
-                    let goals = profile?.goals.filter(\.isActive) ?? []
-                    ForEach(goals) { goal in
-                        HStack {
-                            Circle()
-                                .fill(goal.computedStatus.color)
-                                .frame(width: 8, height: 8)
-                            Text(goal.title)
-                                .font(.subheadline)
-                            Spacer()
-                            Text(goal.computedStatus.label)
-                                .font(.caption)
-                                .foregroundStyle(goal.computedStatus.color)
-                            if let streak = goal.streak, streak.currentCount > 0 {
-                                HStack(spacing: 2) {
-                                    Image(systemName: "flame.fill")
-                                        .font(.caption2)
-                                        .foregroundStyle(.orange)
-                                    Text("\(streak.currentCount)d")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
+                        let goals = profile?.goals.filter(\.isActive) ?? []
+                        ForEach(goals) { goal in
+                            HStack {
+                                Circle()
+                                    .fill(goal.computedStatus.color)
+                                    .frame(width: 8, height: 8)
+                                Text(goal.title)
+                                    .font(.subheadline)
+                                    .foregroundStyle(AmbidashTheme.textPrimary)
+                                Spacer()
+                                Text(goal.computedStatus.label)
+                                    .font(.caption)
+                                    .foregroundStyle(goal.computedStatus.color)
+                                if let streak = goal.streak, streak.currentCount > 0 {
+                                    HStack(spacing: 2) {
+                                        Image(systemName: "flame.fill")
+                                            .font(.caption2)
+                                            .foregroundStyle(AmbidashTheme.statusWarn)
+                                        Text("\(streak.currentCount)d")
+                                            .font(.caption2)
+                                            .foregroundStyle(AmbidashTheme.textSecondary)
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding()
         }
+        .background(AmbidashTheme.bgBase)
     }
 }
 
@@ -123,7 +114,7 @@ private struct StatColumn: View {
                 .foregroundStyle(color)
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AmbidashTheme.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }

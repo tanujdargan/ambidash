@@ -16,29 +16,40 @@ struct HonestMirrorView: View {
                     HStack {
                         Text("HONEST MIRROR")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.red)
-                            .tracking(0.5)
+                            .foregroundStyle(AmbidashTheme.statusBad)
+                            .tracking(1.2)
                         Spacer()
                         if isLoading {
                             ProgressView()
                                 .controlSize(.small)
+                                .tint(AmbidashTheme.textSecondary)
                         }
                     }
 
                     if let feedback {
                         Text(feedback)
                             .font(.subheadline)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(AmbidashTheme.textPrimary)
                             .lineSpacing(2)
                     } else if !isLoading {
                         Text("Tap to get honest feedback on your day.")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                     }
                 }
                 .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background(AmbidashTheme.bgCard)
+                .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                .overlay(
+                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                        .stroke(AmbidashTheme.statusBad.opacity(0.4), lineWidth: 1)
+                )
+                .overlay(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(AmbidashTheme.statusBad)
+                        .frame(width: 3)
+                        .padding(.vertical, 8)
+                }
                 .onTapGesture {
                     if !isLoading { Task { await fetchFeedback() } }
                 }
@@ -47,15 +58,19 @@ struct HonestMirrorView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("HONEST MIRROR")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.red)
-                    .tracking(0.5)
+                    .foregroundStyle(AmbidashTheme.statusBad)
+                    .tracking(1.2)
                 Text("Upgrade to Premium for AI-powered honest feedback on your day.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
             }
             .padding()
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .background(AmbidashTheme.bgCard)
+            .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+            .overlay(
+                RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                    .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            )
         }
     }
 

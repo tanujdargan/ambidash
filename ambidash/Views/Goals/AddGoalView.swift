@@ -17,6 +17,7 @@ struct AddGoalView: View {
             Form {
                 Section("Goal") {
                     TextField("What do you want to achieve?", text: $title)
+                        .foregroundStyle(AmbidashTheme.textPrimary)
 
                     Picker("Domain", selection: $selectedDomain) {
                         ForEach(GoalDomain.allCases) { domain in
@@ -25,13 +26,17 @@ struct AddGoalView: View {
                         }
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
 
                 Section {
                     Text("Mapped to: \(selectedDomain.dimension.displayName) dimension")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AmbidashTheme.textSecondary)
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
             }
+            .scrollContentBackground(.hidden)
+            .background(AmbidashTheme.bgBase)
             .navigationTitle("Add Goal")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $newGoal) { goal in

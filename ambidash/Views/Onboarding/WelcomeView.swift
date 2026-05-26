@@ -14,53 +14,62 @@ struct WelcomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 32) {
-                Spacer()
+            ZStack {
+                AmbidashTheme.bgDeep.ignoresSafeArea()
 
-                VStack(spacing: 12) {
-                    Text("ambidash")
-                        .font(.system(size: 42, weight: .bold, design: .rounded))
-                    Text("Your life, one dashboard.")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
+                VStack(spacing: 32) {
+                    Spacer()
+
+                    VStack(spacing: 12) {
+                        Text("ambidash")
+                            .font(.system(size: 44, weight: .bold, design: .rounded))
+                            .foregroundStyle(AmbidashTheme.textPrimary)
+                        Text("Your life, one dashboard.")
+                            .font(.title3)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
+                    }
+
+                    VStack(spacing: 16) {
+                        TextField("What's your name?", text: $name)
+                            .font(.title3)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 20)
+                            .background(AmbidashTheme.bgElevated)
+                            .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                            .padding(.horizontal, 32)
+
+                        TextField("Age", text: $age)
+                            .font(.title3)
+                            .multilineTextAlignment(.center)
+                            .keyboardType(.numberPad)
+                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 20)
+                            .background(AmbidashTheme.bgElevated)
+                            .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                            .padding(.horizontal, 32)
+
+                        Text("~5 minutes to set up")
+                            .font(.caption)
+                            .foregroundStyle(AmbidashTheme.textTertiary)
+                    }
+
+                    Spacer()
+
+                    AccentButton("Let's go", icon: "arrow.right") {
+                        let profile = UserProfile(
+                            name: name.trimmingCharacters(in: .whitespaces),
+                            age: Int(age) ?? 0
+                        )
+                        modelContext.insert(profile)
+                        showAssessment = true
+                    }
+                    .disabled(!isValid)
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 48)
                 }
-
-                VStack(spacing: 16) {
-                    TextField("What's your name?", text: $name)
-                        .font(.title3)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 48)
-
-                    TextField("Age", text: $age)
-                        .font(.title3)
-                        .multilineTextAlignment(.center)
-                        .keyboardType(.numberPad)
-                        .padding(.horizontal, 48)
-
-                    Text("~5 minutes to set up")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-
-                Spacer()
-
-                Button {
-                    let profile = UserProfile(
-                        name: name.trimmingCharacters(in: .whitespaces),
-                        age: Int(age) ?? 0
-                    )
-                    modelContext.insert(profile)
-                    showAssessment = true
-                } label: {
-                    Text("Let's go")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(!isValid)
-                .padding(.horizontal, 32)
-                .padding(.bottom, 48)
             }
             .navigationDestination(isPresented: $showAssessment) {
                 AssessmentFlowView()

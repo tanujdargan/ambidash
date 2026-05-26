@@ -14,10 +14,11 @@ struct IntegrationSetupView: View {
                         Text("Connect your data")
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundStyle(AmbidashTheme.textPrimary)
 
                         Text("ambidash works best when it can see your health and calendar data. You can change this anytime in Settings.")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                     }
                     .padding(.horizontal)
                     .padding(.top, 24)
@@ -47,7 +48,7 @@ struct IntegrationSetupView: View {
                     if !requested {
                         Text("Tapping 'Connect' will show permission dialogs from iOS. We only read data — we never write or modify anything.")
                             .font(.caption)
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(AmbidashTheme.textTertiary)
                             .padding(.horizontal)
                     }
                 }
@@ -55,44 +56,27 @@ struct IntegrationSetupView: View {
 
             VStack(spacing: 10) {
                 if !requested {
-                    Button {
+                    AccentButton("Connect", icon: "link") {
                         Task {
                             await manager.requestAllPermissions()
                             requested = true
                         }
-                    } label: {
-                        Text("Connect")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
                     }
-                    .buttonStyle(.borderedProminent)
                 }
 
                 if requested {
-                    Button {
+                    AccentButton("Continue", icon: "arrow.right") {
                         showComplete = true
-                    } label: {
-                        Text("Continue")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
                     }
-                    .buttonStyle(.borderedProminent)
                 } else {
-                    Button {
+                    GhostButton(title: "Skip for now") {
                         showComplete = true
-                    } label: {
-                        Text("Skip for now")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
                     }
-                    .buttonStyle(.bordered)
                 }
             }
             .padding()
         }
+        .background(AmbidashTheme.bgBase)
         .navigationTitle("Integrations")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
@@ -112,26 +96,31 @@ private struct IntegrationRow: View {
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(connected ? .green : .secondary)
+                .foregroundStyle(connected ? AmbidashTheme.statusGood : AmbidashTheme.textSecondary)
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
             }
 
             Spacer()
 
             if connected {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
+                    .foregroundStyle(AmbidashTheme.statusGood)
             }
         }
         .padding(14)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(AmbidashTheme.bgCard)
+        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+        .overlay(
+            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+        )
     }
 }

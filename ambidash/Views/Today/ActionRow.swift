@@ -13,11 +13,11 @@ struct ActionRow: View {
                     Text(action.title)
                         .font(.headline)
                         .strikethrough(action.statusRaw == "done")
-                        .foregroundStyle(action.statusRaw == "pending" ? .primary : .secondary)
+                        .foregroundStyle(action.statusRaw == "pending" ? AmbidashTheme.textPrimary : AmbidashTheme.textSecondary)
 
                     Text("\(action.durationMinutes) min")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AmbidashTheme.textTertiary)
                 }
 
                 Spacer()
@@ -28,7 +28,8 @@ struct ActionRow: View {
             if !action.whyReasoning.isEmpty {
                 Text(action.whyReasoning)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .italic()
+                    .foregroundStyle(AmbidashTheme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -40,17 +41,17 @@ struct ActionRow: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
-                            .background(Color.green, in: Capsule())
+                            .background(AmbidashTheme.statusGood, in: Capsule())
                     }
                     .buttonStyle(.plain)
 
                     Button(action: onSkip) {
                         Label("Skip", systemImage: "forward.fill")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textTertiary)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
-                            .background(Color(.systemGray5), in: Capsule())
+                            .background(AmbidashTheme.bgElevated, in: Capsule())
                     }
                     .buttonStyle(.plain)
                 }
@@ -66,11 +67,11 @@ struct ActionRow: View {
         case "done":
             Label("Completed", systemImage: "checkmark.circle.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.green)
+                .foregroundStyle(AmbidashTheme.statusGood)
         case "skipped":
             Label("Skipped", systemImage: "forward.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.orange)
+                .foregroundStyle(AmbidashTheme.statusWarn)
         default:
             EmptyView()
         }

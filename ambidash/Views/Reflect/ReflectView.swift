@@ -29,6 +29,7 @@ struct ReflectView: View {
                     Text("Monthly").tag(2)
                 }
                 .pickerStyle(.segmented)
+                .tint(AmbidashTheme.accent)
                 .padding(.horizontal)
                 .padding(.top, 8)
 
@@ -38,11 +39,12 @@ struct ReflectView: View {
                             Text("Evening Reflection")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundStyle(AmbidashTheme.textPrimary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             Text(Date.now.formatted(.dateTime.weekday(.wide).month().day()))
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AmbidashTheme.textSecondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             DailySummaryView(plan: todayPlan, snapshot: todaySnapshot)
@@ -59,12 +61,14 @@ struct ReflectView: View {
                         }
                         .padding()
                     }
+                    .background(AmbidashTheme.bgBase)
                 } else if selectedTab == 1 {
                     WeeklyReviewView()
                 } else if selectedTab == 2 {
                     MonthlyReviewView()
                 }
             }
+            .background(AmbidashTheme.bgBase)
             .navigationTitle("Reflect")
             .navigationBarTitleDisplayMode(.inline)
         }

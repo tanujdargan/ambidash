@@ -9,26 +9,22 @@ struct DailySummaryView: View {
     private var totalCount: Int { plan?.actions.count ?? 0 }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("TODAY'S RESULTS")
-                .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(.secondary)
-                .tracking(0.5)
+        CardView {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionHeader(title: "Today's Results")
 
-            VStack(spacing: 6) {
-                SummaryRow(label: "Actions completed", value: "\(doneCount) of \(totalCount)", color: doneCount == totalCount ? .green : .orange)
-                SummaryRow(label: "Actions skipped", value: "\(skippedCount)", color: skippedCount > 0 ? .red : .green)
+                VStack(spacing: 6) {
+                    SummaryRow(label: "Actions completed", value: "\(doneCount) of \(totalCount)", color: doneCount == totalCount ? AmbidashTheme.statusGood : AmbidashTheme.statusWarn)
+                    SummaryRow(label: "Actions skipped", value: "\(skippedCount)", color: skippedCount > 0 ? AmbidashTheme.statusBad : AmbidashTheme.statusGood)
 
-                if let snap = snapshot {
-                    SummaryRow(label: "Sleep", value: String(format: "%.1fh", snap.sleepHours), color: snap.sleepHours >= 7 ? .green : .orange)
-                    SummaryRow(label: "Screen time", value: String(format: "%.1fh", snap.screenTimeHours), color: snap.screenTimeHours <= 3 ? .green : .red)
-                    SummaryRow(label: "Steps", value: "\(snap.steps)", color: snap.steps >= 8000 ? .green : .orange)
+                    if let snap = snapshot {
+                        SummaryRow(label: "Sleep", value: String(format: "%.1fh", snap.sleepHours), color: snap.sleepHours >= 7 ? AmbidashTheme.statusGood : AmbidashTheme.statusWarn)
+                        SummaryRow(label: "Screen time", value: String(format: "%.1fh", snap.screenTimeHours), color: snap.screenTimeHours <= 3 ? AmbidashTheme.statusGood : AmbidashTheme.statusBad)
+                        SummaryRow(label: "Steps", value: "\(snap.steps)", color: snap.steps >= 8000 ? AmbidashTheme.statusGood : AmbidashTheme.statusWarn)
+                    }
                 }
             }
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -41,7 +37,7 @@ private struct SummaryRow: View {
         HStack {
             Text(label)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AmbidashTheme.textSecondary)
             Spacer()
             Text(value)
                 .font(.subheadline)

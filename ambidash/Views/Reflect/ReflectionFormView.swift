@@ -19,6 +19,7 @@ struct ReflectionFormView: View {
                 Text("How do you feel about today?")
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -28,11 +29,12 @@ struct ReflectionFormView: View {
                                 selectedMood = mood
                             }
                             .font(.caption)
+                            .foregroundStyle(isSelected ? AmbidashTheme.accent : AmbidashTheme.textSecondary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(isSelected ? Color.blue.opacity(0.2) : Color(.tertiarySystemBackground))
+                            .background(isSelected ? AmbidashTheme.accent.opacity(0.2) : AmbidashTheme.bgElevated)
                             .clipShape(Capsule())
-                            .overlay(Capsule().stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1))
+                            .overlay(Capsule().stroke(isSelected ? AmbidashTheme.accent : Color.clear, lineWidth: 1))
                         }
                     }
                 }
@@ -42,6 +44,7 @@ struct ReflectionFormView: View {
                 Text("What got in the way?")
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -52,11 +55,12 @@ struct ReflectionFormView: View {
                                 else { selectedBlockers.insert(blocker) }
                             }
                             .font(.caption)
+                            .foregroundStyle(isSelected ? AmbidashTheme.accent : AmbidashTheme.textSecondary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(isSelected ? Color.blue.opacity(0.2) : Color(.tertiarySystemBackground))
+                            .background(isSelected ? AmbidashTheme.accent.opacity(0.2) : AmbidashTheme.bgElevated)
                             .clipShape(Capsule())
-                            .overlay(Capsule().stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1))
+                            .overlay(Capsule().stroke(isSelected ? AmbidashTheme.accent : Color.clear, lineWidth: 1))
                         }
                     }
                 }
@@ -66,21 +70,19 @@ struct ReflectionFormView: View {
                 Text("Anything else? (optional)")
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                 TextField("Free-form thoughts...", text: $freeformText, axis: .vertical)
                     .lineLimit(3...6)
-                    .textFieldStyle(.roundedBorder)
+                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .padding(12)
+                    .background(AmbidashTheme.bgElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
             }
 
-            Button {
+            AccentButton(saved ? "Saved" : "Save Reflection") {
                 saveReflection()
-            } label: {
-                Text(saved ? "Saved" : "Save Reflection")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
             }
-            .buttonStyle(.borderedProminent)
             .disabled(selectedMood.isEmpty || saved)
         }
         .onAppear {

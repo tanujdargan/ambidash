@@ -34,6 +34,7 @@ struct TodayView: View {
                 }
                 .padding()
             }
+            .background(AmbidashTheme.bgBase)
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.large)
         }
@@ -83,15 +84,15 @@ struct TodayView: View {
             HStack {
                 Text(planFormat.displayName)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
                 Spacer()
                 Text("\(doneCount)/\(total) completed")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
             }
 
             ProgressView(value: progress)
-                .tint(.green)
+                .tint(AmbidashTheme.accent)
         }
     }
 
@@ -100,44 +101,38 @@ struct TodayView: View {
         VStack(spacing: 24) {
             Image(systemName: "calendar.badge.plus")
                 .font(.system(size: 56))
-                .foregroundStyle(.blue)
+                .foregroundStyle(AmbidashTheme.accent)
 
             VStack(spacing: 8) {
                 Text("No plan for today")
                     .font(.title3.weight(.semibold))
+                    .foregroundStyle(AmbidashTheme.textPrimary)
 
                 Text("Generate a personalized action plan based on your goals.")
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AmbidashTheme.textSecondary)
                     .multilineTextAlignment(.center)
             }
 
-            Button(action: generatePlan) {
-                if isGenerating {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                        Text(AIConfig.isConfigured ? "AI is thinking..." : "Generating...")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.white)
-                    }
-                } else {
-                    let remaining = PremiumGateService.remainingPlans
-                    Text(remaining > 0 ? (AIConfig.isConfigured ? "Generate AI Plan" : "Generate Plan") : "Upgrade for more plans")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.white)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Color.blue, in: RoundedRectangle(cornerRadius: 14))
-            .buttonStyle(.plain)
-            .disabled(isGenerating)
+            AccentButton(
+                isGenerating
+                    ? (AIConfig.isConfigured ? "AI is thinking..." : "Generating...")
+                    : (PremiumGateService.remainingPlans > 0
+                        ? (AIConfig.isConfigured ? "Generate AI Plan" : "Generate Plan")
+                        : "Upgrade for more plans"),
+                icon: isGenerating ? nil : "sparkles",
+                isLoading: isGenerating,
+                action: generatePlan
+            )
         }
         .frame(maxWidth: .infinity)
         .padding(32)
-        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+        .background(AmbidashTheme.bgCard)
+        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .overlay(
+            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
+                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+        )
     }
 
     private func generatePlan() {

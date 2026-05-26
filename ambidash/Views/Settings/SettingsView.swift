@@ -25,20 +25,24 @@ struct SettingsView: View {
                         LabeledContent("Age", value: "\(profile.age)")
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
 
                 Section("Subscription") {
                     if subscription.isPremium {
                         HStack {
                             Image(systemName: "checkmark.seal.fill")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(AmbidashTheme.accent)
                             Text("Premium Active")
+                                .foregroundStyle(AmbidashTheme.textPrimary)
                         }
                     } else {
                         Button("Upgrade to Premium") {
                             showPaywall = true
                         }
+                        .foregroundStyle(AmbidashTheme.accent)
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
 
                 Section("AI Configuration") {
                     SecureField("Anthropic API Key", text: $apiKey)
@@ -54,13 +58,14 @@ struct SettingsView: View {
                     if AIConfig.isConfigured {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
+                                .foregroundStyle(AmbidashTheme.statusGood)
                             Text("API key configured")
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AmbidashTheme.textSecondary)
                         }
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
 
                 Section("Work Style") {
                     if let pref = profile?.workStylePreference {
@@ -68,32 +73,36 @@ struct SettingsView: View {
                         LabeledContent("Max Actions/Day", value: "\(pref.maxActionsPerDay)")
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
 
                 Section("Integrations") {
                     HStack {
                         Image(systemName: "heart.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(AmbidashTheme.statusBad)
                         Text("Apple Health")
+                            .foregroundStyle(AmbidashTheme.textPrimary)
                         Spacer()
                         Text("Connected")
                             .font(.caption)
-                            .foregroundStyle(.green)
+                            .foregroundStyle(AmbidashTheme.statusGood)
                     }
 
                     HStack {
                         Image(systemName: "calendar")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(AmbidashTheme.accent)
                         Text("Calendar")
+                            .foregroundStyle(AmbidashTheme.textPrimary)
                         Spacer()
                         Text("Connected")
                             .font(.caption)
-                            .foregroundStyle(.green)
+                            .foregroundStyle(AmbidashTheme.statusGood)
                     }
 
                     HStack {
                         Image(systemName: "doc.text")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                         Text("Notion")
+                            .foregroundStyle(AmbidashTheme.textPrimary)
                         Spacer()
                         if NotionService.shared.isConnected {
                             Button("Disconnect", role: .destructive) {
@@ -105,13 +114,15 @@ struct SettingsView: View {
                                 showNotionSetup = true
                             }
                             .font(.caption)
+                            .foregroundStyle(AmbidashTheme.accent)
                         }
                     }
 
                     HStack {
                         Image(systemName: "folder")
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(AmbidashTheme.mindCognitive)
                         Text("Obsidian")
+                            .foregroundStyle(AmbidashTheme.textPrimary)
                         Spacer()
                         if ObsidianService.shared.isConnected {
                             Button("Disconnect", role: .destructive) {
@@ -123,26 +134,30 @@ struct SettingsView: View {
                                 showObsidianPicker = true
                             }
                             .font(.caption)
+                            .foregroundStyle(AmbidashTheme.accent)
                         }
                     }
 
                     HStack {
                         Image(systemName: "hourglass")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(AmbidashTheme.statusWarn)
                         Text("Screen Time")
+                            .foregroundStyle(AmbidashTheme.textPrimary)
                         Spacer()
                         if ScreenTimeService.shared.isAuthorized {
                             Text("Connected")
                                 .font(.caption)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(AmbidashTheme.statusGood)
                         } else {
                             Button("Connect") {
                                 Task { await ScreenTimeService.shared.requestAuthorization() }
                             }
                             .font(.caption)
+                            .foregroundStyle(AmbidashTheme.accent)
                         }
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
 
                 Section("AI Scaffolding") {
                     if let profile {
@@ -150,9 +165,10 @@ struct SettingsView: View {
                         LabeledContent("Current Level", value: level.displayName)
                         Text(level.description)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
 
                 Section("Data") {
                     LabeledContent("Goals", value: "\(profile?.goals.count ?? 0)")
@@ -162,7 +178,10 @@ struct SettingsView: View {
                         dismiss()
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
             }
+            .scrollContentBackground(.hidden)
+            .background(AmbidashTheme.bgBase)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

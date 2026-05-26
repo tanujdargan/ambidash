@@ -31,12 +31,13 @@ struct AssessmentFlowView: View {
     var body: some View {
         VStack(spacing: 0) {
             ProgressView(value: progress)
+                .tint(AmbidashTheme.accent)
                 .padding(.horizontal)
                 .padding(.top, 8)
 
             Text("\(currentIndex + 1) of \(questions.count)")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AmbidashTheme.textSecondary)
                 .padding(.top, 4)
 
             ScrollView {
@@ -52,15 +53,15 @@ struct AssessmentFlowView: View {
 
             HStack(spacing: 16) {
                 if currentIndex > 0 {
-                    Button("Back") {
+                    GhostButton(title: "Back") {
                         withAnimation { currentIndex -= 1 }
                     }
-                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
                 }
 
                 Spacer()
 
-                Button(currentIndex == questions.count - 1 ? "Next" : "Continue") {
+                AccentButton(currentIndex == questions.count - 1 ? "Next" : "Continue") {
                     if currentIndex < questions.count - 1 {
                         withAnimation { currentIndex += 1 }
                     } else {
@@ -68,11 +69,12 @@ struct AssessmentFlowView: View {
                         showGoalDeclaration = true
                     }
                 }
-                .buttonStyle(.borderedProminent)
                 .disabled(!canAdvance)
+                .frame(maxWidth: .infinity)
             }
             .padding()
         }
+        .background(AmbidashTheme.bgBase)
         .navigationTitle("About You")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()

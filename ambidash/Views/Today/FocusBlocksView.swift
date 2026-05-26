@@ -19,7 +19,7 @@ struct FocusBlocksView: View {
                         if !action.timeSlot.isEmpty {
                             Text(action.timeSlot)
                                 .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.tertiary)
+                                .foregroundStyle(AmbidashTheme.textTertiary)
                                 .textCase(.uppercase)
                         }
 
@@ -31,16 +31,20 @@ struct FocusBlocksView: View {
                     }
                 }
                 .padding()
-                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                .background(AmbidashTheme.bgCard, in: RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                .overlay(
+                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                        .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                )
             }
         }
     }
 
     private func borderColor(for action: PlannedAction) -> Color {
         switch action.statusRaw {
-        case "done": return .green
-        case "skipped": return .orange
-        default: return .blue
+        case "done": return AmbidashTheme.statusGood
+        case "skipped": return AmbidashTheme.statusWarn
+        default: return AmbidashTheme.accent
         }
     }
 }

@@ -15,15 +15,18 @@ struct GoalDetailView: View {
                         Text(goal.title)
                             .font(.title3)
                             .fontWeight(.bold)
+                            .foregroundStyle(AmbidashTheme.textPrimary)
                         Text(goal.domain.displayName)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                     }
                 }
+                .listRowBackground(AmbidashTheme.bgCard)
             }
 
             Section("Status") {
                 LabeledContent("Health", value: goal.computedStatus.label)
+                    .foregroundStyle(goal.computedStatus.color)
                 LabeledContent("Days since progress", value: "\(goal.neglectDays)")
                 LabeledContent("Priority", value: "\(goal.priority)")
                 LabeledContent("Created", value: goal.createdAt.formatted(.dateTime.month().day().year()))
@@ -33,6 +36,7 @@ struct GoalDetailView: View {
                     LabeledContent("Best streak", value: "\(streak.bestCount) days")
                 }
             }
+            .listRowBackground(AmbidashTheme.bgCard)
 
             Section {
                 Button(goal.isActive ? "Pause Goal" : "Resume Goal") {
@@ -43,9 +47,12 @@ struct GoalDetailView: View {
                     goal.lastProgressDate = .now
                     goal.streak?.recordActivity()
                 }
-                .tint(.green)
+                .tint(AmbidashTheme.statusGood)
             }
+            .listRowBackground(AmbidashTheme.bgCard)
         }
+        .scrollContentBackground(.hidden)
+        .background(AmbidashTheme.bgBase)
         .navigationTitle(goal.title)
         .navigationBarTitleDisplayMode(.inline)
     }

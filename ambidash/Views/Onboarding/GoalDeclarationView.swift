@@ -18,10 +18,11 @@ struct GoalDeclarationView: View {
                         Text("What do you want to work on?")
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundStyle(AmbidashTheme.textPrimary)
 
                         Text("Pick as many as you want. You can always add or remove later.")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                     }
                     .padding(.horizontal)
                     .padding(.top, 24)
@@ -40,24 +41,26 @@ struct GoalDeclarationView: View {
                                 HStack(spacing: 14) {
                                     Image(systemName: domain.icon)
                                         .font(.title3)
+                                        .foregroundStyle(AmbidashTheme.accent)
                                         .frame(width: 32)
 
                                     Text(domain.displayName)
                                         .font(.body)
+                                        .foregroundStyle(AmbidashTheme.textPrimary)
 
                                     Spacer()
 
                                     if isSelected {
                                         Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(AmbidashTheme.accent)
                                     }
                                 }
                                 .padding(14)
-                                .background(isSelected ? Color.blue.opacity(0.1) : Color(.secondarySystemBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .background(isSelected ? AmbidashTheme.accent.opacity(0.15) : AmbidashTheme.bgCard)
+                                .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1.5)
+                                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                                        .stroke(isSelected ? AmbidashTheme.accent : AmbidashTheme.border, lineWidth: isSelected ? 1.5 : 0.5)
                                 )
                             }
                             .buttonStyle(.plain)
@@ -67,19 +70,14 @@ struct GoalDeclarationView: View {
                 }
             }
 
-            Button {
+            AccentButton("Continue") {
                 saveGoals()
                 showWorkStyle = true
-            } label: {
-                Text("Continue")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
             }
-            .buttonStyle(.borderedProminent)
             .disabled(selectedDomains.isEmpty)
             .padding()
         }
+        .background(AmbidashTheme.bgBase)
         .navigationTitle("Your Goals")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()

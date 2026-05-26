@@ -18,10 +18,11 @@ struct WorkStylePickerView: View {
                         Text("How should your daily plan look?")
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundStyle(AmbidashTheme.textPrimary)
 
                         Text("You can change this anytime in settings.")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AmbidashTheme.textSecondary)
                     }
                     .padding(.horizontal)
                     .padding(.top, 24)
@@ -36,18 +37,19 @@ struct WorkStylePickerView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text(format.displayName)
                                         .font(.headline)
+                                        .foregroundStyle(AmbidashTheme.textPrimary)
 
                                     Text(format.description)
                                         .font(.subheadline)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(AmbidashTheme.textSecondary)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(16)
-                                .background(isSelected ? Color.blue.opacity(0.1) : Color(.secondarySystemBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .background(isSelected ? AmbidashTheme.accent.opacity(0.15) : AmbidashTheme.bgCard)
+                                .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 1.5)
+                                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                                        .stroke(isSelected ? AmbidashTheme.accent : AmbidashTheme.border, lineWidth: isSelected ? 1.5 : 0.5)
                                 )
                             }
                             .buttonStyle(.plain)
@@ -57,19 +59,14 @@ struct WorkStylePickerView: View {
                 }
             }
 
-            Button {
+            AccentButton("Continue") {
                 savePreference()
                 showComplete = true
-            } label: {
-                Text("Continue")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
             }
-            .buttonStyle(.borderedProminent)
             .disabled(selectedFormat == nil)
             .padding()
         }
+        .background(AmbidashTheme.bgBase)
         .navigationTitle("Work Style")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()

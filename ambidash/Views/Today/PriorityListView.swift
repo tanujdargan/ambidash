@@ -26,7 +26,7 @@ struct PriorityListView: View {
                         } else {
                             Text("\(index + 1)")
                                 .font(.caption.weight(.bold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(AmbidashTheme.textSecondary)
                         }
                     }
                     .padding(.top, 6)
@@ -38,22 +38,21 @@ struct PriorityListView: View {
                     )
                 }
                 .padding()
-                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                .background(AmbidashTheme.bgCard, in: RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                .overlay(
+                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
+                        .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                )
             }
         }
     }
 
     private func indexColor(for action: PlannedAction, index: Int) -> Color {
         switch action.statusRaw {
-        case "done": return .green
-        case "skipped": return .orange
+        case "done": return AmbidashTheme.statusGood
+        case "skipped": return AmbidashTheme.statusWarn
         default:
-            switch index {
-            case 0: return .red
-            case 1: return .orange
-            case 2: return .yellow
-            default: return .blue
-            }
+            return AmbidashTheme.bgElevated
         }
     }
 }

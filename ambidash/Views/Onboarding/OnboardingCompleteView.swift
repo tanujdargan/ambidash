@@ -10,40 +10,39 @@ struct OnboardingCompleteView: View {
     private var goalCount: Int { profile?.goals.count ?? 0 }
 
     var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
+        ZStack {
+            AmbidashTheme.bgBase.ignoresSafeArea()
 
-            VStack(spacing: 16) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.green)
+            VStack(spacing: 32) {
+                Spacer()
 
-                Text("You're all set")
-                    .font(.title)
-                    .fontWeight(.bold)
+                VStack(spacing: 16) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 64))
+                        .foregroundStyle(AmbidashTheme.statusGood)
 
-                Text("Profile built with \(goalCount) goals. Your dashboard is ready.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    Text("You're all set")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(AmbidashTheme.textPrimary)
+
+                    Text("Profile built with \(goalCount) goals. Your dashboard is ready.")
+                        .font(.subheadline)
+                        .foregroundStyle(AmbidashTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                }
+
+                Spacer()
+
+                AccentButton("Open Dashboard", icon: "arrow.right") {
+                    profile?.onboardingComplete = true
+                    try? modelContext.save()
+                    onboardingComplete = true
+                }
+                .padding(.horizontal, 32)
+                .padding(.bottom, 48)
             }
-
-            Spacer()
-
-            Button {
-                profile?.onboardingComplete = true
-                try? modelContext.save()
-                onboardingComplete = true
-            } label: {
-                Text("Open Dashboard")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-            }
-            .buttonStyle(.borderedProminent)
-            .padding(.horizontal, 32)
-            .padding(.bottom, 48)
         }
         .navigationBarBackButtonHidden()
     }
