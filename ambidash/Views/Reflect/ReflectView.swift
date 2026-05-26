@@ -6,6 +6,8 @@ struct ReflectView: View {
     @Query(sort: \Reflection.date, order: .reverse) private var reflections: [Reflection]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
 
+    @State private var selectedTab = 0
+
     private var todayPlan: DailyPlan? {
         plans.first { Calendar.current.isDate($0.date, inSameDayAs: .now) }
     }
@@ -20,31 +22,45 @@ struct ReflectView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    Text("Evening Reflection")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Text(Date.now.formatted(.dateTime.weekday(.wide).month().day()))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    DailySummaryView(plan: todayPlan, snapshot: todaySnapshot)
-
-                    ReflectionFormView(existingReflection: todayReflection)
-
-                    if todayReflection != nil {
-                        HonestMirrorView(
-                            plan: todayPlan,
-                            mood: todayReflection?.mood ?? "",
-                            blockers: todayReflection?.blockers ?? []
-                        )
-                    }
+            VStack(spacing: 0) {
+                Picker("Review Type", selection: $selectedTab) {
+                    Text("Daily").tag(0)
+                    Text("Weekly").tag(1)
                 }
-                .padding()
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.top, 8)
+
+                if selectedTab == 0 {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            Text("Evening Reflection")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            Text(Date.now.formatted(.dateTime.weekday(.wide).month().day()))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            DailySummaryView(plan: todayPlan, snapshot: todaySnapshot)
+
+                            ReflectionFormView(existingReflection: todayReflection)
+
+                            if todayReflection != nil {
+                                HonestMirrorView(
+                                    plan: todayPlan,
+                                    mood: todayReflection?.mood ?? "",
+                                    blockers: todayReflection?.blockers ?? []
+                                )
+                            }
+                        }
+                        .padding()
+                    }
+                } else {
+                    WeeklyReviewView()
+                }
             }
             .navigationTitle("Reflect")
             .navigationBarTitleDisplayMode(.inline)

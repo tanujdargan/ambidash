@@ -8,6 +8,7 @@ struct AddGoalView: View {
 
     @State private var title = ""
     @State private var selectedDomain: GoalDomain = .fitness
+    @State private var newGoal: Goal?
 
     private var profile: UserProfile? { profiles.first }
 
@@ -33,6 +34,12 @@ struct AddGoalView: View {
             }
             .navigationTitle("Add Goal")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $newGoal) { goal in
+                DomainAssessmentSheet(
+                    goal: goal,
+                    questions: DomainAssessmentQuestions.questions(for: goal.domain)
+                )
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -40,7 +47,6 @@ struct AddGoalView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
                         addGoal()
-                        dismiss()
                     }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
@@ -54,5 +60,13 @@ struct AddGoalView: View {
         let goal = Goal(title: title, domain: selectedDomain, priority: priority)
         goal.streak = Streak()
         profile.goals.append(goal)
+        try? modelContext.save()
+
+        let questions = DomainAssessmentQuestions.questions(for: selectedDomain)
+        if !questions.isEmpty {
+            newGoal = goal
+        } else {
+            dismiss()
+        }
     }
 }
