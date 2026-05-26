@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Query private var profiles: [UserProfile]
 
+    @AppStorage("onboardingComplete") private var onboardingComplete = false
     @State private var showPaywall = false
     @State private var apiKey = ""
     @State private var subscription = SubscriptionService.shared
@@ -69,6 +70,8 @@ struct SettingsView: View {
                     LabeledContent("Goals", value: "\(profile?.goals.count ?? 0)")
                     Button("Reset Onboarding", role: .destructive) {
                         profile?.onboardingComplete = false
+                        onboardingComplete = false
+                        dismiss()
                     }
                 }
             }

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct OnboardingCompleteView: View {
+    @AppStorage("onboardingComplete") private var onboardingComplete = false
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [UserProfile]
 
@@ -33,6 +34,7 @@ struct OnboardingCompleteView: View {
             Button {
                 profile?.onboardingComplete = true
                 try? modelContext.save()
+                onboardingComplete = true
             } label: {
                 Text("Open Dashboard")
                     .font(.headline)
