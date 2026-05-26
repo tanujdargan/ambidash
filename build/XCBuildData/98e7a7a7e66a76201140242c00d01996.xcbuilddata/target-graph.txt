@@ -1,4 +1,0 @@
-Target dependency graph (2 targets)
-Target 'ambidash' in project 'ambidash'
-➜ Explicit dependency on target 'ambidash-monitor' in project 'ambidash'
-Target 'ambidash-monitor' in project 'ambidash' (no dependencies)
