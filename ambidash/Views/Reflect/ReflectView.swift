@@ -35,6 +35,14 @@ struct ReflectView: View {
                     DailySummaryView(plan: todayPlan, snapshot: todaySnapshot)
 
                     ReflectionFormView(existingReflection: todayReflection)
+
+                    if todayReflection != nil {
+                        HonestMirrorView(
+                            plan: todayPlan,
+                            mood: todayReflection?.mood ?? "",
+                            blockers: todayReflection?.blockers ?? []
+                        )
+                    }
                 }
                 .padding()
             }

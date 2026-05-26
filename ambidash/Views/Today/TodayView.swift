@@ -12,6 +12,8 @@ struct TodayView: View {
         plans.first { Calendar.current.isDateInToday($0.date) }
     }
 
+    @State private var isGenerating = false
+
     private var planFormat: PlanFormat {
         if let raw = profile?.workStylePreference?.planFormat,
            let fmt = PlanFormat(rawValue: raw) {
@@ -111,14 +113,26 @@ struct TodayView: View {
             }
 
             Button(action: generatePlan) {
-                Text("Generate Today's Plan")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.blue, in: RoundedRectangle(cornerRadius: 14))
+                if isGenerating {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                            .tint(.white)
+                        Text(AIConfig.isConfigured ? "AI is thinking..." : "Generating...")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.white)
+                    }
+                } else {
+                    Text(AIConfig.isConfigured ? "Generate AI Plan" : "Generate Today's Plan")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.white)
+                }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(Color.blue, in: RoundedRectangle(cornerRadius: 14))
             .buttonStyle(.plain)
+            .disabled(isGenerating)
         }
         .frame(maxWidth: .infinity)
         .padding(32)
@@ -126,29 +140,72 @@ struct TodayView: View {
     }
 
     private func generatePlan() {
-        let goals = profile?.goals ?? []
-        let freeMinutes = 480
-        let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
+        guard !isGenerating else { return }
+        isGenerating = true
 
-        let templates = PlanGenerator.generateActions(for: goals, freeMinutes: freeMinutes, maxActions: maxActions)
+        Task {
+            defer { isGenerating = false }
 
-        let plan = DailyPlan(date: .now, format: planFormat)
-        plan.actionCount = templates.count
+            let goals = profile?.goals ?? []
+            let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
 
-        let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
+            // Try AI-powered generation first
+            if AIConfig.isConfigured {
+                if let aiPlan = await generateAIPlan(goals: goals, maxActions: maxActions) {
+                    modelContext.insert(aiPlan)
+                    try? modelContext.save()
+                    return
+                }
+            }
 
-        for (index, template) in templates.enumerated() {
-            let action = PlannedAction(
-                title: template.title,
-                why: template.why,
-                timeSlot: index < timeSlots.count ? timeSlots[index] : "",
-                duration: template.durationMinutes
-            )
-            plan.actions.append(action)
+            // Fallback to template-based
+            let freeMinutes = 480
+            let templates = PlanGenerator.generateActions(for: goals, freeMinutes: freeMinutes, maxActions: maxActions)
+
+            let plan = DailyPlan(date: .now, format: planFormat)
+            plan.actionCount = templates.count
+
+            let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
+
+            for (index, template) in templates.enumerated() {
+                let action = PlannedAction(
+                    title: template.title,
+                    why: template.why,
+                    timeSlot: index < timeSlots.count ? timeSlots[index] : "",
+                    duration: template.durationMinutes
+                )
+                plan.actions.append(action)
+            }
+
+            modelContext.insert(plan)
+            try? modelContext.save()
         }
+    }
 
-        modelContext.insert(plan)
-        try? modelContext.save()
+    private func generateAIPlan(goals: [Goal], maxActions: Int) async -> DailyPlan? {
+        do {
+            let snapshot = try? modelContext.fetch(FetchDescriptor<IntegrationSnapshot>(sortBy: [SortDescriptor(\.date, order: .reverse)])).first
+            let jsonText = try await AIService.generatePlanJSON(goals: goals, snapshot: snapshot, profile: profile)
+
+            guard let data = jsonText.data(using: .utf8),
+                  let actions = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+                return nil
+            }
+
+            let plan = DailyPlan(date: .now, format: planFormat)
+            for actionDict in actions.prefix(maxActions) {
+                let title = actionDict["title"] as? String ?? ""
+                let why = actionDict["why"] as? String ?? ""
+                let duration = actionDict["duration_minutes"] as? Int ?? 30
+                let timeSlot = actionDict["time_slot"] as? String ?? ""
+                let action = PlannedAction(title: title, why: why, timeSlot: timeSlot, duration: duration)
+                plan.actions.append(action)
+            }
+            plan.actionCount = plan.actions.count
+            return plan
+        } catch {
+            return nil
+        }
     }
 
     private func markDone(_ action: PlannedAction, plan: DailyPlan) {
