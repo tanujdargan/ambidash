@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct GoalDetailView: View {
+    @Environment(ThemeManager.self) private var tm
     @Bindable var goal: Goal
 
     var body: some View {
+        let t = tm.resolved
         List {
             Section {
                 HStack {
@@ -15,13 +17,13 @@ struct GoalDetailView: View {
                         Text(goal.title)
                             .font(.title3)
                             .fontWeight(.bold)
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
                         Text(goal.domain.displayName)
                             .font(.caption)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                     }
                 }
-                .listRowBackground(AmbidashTheme.bgCard)
+                .listRowBackground(t.surface)
             }
 
             Section("Status") {
@@ -36,7 +38,7 @@ struct GoalDetailView: View {
                     LabeledContent("Best streak", value: "\(streak.bestCount) days")
                 }
             }
-            .listRowBackground(AmbidashTheme.bgCard)
+            .listRowBackground(t.surface)
 
             Section {
                 Button(goal.isActive ? "Pause Goal" : "Resume Goal") {
@@ -47,12 +49,12 @@ struct GoalDetailView: View {
                     goal.lastProgressDate = .now
                     goal.streak?.recordActivity()
                 }
-                .tint(AmbidashTheme.statusGood)
+                .tint(t.ok)
             }
-            .listRowBackground(AmbidashTheme.bgCard)
+            .listRowBackground(t.surface)
         }
         .scrollContentBackground(.hidden)
-        .background(AmbidashTheme.bgBase)
+        .background(t.bg)
         .navigationTitle(goal.title)
         .navigationBarTitleDisplayMode(.inline)
     }

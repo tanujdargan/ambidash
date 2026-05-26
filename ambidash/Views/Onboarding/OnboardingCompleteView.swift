@@ -4,14 +4,16 @@ import SwiftData
 struct OnboardingCompleteView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
 
     private var profile: UserProfile? { profiles.first }
     private var goalCount: Int { profile?.goals.count ?? 0 }
 
     var body: some View {
+        let t = tm.resolved
         ZStack {
-            AmbidashTheme.bgBase.ignoresSafeArea()
+            t.bg.ignoresSafeArea()
 
             VStack(spacing: 32) {
                 Spacer()
@@ -19,23 +21,23 @@ struct OnboardingCompleteView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 64))
-                        .foregroundStyle(AmbidashTheme.statusGood)
+                        .foregroundStyle(t.ok)
 
                     Text("You're all set")
                         .font(.title)
                         .fontWeight(.bold)
-                        .foregroundStyle(AmbidashTheme.textPrimary)
+                        .foregroundStyle(t.ink)
 
                     Text("Profile built with \(goalCount) goals. Your dashboard is ready.")
                         .font(.subheadline)
-                        .foregroundStyle(AmbidashTheme.textSecondary)
+                        .foregroundStyle(t.muted)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                 }
 
                 Spacer()
 
-                AccentButton("Open Dashboard", icon: "arrow.right") {
+                AccentButton(label: "Open Dashboard") {
                     profile?.onboardingComplete = true
                     try? modelContext.save()
                     onboardingComplete = true

@@ -4,25 +4,27 @@ import StoreKit
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(ThemeManager.self) private var tm
     @State private var subscription = SubscriptionService.shared
 
     var body: some View {
+        let t = tm.resolved
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     VStack(spacing: 12) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 48))
-                            .foregroundStyle(AmbidashTheme.accent)
+                            .foregroundStyle(t.accent)
 
                         Text("ambidash Premium")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundStyle(AmbidashTheme.accent)
+                            .foregroundStyle(t.accent)
 
                         Text("Unlock the full AI mentor experience")
                             .font(.subheadline)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                     }
                     .padding(.top, 32)
 
@@ -38,15 +40,15 @@ struct PaywallView: View {
 
                     if subscription.isLoading {
                         ProgressView()
-                            .tint(AmbidashTheme.accent)
+                            .tint(t.accent)
                     } else if subscription.products.isEmpty {
                         VStack(spacing: 12) {
                             Text("Products not available")
                                 .font(.subheadline)
-                                .foregroundStyle(AmbidashTheme.textSecondary)
+                                .foregroundStyle(t.muted)
                             Text("Subscription products will be available once configured in App Store Connect.")
                                 .font(.caption)
-                                .foregroundStyle(AmbidashTheme.textTertiary)
+                                .foregroundStyle(t.faint)
                                 .multilineTextAlignment(.center)
                         }
                         .padding()
@@ -63,22 +65,22 @@ struct PaywallView: View {
                                         VStack(alignment: .leading) {
                                             Text(product.displayName)
                                                 .font(.headline)
-                                                .foregroundStyle(AmbidashTheme.textPrimary)
+                                                .foregroundStyle(t.ink)
                                             Text(product.description)
                                                 .font(.caption)
-                                                .foregroundStyle(AmbidashTheme.textSecondary)
+                                                .foregroundStyle(t.muted)
                                         }
                                         Spacer()
                                         Text(product.displayPrice)
                                             .font(.headline)
-                                            .foregroundStyle(AmbidashTheme.accent)
+                                            .foregroundStyle(t.accent)
                                     }
                                     .padding()
-                                    .background(AmbidashTheme.bgCard)
-                                    .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                                    .background(t.surface)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                                            .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(t.hair, lineWidth: 0.5)
                                     )
                                 }
                                 .buttonStyle(.plain)
@@ -91,10 +93,10 @@ struct PaywallView: View {
                         Task { await subscription.restorePurchases() }
                     }
                     .font(.caption)
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
                 }
             }
-            .background(AmbidashTheme.bgBase)
+            .background(t.bg)
             .navigationTitle("Premium")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -113,14 +115,17 @@ private struct FeatureRow: View {
     let icon: String
     let text: String
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundStyle(AmbidashTheme.accent)
+                .foregroundStyle(t.accent)
                 .frame(width: 24)
             Text(text)
                 .font(.subheadline)
-                .foregroundStyle(AmbidashTheme.textPrimary)
+                .foregroundStyle(t.ink)
         }
     }
 }

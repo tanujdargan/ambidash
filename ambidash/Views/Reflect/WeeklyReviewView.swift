@@ -3,6 +3,7 @@ import SwiftUI
 import SwiftData
 
 struct WeeklyReviewView: View {
+    @Environment(ThemeManager.self) private var tm
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query private var profiles: [UserProfile]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
@@ -20,12 +21,13 @@ struct WeeklyReviewView: View {
     }
 
     var body: some View {
+        let t = tm.resolved
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Weekly Review")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 // Action Stats
                 CardView {
@@ -37,9 +39,9 @@ struct WeeklyReviewView: View {
                         let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
 
                         HStack(spacing: 24) {
-                            StatColumn(value: "\(doneCount)", label: "Completed", color: AmbidashTheme.statusGood)
-                            StatColumn(value: "\(skippedCount)", label: "Skipped", color: AmbidashTheme.statusBad)
-                            StatColumn(value: "\(weekPlans.count)", label: "Plans Made", color: AmbidashTheme.accent)
+                            StatColumn(value: "\(doneCount)", label: "Completed", color: t.ok)
+                            StatColumn(value: "\(skippedCount)", label: "Skipped", color: t.danger)
+                            StatColumn(value: "\(weekPlans.count)", label: "Plans Made", color: t.accent)
                         }
                     }
                 }
@@ -55,9 +57,9 @@ struct WeeklyReviewView: View {
                             let avgSteps = weekSnapshots.map { Double($0.steps) }.reduce(0, +) / Double(weekSnapshots.count)
 
                             HStack(spacing: 24) {
-                                StatColumn(value: String(format: "%.1fh", avgSleep), label: "Avg Sleep", color: avgSleep >= 7 ? AmbidashTheme.statusGood : AmbidashTheme.statusWarn)
-                                StatColumn(value: String(format: "%.1fh", avgScreen), label: "Avg Screen", color: avgScreen <= 3 ? AmbidashTheme.statusGood : AmbidashTheme.statusBad)
-                                StatColumn(value: String(format: "%.0f", avgSteps), label: "Avg Steps", color: avgSteps >= 8000 ? AmbidashTheme.statusGood : AmbidashTheme.statusWarn)
+                                StatColumn(value: String(format: "%.1fh", avgSleep), label: "Avg Sleep", color: avgSleep >= 7 ? t.ok : t.accent)
+                                StatColumn(value: String(format: "%.1fh", avgScreen), label: "Avg Screen", color: avgScreen <= 3 ? t.ok : t.danger)
+                                StatColumn(value: String(format: "%.0f", avgSteps), label: "Avg Steps", color: avgSteps >= 8000 ? t.ok : t.accent)
                             }
                         }
                     }
@@ -76,7 +78,7 @@ struct WeeklyReviewView: View {
                                     .frame(width: 8, height: 8)
                                 Text(goal.title)
                                     .font(.subheadline)
-                                    .foregroundStyle(AmbidashTheme.textPrimary)
+                                    .foregroundStyle(t.ink)
                                 Spacer()
                                 Text(goal.computedStatus.label)
                                     .font(.caption)
@@ -85,10 +87,10 @@ struct WeeklyReviewView: View {
                                     HStack(spacing: 2) {
                                         Image(systemName: "flame.fill")
                                             .font(.caption2)
-                                            .foregroundStyle(AmbidashTheme.statusWarn)
+                                            .foregroundStyle(t.accent)
                                         Text("\(streak.currentCount)d")
                                             .font(.caption2)
-                                            .foregroundStyle(AmbidashTheme.textSecondary)
+                                            .foregroundStyle(t.muted)
                                     }
                                 }
                             }
@@ -98,7 +100,7 @@ struct WeeklyReviewView: View {
             }
             .padding()
         }
-        .background(AmbidashTheme.bgBase)
+        .background(tm.resolved.bg)
     }
 }
 
@@ -107,14 +109,17 @@ private struct StatColumn: View {
     let label: String
     let color: Color
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         VStack(spacing: 4) {
             Text(value)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .foregroundStyle(color)
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(AmbidashTheme.textSecondary)
+                .foregroundStyle(t.muted)
         }
         .frame(maxWidth: .infinity)
     }

@@ -6,6 +6,8 @@ struct SingleActionView: View {
     var onDone: (PlannedAction) -> Void
     var onSkip: (PlannedAction) -> Void
 
+    @Environment(ThemeManager.self) private var tm
+
     private var currentAction: PlannedAction? {
         actions.first { $0.statusRaw == "pending" }
     }
@@ -28,87 +30,89 @@ struct SingleActionView: View {
 
     @ViewBuilder
     private func actionCard(_ action: PlannedAction) -> some View {
+        let t = tm.resolved
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 Text("RIGHT NOW")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(AmbidashTheme.accent)
+                    .foregroundStyle(t.accent)
                     .tracking(1.2)
                     .textCase(.uppercase)
                 Spacer()
                 Text("\(completedCount)/\(actions.count) done")
                     .font(.caption)
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
             }
 
             VStack(alignment: .leading, spacing: 12) {
                 Text(action.title)
                     .font(.title2.weight(.bold))
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 Label("\(action.durationMinutes) minutes", systemImage: "clock")
                     .font(.subheadline)
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
 
                 if !action.whyReasoning.isEmpty {
                     Divider()
-                        .background(AmbidashTheme.border)
+                        .background(t.hair)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Why this matters")
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(AmbidashTheme.textTertiary)
+                            .foregroundStyle(t.faint)
                             .textCase(.uppercase)
 
                         Text(action.whyReasoning)
                             .font(.body)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
 
             VStack(spacing: 10) {
-                AccentButton("Mark Done", icon: "checkmark.circle.fill") {
+                AccentButton(label: "Mark Done") {
                     onDone(action)
                 }
-                GhostButton(title: "Skip") {
+                GhostButton(label: "Skip") {
                     onSkip(action)
                 }
             }
         }
-        .padding(AmbidashTheme.spacingMD)
-        .background(AmbidashTheme.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .padding(16)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
-            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
-                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(t.hair, lineWidth: 0.5)
         )
     }
 
     @ViewBuilder
     private var completionSummary: some View {
+        let t = tm.resolved
         VStack(spacing: 16) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 56))
-                .foregroundStyle(AmbidashTheme.statusGood)
+                .foregroundStyle(t.ok)
 
             Text("All done for today!")
                 .font(.title2.weight(.bold))
-                .foregroundStyle(AmbidashTheme.textPrimary)
+                .foregroundStyle(t.ink)
 
             Text("You completed \(completedCount) action\(completedCount == 1 ? "" : "s"). Great work.")
                 .font(.body)
-                .foregroundStyle(AmbidashTheme.textSecondary)
+                .foregroundStyle(t.muted)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(32)
-        .background(AmbidashTheme.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
-            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
-                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(t.hair, lineWidth: 0.5)
         )
     }
 }

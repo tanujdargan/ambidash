@@ -6,47 +6,49 @@ struct HonestMirrorView: View {
     let mood: String
     let blockers: [String]
 
+    @Environment(ThemeManager.self) private var tm
     @State private var feedback: String?
     @State private var isLoading = false
 
     var body: some View {
+        let t = tm.resolved
         if PremiumGateService.canUseHonestMirror() {
             if AIConfig.isConfigured {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("HONEST MIRROR")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(AmbidashTheme.statusBad)
+                            .foregroundStyle(t.danger)
                             .tracking(1.2)
                         Spacer()
                         if isLoading {
                             ProgressView()
                                 .controlSize(.small)
-                                .tint(AmbidashTheme.textSecondary)
+                                .tint(t.muted)
                         }
                     }
 
                     if let feedback {
                         Text(feedback)
                             .font(.subheadline)
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
                             .lineSpacing(2)
                     } else if !isLoading {
                         Text("Tap to get honest feedback on your day.")
                             .font(.subheadline)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                     }
                 }
                 .padding()
-                .background(AmbidashTheme.bgCard)
-                .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                .background(t.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                        .stroke(AmbidashTheme.statusBad.opacity(0.4), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(t.danger.opacity(0.4), lineWidth: 1)
                 )
                 .overlay(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(AmbidashTheme.statusBad)
+                        .fill(t.danger)
                         .frame(width: 3)
                         .padding(.vertical, 8)
                 }
@@ -55,21 +57,22 @@ struct HonestMirrorView: View {
                 }
             }
         } else {
+            let t2 = tm.resolved
             VStack(alignment: .leading, spacing: 6) {
                 Text("HONEST MIRROR")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(AmbidashTheme.statusBad)
+                    .foregroundStyle(t2.danger)
                     .tracking(1.2)
                 Text("Upgrade to Premium for AI-powered honest feedback on your day.")
                     .font(.subheadline)
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t2.muted)
             }
             .padding()
-            .background(AmbidashTheme.bgCard)
-            .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+            .background(t2.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
-                RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                    .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(t2.hair, lineWidth: 0.5)
             )
         }
     }

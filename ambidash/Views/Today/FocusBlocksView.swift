@@ -2,16 +2,18 @@ import SwiftUI
 import SwiftData
 
 struct FocusBlocksView: View {
+    @Environment(ThemeManager.self) private var tm
     var actions: [PlannedAction]
     var onDone: (PlannedAction) -> Void
     var onSkip: (PlannedAction) -> Void
 
     var body: some View {
+        let t = tm.resolved
         LazyVStack(spacing: 12) {
             ForEach(actions) { action in
                 HStack(spacing: 0) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(borderColor(for: action))
+                        .fill(borderColor(for: action, t: t))
                         .frame(width: 4)
                         .padding(.trailing, 12)
 
@@ -19,7 +21,7 @@ struct FocusBlocksView: View {
                         if !action.timeSlot.isEmpty {
                             Text(action.timeSlot)
                                 .font(.caption2.weight(.semibold))
-                                .foregroundStyle(AmbidashTheme.textTertiary)
+                                .foregroundStyle(t.faint)
                                 .textCase(.uppercase)
                         }
 
@@ -31,20 +33,20 @@ struct FocusBlocksView: View {
                     }
                 }
                 .padding()
-                .background(AmbidashTheme.bgCard, in: RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                .background(t.surface, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                        .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(t.hair, lineWidth: 0.5)
                 )
             }
         }
     }
 
-    private func borderColor(for action: PlannedAction) -> Color {
+    private func borderColor(for action: PlannedAction, t: ResolvedTheme) -> Color {
         switch action.statusRaw {
-        case "done": return AmbidashTheme.statusGood
-        case "skipped": return AmbidashTheme.statusWarn
-        default: return AmbidashTheme.accent
+        case "done": return t.ok
+        case "skipped": return t.accent
+        default: return t.accent
         }
     }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 import SwiftData
 
 struct MonthlyReviewView: View {
+    @Environment(ThemeManager.self) private var tm
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query private var profiles: [UserProfile]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
@@ -24,22 +25,23 @@ struct MonthlyReviewView: View {
     }
 
     var body: some View {
+        let t = tm.resolved
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Text("30-Day Deep Dive")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 if !PremiumGateService.isPremium {
                     CardView {
                         VStack(spacing: 12) {
                             Image(systemName: "lock.fill")
                                 .font(.title)
-                                .foregroundStyle(AmbidashTheme.textTertiary)
+                                .foregroundStyle(t.faint)
                             Text("Monthly deep dives are a Premium feature")
                                 .font(.subheadline)
-                                .foregroundStyle(AmbidashTheme.textSecondary)
+                                .foregroundStyle(t.muted)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -54,11 +56,12 @@ struct MonthlyReviewView: View {
             }
             .padding()
         }
-        .background(AmbidashTheme.bgBase)
+        .background(tm.resolved.bg)
     }
 
     @ViewBuilder
     private var overviewSection: some View {
+        let t = tm.resolved
         let totalActions = monthPlans.flatMap(\.actions)
         let doneCount = totalActions.filter { $0.statusRaw == "done" }.count
         let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
@@ -68,13 +71,13 @@ struct MonthlyReviewView: View {
                 SectionHeader(title: "Overview")
 
                 HStack(spacing: 24) {
-                    MonthStatColumn(value: "\(monthPlans.count)", label: "Plans Made", color: AmbidashTheme.accent)
-                    MonthStatColumn(value: "\(doneCount)", label: "Completed", color: AmbidashTheme.statusGood)
-                    MonthStatColumn(value: "\(skippedCount)", label: "Skipped", color: AmbidashTheme.statusBad)
+                    MonthStatColumn(value: "\(monthPlans.count)", label: "Plans Made", color: t.accent)
+                    MonthStatColumn(value: "\(doneCount)", label: "Completed", color: t.ok)
+                    MonthStatColumn(value: "\(skippedCount)", label: "Skipped", color: t.danger)
                     MonthStatColumn(
                         value: totalActions.isEmpty ? "—" : "\(Int(Double(doneCount) / Double(totalActions.count) * 100))%",
                         label: "Success Rate",
-                        color: AmbidashTheme.mindCognitive
+                        color: AmbidashTheme.dimensionColor(for: .mind)
                     )
                 }
             }
@@ -116,24 +119,25 @@ struct MonthlyReviewView: View {
 
     @ViewBuilder
     private var skipAnalysisSection: some View {
+        let t = tm.resolved
         CardView {
             VStack(alignment: .leading, spacing: 8) {
                 SectionHeader(title: "Skip Analysis")
 
                 Text(skipAnalysis.recommendation)
                     .font(.subheadline)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 if !skipAnalysis.patterns.isEmpty {
                     ForEach(skipAnalysis.patterns.prefix(3), id: \.goalDomain) { pattern in
                         HStack {
                             Text(pattern.goalDomain.displayName)
                                 .font(.caption)
-                                .foregroundStyle(AmbidashTheme.textSecondary)
+                                .foregroundStyle(t.muted)
                             Spacer()
                             Text("\(Int(pattern.skipRate * 100))% skip rate")
                                 .font(.caption)
-                                .foregroundStyle(pattern.skipRate > 0.5 ? AmbidashTheme.statusBad : pattern.skipRate > 0.3 ? AmbidashTheme.statusWarn : AmbidashTheme.statusGood)
+                                .foregroundStyle(pattern.skipRate > 0.5 ? t.danger : pattern.skipRate > 0.3 ? t.accent : t.ok)
                         }
                     }
                 }
@@ -143,6 +147,7 @@ struct MonthlyReviewView: View {
 
     @ViewBuilder
     private var goalTrajectorySection: some View {
+        let t = tm.resolved
         CardView {
             VStack(alignment: .leading, spacing: 8) {
                 SectionHeader(title: "Goal Trajectory")
@@ -155,7 +160,7 @@ struct MonthlyReviewView: View {
                             .frame(width: 20)
                         Text(goal.title)
                             .font(.subheadline)
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             Text(goal.computedStatus.label)
@@ -164,7 +169,7 @@ struct MonthlyReviewView: View {
                             if let streak = goal.streak, streak.bestCount > 0 {
                                 Text("Best: \(streak.bestCount)d")
                                     .font(.caption2)
-                                    .foregroundStyle(AmbidashTheme.textSecondary)
+                                    .foregroundStyle(t.muted)
                             }
                         }
                     }
@@ -179,14 +184,17 @@ private struct MonthStatColumn: View {
     let label: String
     let color: Color
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         VStack(spacing: 4) {
             Text(value)
                 .font(.system(size: 18, weight: .bold, design: .rounded))
                 .foregroundStyle(color)
             Text(label)
                 .font(.system(size: 9))
-                .foregroundStyle(AmbidashTheme.textSecondary)
+                .foregroundStyle(t.muted)
         }
         .frame(maxWidth: .infinity)
     }
@@ -198,19 +206,22 @@ private struct TrendRow: View {
     let after: String
     let improved: Bool
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         HStack {
             Text(label)
                 .font(.subheadline)
-                .foregroundStyle(AmbidashTheme.textSecondary)
+                .foregroundStyle(t.muted)
             Spacer()
             Text("\(before) → \(after)")
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(AmbidashTheme.textPrimary)
+                .foregroundStyle(t.ink)
             Text(improved ? "▲" : "▼")
                 .font(.caption)
-                .foregroundStyle(improved ? AmbidashTheme.statusGood : AmbidashTheme.statusBad)
+                .foregroundStyle(improved ? t.ok : t.danger)
         }
     }
 }

@@ -41,29 +41,32 @@ private struct StatBox: View {
     var trend: String? = nil
     var trendIsGood: Bool = true
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         VStack(spacing: 5) {
             HStack(spacing: 3) {
                 Text(value)
                     .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
                 if let trend {
                     Text(trend)
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(trendIsGood ? AmbidashTheme.statusGood : AmbidashTheme.statusBad)
+                        .foregroundStyle(trendIsGood ? t.ok : t.danger)
                 }
             }
             Text(label)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(AmbidashTheme.textTertiary)
+                .foregroundStyle(t.faint)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
-        .background(AmbidashTheme.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
-            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(t.hair, lineWidth: 0.5)
         )
     }
 }

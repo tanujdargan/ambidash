@@ -2,11 +2,13 @@
 import SwiftUI
 
 struct IntegrationSetupView: View {
+    @Environment(ThemeManager.self) private var tm
     @State private var manager = IntegrationManager()
     @State private var showComplete = false
     @State private var requested = false
 
     var body: some View {
+        let t = tm.resolved
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -14,11 +16,11 @@ struct IntegrationSetupView: View {
                         Text("Connect your data")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
 
                         Text("ambidash works best when it can see your health and calendar data. You can change this anytime in Settings.")
                             .font(.subheadline)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                     }
                     .padding(.horizontal)
                     .padding(.top, 24)
@@ -48,7 +50,7 @@ struct IntegrationSetupView: View {
                     if !requested {
                         Text("Tapping 'Connect' will show permission dialogs from iOS. We only read data — we never write or modify anything.")
                             .font(.caption)
-                            .foregroundStyle(AmbidashTheme.textTertiary)
+                            .foregroundStyle(t.faint)
                             .padding(.horizontal)
                     }
                 }
@@ -56,7 +58,7 @@ struct IntegrationSetupView: View {
 
             VStack(spacing: 10) {
                 if !requested {
-                    AccentButton("Connect", icon: "link") {
+                    AccentButton(label: "Connect") {
                         Task {
                             await manager.requestAllPermissions()
                             requested = true
@@ -65,18 +67,18 @@ struct IntegrationSetupView: View {
                 }
 
                 if requested {
-                    AccentButton("Continue", icon: "arrow.right") {
+                    AccentButton(label: "Continue") {
                         showComplete = true
                     }
                 } else {
-                    GhostButton(title: "Skip for now") {
+                    GhostButton(label: "Skip for now") {
                         showComplete = true
                     }
                 }
             }
             .padding()
         }
-        .background(AmbidashTheme.bgBase)
+        .background(t.bg)
         .navigationTitle("Integrations")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
@@ -92,35 +94,38 @@ private struct IntegrationRow: View {
     let subtitle: String
     let connected: Bool
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(connected ? AmbidashTheme.statusGood : AmbidashTheme.textSecondary)
+                .foregroundStyle(connected ? t.ok : t.muted)
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
                 Text(subtitle)
                     .font(.caption)
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
             }
 
             Spacer()
 
             if connected {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(AmbidashTheme.statusGood)
+                    .foregroundStyle(t.ok)
             }
         }
         .padding(14)
-        .background(AmbidashTheme.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
-            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(t.hair, lineWidth: 0.5)
         )
     }
 }

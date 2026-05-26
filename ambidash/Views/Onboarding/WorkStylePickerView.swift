@@ -3,6 +3,7 @@ import SwiftData
 
 struct WorkStylePickerView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
 
     @State private var selectedFormat: PlanFormat?
@@ -11,6 +12,7 @@ struct WorkStylePickerView: View {
     private var profile: UserProfile? { profiles.first }
 
     var body: some View {
+        let t = tm.resolved
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -18,11 +20,11 @@ struct WorkStylePickerView: View {
                         Text("How should your daily plan look?")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
 
                         Text("You can change this anytime in settings.")
                             .font(.subheadline)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                     }
                     .padding(.horizontal)
                     .padding(.top, 24)
@@ -37,19 +39,19 @@ struct WorkStylePickerView: View {
                                 VStack(alignment: .leading, spacing: 6) {
                                     Text(format.displayName)
                                         .font(.headline)
-                                        .foregroundStyle(AmbidashTheme.textPrimary)
+                                        .foregroundStyle(t.ink)
 
                                     Text(format.description)
                                         .font(.subheadline)
-                                        .foregroundStyle(AmbidashTheme.textSecondary)
+                                        .foregroundStyle(t.muted)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(16)
-                                .background(isSelected ? AmbidashTheme.accent.opacity(0.15) : AmbidashTheme.bgCard)
-                                .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                                .background(isSelected ? t.accent.opacity(0.15) : t.surface)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                                        .stroke(isSelected ? AmbidashTheme.accent : AmbidashTheme.border, lineWidth: isSelected ? 1.5 : 0.5)
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(isSelected ? t.accent : t.hair, lineWidth: isSelected ? 1.5 : 0.5)
                                 )
                             }
                             .buttonStyle(.plain)
@@ -59,14 +61,14 @@ struct WorkStylePickerView: View {
                 }
             }
 
-            AccentButton("Continue") {
+            AccentButton(label: "Continue") {
                 savePreference()
                 showComplete = true
             }
             .disabled(selectedFormat == nil)
             .padding()
         }
-        .background(AmbidashTheme.bgBase)
+        .background(t.bg)
         .navigationTitle("Work Style")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()

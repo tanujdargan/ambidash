@@ -4,6 +4,7 @@ import SwiftData
 struct AddGoalView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
 
     @State private var title = ""
@@ -13,11 +14,12 @@ struct AddGoalView: View {
     private var profile: UserProfile? { profiles.first }
 
     var body: some View {
+        let t = tm.resolved
         NavigationStack {
             Form {
                 Section("Goal") {
                     TextField("What do you want to achieve?", text: $title)
-                        .foregroundStyle(AmbidashTheme.textPrimary)
+                        .foregroundStyle(t.ink)
 
                     Picker("Domain", selection: $selectedDomain) {
                         ForEach(GoalDomain.allCases) { domain in
@@ -26,17 +28,17 @@ struct AddGoalView: View {
                         }
                     }
                 }
-                .listRowBackground(AmbidashTheme.bgCard)
+                .listRowBackground(t.surface)
 
                 Section {
                     Text("Mapped to: \(selectedDomain.dimension.displayName) dimension")
                         .font(.caption)
-                        .foregroundStyle(AmbidashTheme.textSecondary)
+                        .foregroundStyle(t.muted)
                 }
-                .listRowBackground(AmbidashTheme.bgCard)
+                .listRowBackground(t.surface)
             }
             .scrollContentBackground(.hidden)
-            .background(AmbidashTheme.bgBase)
+            .background(t.bg)
             .navigationTitle("Add Goal")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $newGoal) { goal in

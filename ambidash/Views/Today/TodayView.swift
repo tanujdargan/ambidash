@@ -3,6 +3,7 @@ import SwiftData
 
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @Query private var plans: [DailyPlan]
     @Query private var profiles: [UserProfile]
 
@@ -23,6 +24,7 @@ struct TodayView: View {
     }
 
     var body: some View {
+        let t = tm.resolved
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
@@ -34,7 +36,7 @@ struct TodayView: View {
                 }
                 .padding()
             }
-            .background(AmbidashTheme.bgBase)
+            .background(t.bg)
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.large)
         }
@@ -42,6 +44,7 @@ struct TodayView: View {
 
     @ViewBuilder
     private func planContent(_ plan: DailyPlan) -> some View {
+        let t = tm.resolved
         let sorted = plan.actions.sorted {
             if $0.statusRaw == "pending" && $1.statusRaw != "pending" { return true }
             if $0.statusRaw != "pending" && $1.statusRaw == "pending" { return false }
@@ -76,6 +79,7 @@ struct TodayView: View {
 
     @ViewBuilder
     private func planHeader(_ plan: DailyPlan) -> some View {
+        let t = tm.resolved
         let doneCount = plan.actions.filter { $0.statusRaw == "done" }.count
         let total = plan.actions.count
         let progress = total > 0 ? Double(doneCount) / Double(total) : 0
@@ -84,54 +88,52 @@ struct TodayView: View {
             HStack {
                 Text(planFormat.displayName)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
                 Spacer()
                 Text("\(doneCount)/\(total) completed")
                     .font(.caption)
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
             }
 
             ProgressView(value: progress)
-                .tint(AmbidashTheme.accent)
+                .tint(t.accent)
         }
     }
 
     @ViewBuilder
     private var emptyState: some View {
+        let t = tm.resolved
         VStack(spacing: 24) {
             Image(systemName: "calendar.badge.plus")
                 .font(.system(size: 56))
-                .foregroundStyle(AmbidashTheme.accent)
+                .foregroundStyle(t.accent)
 
             VStack(spacing: 8) {
                 Text("No plan for today")
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 Text("Generate a personalized action plan based on your goals.")
                     .font(.body)
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
                     .multilineTextAlignment(.center)
             }
 
-            AccentButton(
-                isGenerating
-                    ? (AIConfig.isConfigured ? "AI is thinking..." : "Generating...")
-                    : (PremiumGateService.remainingPlans > 0
-                        ? (AIConfig.isConfigured ? "Generate AI Plan" : "Generate Plan")
-                        : "Upgrade for more plans"),
-                icon: isGenerating ? nil : "sparkles",
-                isLoading: isGenerating,
+            AccentButton(label: isGenerating
+                ? (AIConfig.isConfigured ? "AI is thinking..." : "Generating...")
+                : (PremiumGateService.remainingPlans > 0
+                    ? (AIConfig.isConfigured ? "Generate AI Plan" : "Generate Plan")
+                    : "Upgrade for more plans"),
                 action: generatePlan
             )
         }
         .frame(maxWidth: .infinity)
         .padding(32)
-        .background(AmbidashTheme.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
-            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
-                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(t.hair, lineWidth: 0.5)
         )
     }
 

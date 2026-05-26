@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct ReflectView: View {
+    @Environment(ThemeManager.self) private var tm
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query(sort: \Reflection.date, order: .reverse) private var reflections: [Reflection]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
@@ -21,6 +22,7 @@ struct ReflectView: View {
     }
 
     var body: some View {
+        let t = tm.resolved
         NavigationStack {
             VStack(spacing: 0) {
                 Picker("Review Type", selection: $selectedTab) {
@@ -29,7 +31,7 @@ struct ReflectView: View {
                     Text("Monthly").tag(2)
                 }
                 .pickerStyle(.segmented)
-                .tint(AmbidashTheme.accent)
+                .tint(t.accent)
                 .padding(.horizontal)
                 .padding(.top, 8)
 
@@ -39,12 +41,12 @@ struct ReflectView: View {
                             Text("Evening Reflection")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundStyle(AmbidashTheme.textPrimary)
+                                .foregroundStyle(t.ink)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             Text(Date.now.formatted(.dateTime.weekday(.wide).month().day()))
                                 .font(.subheadline)
-                                .foregroundStyle(AmbidashTheme.textSecondary)
+                                .foregroundStyle(t.muted)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             DailySummaryView(plan: todayPlan, snapshot: todaySnapshot)
@@ -61,14 +63,14 @@ struct ReflectView: View {
                         }
                         .padding()
                     }
-                    .background(AmbidashTheme.bgBase)
+                    .background(t.bg)
                 } else if selectedTab == 1 {
                     WeeklyReviewView()
                 } else if selectedTab == 2 {
                     MonthlyReviewView()
                 }
             }
-            .background(AmbidashTheme.bgBase)
+            .background(t.bg)
             .navigationTitle("Reflect")
             .navigationBarTitleDisplayMode(.inline)
         }

@@ -10,7 +10,7 @@ struct GoalStripView: View {
                     GoalChip(goal: goal)
                 }
             }
-            .padding(.horizontal, AmbidashTheme.spacingMD)
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -18,16 +18,19 @@ struct GoalStripView: View {
 private struct GoalChip: View {
     let goal: Goal
 
-    private var statusColor: Color {
+    @Environment(ThemeManager.self) private var tm
+
+    private func statusColor(_ t: ResolvedTheme) -> Color {
         switch goal.computedStatus {
-        case .onTrack: AmbidashTheme.statusGood
-        case .needsAttention: AmbidashTheme.statusWarn
-        case .slipping: AmbidashTheme.statusBad
-        case .paused: AmbidashTheme.textTertiary
+        case .onTrack: t.ok
+        case .needsAttention: t.accent
+        case .slipping: t.danger
+        case .paused: t.faint
         }
     }
 
     var body: some View {
+        let t = tm.resolved
         HStack(spacing: 0) {
             // Left accent border
             Rectangle()
@@ -37,22 +40,22 @@ private struct GoalChip: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(goal.title)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
                     .lineLimit(1)
 
                 Text(GoalHealthService.summaryText(for: goal))
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(statusColor)
+                    .foregroundStyle(statusColor(t))
                     .lineLimit(1)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
         }
-        .background(AmbidashTheme.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
-            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(t.hair, lineWidth: 0.5)
         )
     }
 }

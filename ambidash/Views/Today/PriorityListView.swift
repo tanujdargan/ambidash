@@ -2,17 +2,19 @@ import SwiftUI
 import SwiftData
 
 struct PriorityListView: View {
+    @Environment(ThemeManager.self) private var tm
     var actions: [PlannedAction]
     var onDone: (PlannedAction) -> Void
     var onSkip: (PlannedAction) -> Void
 
     var body: some View {
+        let t = tm.resolved
         LazyVStack(spacing: 12) {
             ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
                 HStack(alignment: .top, spacing: 12) {
                     ZStack {
                         Circle()
-                            .fill(indexColor(for: action, index: index))
+                            .fill(indexColor(for: action, index: index, t: t))
                             .frame(width: 28, height: 28)
 
                         if action.statusRaw == "done" {
@@ -26,7 +28,7 @@ struct PriorityListView: View {
                         } else {
                             Text("\(index + 1)")
                                 .font(.caption.weight(.bold))
-                                .foregroundStyle(AmbidashTheme.textSecondary)
+                                .foregroundStyle(t.muted)
                         }
                     }
                     .padding(.top, 6)
@@ -38,21 +40,21 @@ struct PriorityListView: View {
                     )
                 }
                 .padding()
-                .background(AmbidashTheme.bgCard, in: RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                .background(t.surface, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                        .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(t.hair, lineWidth: 0.5)
                 )
             }
         }
     }
 
-    private func indexColor(for action: PlannedAction, index: Int) -> Color {
+    private func indexColor(for action: PlannedAction, index: Int, t: ResolvedTheme) -> Color {
         switch action.statusRaw {
-        case "done": return AmbidashTheme.statusGood
-        case "skipped": return AmbidashTheme.statusWarn
+        case "done": return t.ok
+        case "skipped": return t.accent
         default:
-            return AmbidashTheme.bgElevated
+            return t.surface
         }
     }
 }

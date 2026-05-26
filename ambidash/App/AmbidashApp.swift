@@ -3,10 +3,13 @@ import SwiftData
 
 @main
 struct AmbidashApp: App {
+    @State private var themeManager = ThemeManager()
+
     var body: some Scene {
         WindowGroup {
             RootView()
-                .preferredColorScheme(.dark)
+                .environment(themeManager)
+                .preferredColorScheme(themeManager.isDark ? .dark : .light)
         }
         .modelContainer(for: [
             UserProfile.self,

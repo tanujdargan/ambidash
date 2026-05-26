@@ -3,6 +3,7 @@ import SwiftData
 
 struct AssessmentFlowView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
 
     @State private var currentIndex = 0
@@ -29,15 +30,16 @@ struct AssessmentFlowView: View {
     }
 
     var body: some View {
+        let t = tm.resolved
         VStack(spacing: 0) {
             ProgressView(value: progress)
-                .tint(AmbidashTheme.accent)
+                .tint(t.accent)
                 .padding(.horizontal)
                 .padding(.top, 8)
 
             Text("\(currentIndex + 1) of \(questions.count)")
                 .font(.caption)
-                .foregroundStyle(AmbidashTheme.textSecondary)
+                .foregroundStyle(t.muted)
                 .padding(.top, 4)
 
             ScrollView {
@@ -53,7 +55,7 @@ struct AssessmentFlowView: View {
 
             HStack(spacing: 16) {
                 if currentIndex > 0 {
-                    GhostButton(title: "Back") {
+                    GhostButton(label: "Back") {
                         withAnimation { currentIndex -= 1 }
                     }
                     .frame(maxWidth: .infinity)
@@ -61,7 +63,7 @@ struct AssessmentFlowView: View {
 
                 Spacer()
 
-                AccentButton(currentIndex == questions.count - 1 ? "Next" : "Continue") {
+                AccentButton(label: currentIndex == questions.count - 1 ? "Next" : "Continue") {
                     if currentIndex < questions.count - 1 {
                         withAnimation { currentIndex += 1 }
                     } else {
@@ -74,7 +76,7 @@ struct AssessmentFlowView: View {
             }
             .padding()
         }
-        .background(AmbidashTheme.bgBase)
+        .background(t.bg)
         .navigationTitle("About You")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()

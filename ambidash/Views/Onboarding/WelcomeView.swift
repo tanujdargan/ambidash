@@ -3,6 +3,7 @@ import SwiftData
 
 struct WelcomeView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @State private var name = ""
     @State private var age = ""
     @State private var showAssessment = false
@@ -13,9 +14,10 @@ struct WelcomeView: View {
     }
 
     var body: some View {
+        let t = tm.resolved
         NavigationStack {
             ZStack {
-                AmbidashTheme.bgDeep.ignoresSafeArea()
+                t.bg.ignoresSafeArea()
 
                 VStack(spacing: 32) {
                     Spacer()
@@ -23,42 +25,42 @@ struct WelcomeView: View {
                     VStack(spacing: 12) {
                         Text("ambidash")
                             .font(.system(size: 44, weight: .bold, design: .rounded))
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
                         Text("Your life, one dashboard.")
                             .font(.title3)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                     }
 
                     VStack(spacing: 16) {
                         TextField("What's your name?", text: $name)
                             .font(.title3)
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
                             .padding(.vertical, 14)
                             .padding(.horizontal, 20)
-                            .background(AmbidashTheme.bgElevated)
-                            .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                            .background(t.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                             .padding(.horizontal, 32)
 
                         TextField("Age", text: $age)
                             .font(.title3)
                             .multilineTextAlignment(.center)
                             .keyboardType(.numberPad)
-                            .foregroundStyle(AmbidashTheme.textPrimary)
+                            .foregroundStyle(t.ink)
                             .padding(.vertical, 14)
                             .padding(.horizontal, 20)
-                            .background(AmbidashTheme.bgElevated)
-                            .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                            .background(t.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                             .padding(.horizontal, 32)
 
                         Text("~5 minutes to set up")
                             .font(.caption)
-                            .foregroundStyle(AmbidashTheme.textTertiary)
+                            .foregroundStyle(t.faint)
                     }
 
                     Spacer()
 
-                    AccentButton("Let's go", icon: "arrow.right") {
+                    AccentButton(label: "Let's go") {
                         let profile = UserProfile(
                             name: name.trimmingCharacters(in: .whitespaces),
                             age: Int(age) ?? 0

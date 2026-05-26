@@ -3,6 +3,7 @@ import SwiftData
 
 struct ReflectionFormView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @State private var selectedMood = ""
     @State private var selectedBlockers: Set<String> = []
     @State private var freeformText = ""
@@ -14,12 +15,13 @@ struct ReflectionFormView: View {
     private let blockers = ["Procrastination", "Low energy", "Unexpected events", "Anxiety", "Nothing"]
 
     var body: some View {
+        let t = tm.resolved
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("How do you feel about today?")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -29,12 +31,12 @@ struct ReflectionFormView: View {
                                 selectedMood = mood
                             }
                             .font(.caption)
-                            .foregroundStyle(isSelected ? AmbidashTheme.accent : AmbidashTheme.textSecondary)
+                            .foregroundStyle(isSelected ? t.accent : t.muted)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(isSelected ? AmbidashTheme.accent.opacity(0.2) : AmbidashTheme.bgElevated)
+                            .background(isSelected ? t.accent.opacity(0.2) : t.surface)
                             .clipShape(Capsule())
-                            .overlay(Capsule().stroke(isSelected ? AmbidashTheme.accent : Color.clear, lineWidth: 1))
+                            .overlay(Capsule().stroke(isSelected ? t.accent : Color.clear, lineWidth: 1))
                         }
                     }
                 }
@@ -44,7 +46,7 @@ struct ReflectionFormView: View {
                 Text("What got in the way?")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -55,12 +57,12 @@ struct ReflectionFormView: View {
                                 else { selectedBlockers.insert(blocker) }
                             }
                             .font(.caption)
-                            .foregroundStyle(isSelected ? AmbidashTheme.accent : AmbidashTheme.textSecondary)
+                            .foregroundStyle(isSelected ? t.accent : t.muted)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(isSelected ? AmbidashTheme.accent.opacity(0.2) : AmbidashTheme.bgElevated)
+                            .background(isSelected ? t.accent.opacity(0.2) : t.surface)
                             .clipShape(Capsule())
-                            .overlay(Capsule().stroke(isSelected ? AmbidashTheme.accent : Color.clear, lineWidth: 1))
+                            .overlay(Capsule().stroke(isSelected ? t.accent : Color.clear, lineWidth: 1))
                         }
                     }
                 }
@@ -70,17 +72,17 @@ struct ReflectionFormView: View {
                 Text("Anything else? (optional)")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 TextField("Free-form thoughts...", text: $freeformText, axis: .vertical)
                     .lineLimit(3...6)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
                     .padding(12)
-                    .background(AmbidashTheme.bgElevated)
-                    .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                    .background(t.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
-            AccentButton(saved ? "Saved" : "Save Reflection") {
+            AccentButton(label: saved ? "Saved" : "Save Reflection") {
                 saveReflection()
             }
             .disabled(selectedMood.isEmpty || saved)

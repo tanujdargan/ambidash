@@ -4,18 +4,21 @@ struct AssessmentQuestionView: View {
     let question: AssessmentQuestion
     @Binding var selectedIds: Set<String>
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(question.text)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
 
                 if !question.subtitle.isEmpty {
                     Text(question.subtitle)
                         .font(.subheadline)
-                        .foregroundStyle(AmbidashTheme.textSecondary)
+                        .foregroundStyle(t.muted)
                 }
             }
 
@@ -39,26 +42,26 @@ struct AssessmentQuestionView: View {
                                 Text(option.label)
                                     .font(.body)
                                     .fontWeight(isSelected ? .semibold : .regular)
-                                    .foregroundStyle(AmbidashTheme.textPrimary)
+                                    .foregroundStyle(t.ink)
 
                                 if !option.description.isEmpty {
                                     Text(option.description)
                                         .font(.caption)
-                                        .foregroundStyle(AmbidashTheme.textSecondary)
+                                        .foregroundStyle(t.muted)
                                 }
                             }
                             Spacer()
                             if isSelected {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(AmbidashTheme.accent)
+                                    .foregroundStyle(t.accent)
                             }
                         }
                         .padding(14)
-                        .background(isSelected ? AmbidashTheme.accent.opacity(0.15) : AmbidashTheme.bgCard)
-                        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium))
+                        .background(isSelected ? t.accent.opacity(0.15) : t.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
-                            RoundedRectangle(cornerRadius: AmbidashTheme.radiusMedium)
-                                .stroke(isSelected ? AmbidashTheme.accent : AmbidashTheme.border, lineWidth: isSelected ? 1.5 : 0.5)
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(isSelected ? t.accent : t.hair, lineWidth: isSelected ? 1.5 : 0.5)
                         )
                     }
                     .buttonStyle(.plain)

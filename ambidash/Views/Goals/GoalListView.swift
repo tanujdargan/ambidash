@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct GoalListView: View {
+    @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
     @State private var showAddGoal = false
 
@@ -11,6 +12,7 @@ struct GoalListView: View {
     private var profile: UserProfile? { profiles.first }
 
     var body: some View {
+        let t = tm.resolved
         NavigationStack {
             List {
                 let active = goals.filter(\.isActive)
@@ -22,7 +24,7 @@ struct GoalListView: View {
                             NavigationLink(value: goal.id) {
                                 GoalRow(goal: goal)
                             }
-                            .listRowBackground(AmbidashTheme.bgCard)
+                            .listRowBackground(t.surface)
                         }
                     } header: {
                         SectionHeader(title: "Active")
@@ -35,7 +37,7 @@ struct GoalListView: View {
                             NavigationLink(value: goal.id) {
                                 GoalRow(goal: goal)
                             }
-                            .listRowBackground(AmbidashTheme.bgCard)
+                            .listRowBackground(t.surface)
                         }
                     } header: {
                         SectionHeader(title: "Paused")
@@ -43,7 +45,7 @@ struct GoalListView: View {
                 }
             }
             .listStyle(.plain)
-            .background(AmbidashTheme.bgBase)
+            .background(t.bg)
             .scrollContentBackground(.hidden)
             .navigationTitle("Goals")
             .navigationDestination(for: UUID.self) { goalId in
@@ -77,7 +79,10 @@ struct GoalListView: View {
 private struct GoalRow: View {
     let goal: Goal
 
+    @Environment(ThemeManager.self) private var tm
+
     var body: some View {
+        let t = tm.resolved
         HStack(spacing: 12) {
             Image(systemName: goal.domain.icon)
                 .foregroundStyle(goal.computedStatus.color)
@@ -86,7 +91,7 @@ private struct GoalRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(goal.title)
                     .font(.body)
-                    .foregroundStyle(AmbidashTheme.textPrimary)
+                    .foregroundStyle(t.ink)
                 Text(GoalHealthService.summaryText(for: goal))
                     .font(.caption)
                     .foregroundStyle(goal.computedStatus.color)
@@ -98,10 +103,10 @@ private struct GoalRow: View {
                 HStack(spacing: 2) {
                     Image(systemName: "flame.fill")
                         .font(.caption2)
-                        .foregroundStyle(AmbidashTheme.statusWarn)
+                        .foregroundStyle(t.accent)
                     Text("\(streak.currentCount)")
                         .font(.caption)
-                        .foregroundStyle(AmbidashTheme.textSecondary)
+                        .foregroundStyle(t.muted)
                 }
             }
         }

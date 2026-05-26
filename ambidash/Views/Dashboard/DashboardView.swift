@@ -3,6 +3,7 @@ import SwiftData
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
     @State private var manager = IntegrationManager()
     @State private var showSettings = false
     @Query private var profiles: [UserProfile]
@@ -33,24 +34,25 @@ struct DashboardView: View {
     }
 
     var body: some View {
+        let t = tm.resolved
         NavigationStack {
             ZStack(alignment: .top) {
-                AmbidashTheme.bgBase
+                t.bg
                     .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: AmbidashTheme.spacingLG) {
+                    VStack(spacing: 24) {
 
                         // Custom header
                         HStack(alignment: .bottom) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(Date.now.formatted(.dateTime.weekday(.wide).month().day()))
                                     .font(.system(size: 13, weight: .medium))
-                                    .foregroundStyle(AmbidashTheme.textTertiary)
+                                    .foregroundStyle(t.faint)
                                     .tracking(0.3)
                                 Text(greeting)
                                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundStyle(AmbidashTheme.textPrimary)
+                                    .foregroundStyle(t.ink)
                             }
                             Spacer()
                             Button {
@@ -58,33 +60,33 @@ struct DashboardView: View {
                             } label: {
                                 Image(systemName: "gearshape")
                                     .font(.system(size: 18, weight: .medium))
-                                    .foregroundStyle(AmbidashTheme.textSecondary)
+                                    .foregroundStyle(t.muted)
                                     .frame(width: 36, height: 36)
-                                    .background(AmbidashTheme.bgElevated)
+                                    .background(t.surface)
                                     .clipShape(Circle())
                                     .overlay(
                                         Circle()
-                                            .stroke(AmbidashTheme.border, lineWidth: 0.5)
+                                            .stroke(t.hair, lineWidth: 0.5)
                                     )
                             }
                         }
-                        .padding(.horizontal, AmbidashTheme.spacingMD)
-                        .padding(.top, AmbidashTheme.spacingSM)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
 
                         PulseScoreView(score: pulseScore, trend: 0)
 
                         CardView {
                             DimensionBarsView(scores: dimensionScores)
                         }
-                        .padding(.horizontal, AmbidashTheme.spacingMD)
+                        .padding(.horizontal, 16)
 
                         QuickStatsView(snapshot: todaySnapshot, previousSnapshot: yesterdaySnapshot)
-                            .padding(.horizontal, AmbidashTheme.spacingMD)
+                            .padding(.horizontal, 16)
 
                         if !goals.isEmpty {
-                            VStack(alignment: .leading, spacing: AmbidashTheme.spacingSM) {
+                            VStack(alignment: .leading, spacing: 8) {
                                 SectionHeader(title: "Active Goals")
-                                    .padding(.horizontal, AmbidashTheme.spacingMD)
+                                    .padding(.horizontal, 16)
                                 GoalStripView(goals: goals)
                             }
                         }
@@ -92,38 +94,38 @@ struct DashboardView: View {
                         // Streak summary
                         if streakSummary.totalActiveStreaks > 0 {
                             CardView {
-                                VStack(alignment: .leading, spacing: AmbidashTheme.spacingSM) {
+                                VStack(alignment: .leading, spacing: 8) {
                                     HStack(spacing: 6) {
                                         Image(systemName: "flame.fill")
-                                            .foregroundStyle(AmbidashTheme.statusWarn)
+                                            .foregroundStyle(t.accent)
                                         Text("\(streakSummary.totalActiveStreaks) active streak\(streakSummary.totalActiveStreaks == 1 ? "" : "s")")
                                             .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                            .foregroundStyle(AmbidashTheme.textPrimary)
+                                            .foregroundStyle(t.ink)
                                         Spacer()
                                         Text("Best: \(streakSummary.longestCurrentStreak)d")
                                             .font(.system(size: 12, weight: .medium))
-                                            .foregroundStyle(AmbidashTheme.textTertiary)
+                                            .foregroundStyle(t.faint)
                                     }
 
                                     ForEach(streakSummary.atRiskStreaks, id: \.goalTitle) { risk in
                                         HStack(spacing: 6) {
                                             Image(systemName: "exclamationmark.triangle.fill")
                                                 .font(.caption2)
-                                                .foregroundStyle(AmbidashTheme.statusWarn)
+                                                .foregroundStyle(t.accent)
                                             Text("\(risk.goalTitle) streak (\(risk.count)d) ends tonight")
                                                 .font(.system(size: 12))
-                                                .foregroundStyle(AmbidashTheme.statusWarn)
+                                                .foregroundStyle(t.accent)
                                         }
                                     }
                                 }
                             }
-                            .padding(.horizontal, AmbidashTheme.spacingMD)
+                            .padding(.horizontal, 16)
                         }
 
                         InsightCardView(goals: goals, snapshot: todaySnapshot)
-                            .padding(.horizontal, AmbidashTheme.spacingMD)
+                            .padding(.horizontal, 16)
                     }
-                    .padding(.vertical, AmbidashTheme.spacingMD)
+                    .padding(.vertical, 16)
                 }
             }
             .task {

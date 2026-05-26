@@ -2,22 +2,24 @@ import SwiftUI
 import SwiftData
 
 struct ActionRow: View {
+    @Environment(ThemeManager.self) private var tm
     @Bindable var action: PlannedAction
     var onDone: () -> Void
     var onSkip: () -> Void
 
     var body: some View {
+        let t = tm.resolved
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(action.title)
                         .font(.headline)
                         .strikethrough(action.statusRaw == "done")
-                        .foregroundStyle(action.statusRaw == "pending" ? AmbidashTheme.textPrimary : AmbidashTheme.textSecondary)
+                        .foregroundStyle(action.statusRaw == "pending" ? t.ink : t.muted)
 
                     Text("\(action.durationMinutes) min")
                         .font(.caption)
-                        .foregroundStyle(AmbidashTheme.textTertiary)
+                        .foregroundStyle(t.faint)
                 }
 
                 Spacer()
@@ -29,7 +31,7 @@ struct ActionRow: View {
                 Text(action.whyReasoning)
                     .font(.subheadline)
                     .italic()
-                    .foregroundStyle(AmbidashTheme.textSecondary)
+                    .foregroundStyle(t.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -41,17 +43,17 @@ struct ActionRow: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
-                            .background(AmbidashTheme.statusGood, in: Capsule())
+                            .background(t.ok, in: Capsule())
                     }
                     .buttonStyle(.plain)
 
                     Button(action: onSkip) {
                         Label("Skip", systemImage: "forward.fill")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(AmbidashTheme.textTertiary)
+                            .foregroundStyle(t.faint)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
-                            .background(AmbidashTheme.bgElevated, in: Capsule())
+                            .background(t.surface, in: Capsule())
                     }
                     .buttonStyle(.plain)
                 }
@@ -63,15 +65,16 @@ struct ActionRow: View {
 
     @ViewBuilder
     private var statusBadge: some View {
+        let t = tm.resolved
         switch action.statusRaw {
         case "done":
             Label("Completed", systemImage: "checkmark.circle.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(AmbidashTheme.statusGood)
+                .foregroundStyle(t.ok)
         case "skipped":
             Label("Skipped", systemImage: "forward.fill")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(AmbidashTheme.statusWarn)
+                .foregroundStyle(t.accent)
         default:
             EmptyView()
         }

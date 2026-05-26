@@ -5,54 +5,56 @@ struct InsightCardView: View {
     let goals: [Goal]
     let snapshot: IntegrationSnapshot?
 
+    @Environment(ThemeManager.self) private var tm
     @State private var insight: String?
     @State private var isLoading = false
     @State private var hasAttempted = false
 
     var body: some View {
+        let t = tm.resolved
         HStack(spacing: 0) {
             // Left accent border
             Rectangle()
-                .fill(AmbidashTheme.accent)
+                .fill(t.accent)
                 .frame(width: 3)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("PATTERN SPOTTED")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(AmbidashTheme.accent)
+                    .foregroundStyle(t.accent)
                     .tracking(1.2)
 
                 if isLoading {
                     HStack(spacing: 8) {
                         ProgressView()
                             .controlSize(.small)
-                            .tint(AmbidashTheme.accent)
+                            .tint(t.accent)
                         Text("Analyzing your patterns...")
                             .font(.subheadline)
-                            .foregroundStyle(AmbidashTheme.textSecondary)
+                            .foregroundStyle(t.muted)
                     }
                 } else if let insight {
                     Text(insight)
                         .font(.subheadline)
-                        .foregroundStyle(AmbidashTheme.textPrimary)
+                        .foregroundStyle(t.ink)
                 } else if !AIConfig.isConfigured {
                     Text("Set your Anthropic API key in Settings to unlock AI-powered insights.")
                         .font(.subheadline)
-                        .foregroundStyle(AmbidashTheme.textSecondary)
+                        .foregroundStyle(t.muted)
                 } else {
                     Text("Tap to generate an insight about your patterns.")
                         .font(.subheadline)
-                        .foregroundStyle(AmbidashTheme.textSecondary)
+                        .foregroundStyle(t.muted)
                 }
             }
-            .padding(AmbidashTheme.spacingMD)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .background(AmbidashTheme.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge))
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
-            RoundedRectangle(cornerRadius: AmbidashTheme.radiusLarge)
-                .stroke(AmbidashTheme.border, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(t.hair, lineWidth: 0.5)
         )
         .onTapGesture {
             if !isLoading && AIConfig.isConfigured {
