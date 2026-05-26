@@ -3,13 +3,13 @@ import SwiftUI
 // MARK: - Palette Definitions
 
 enum ThemePalette: String, CaseIterable, Codable, Identifiable {
-    case warm, cool, forest, rose
+    case yellow, cool, forest, rose
 
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
-        case .warm: "Warm"
+        case .yellow: "Yellow"
         case .cool: "Cool"
         case .forest: "Forest"
         case .rose: "Rose"
@@ -18,7 +18,7 @@ enum ThemePalette: String, CaseIterable, Codable, Identifiable {
 
     var colors: (bg: UInt, ink: UInt, accent: UInt) {
         switch self {
-        case .warm:   (0xF1EDE3, 0x1A1712, 0xB47A3A)
+        case .yellow: (0xF1EDE3, 0x1A1712, 0xB47A3A)
         case .cool:   (0xECEEEF, 0x11161B, 0x5C7F8B)
         case .forest: (0xEDEEE5, 0x13180F, 0x6B7A4A)
         case .rose:   (0xF2EBE7, 0x1C1614, 0xA55E5B)
@@ -118,7 +118,7 @@ final class ThemeManager {
     }
 
     init() {
-        self.palette = ThemePalette(rawValue: UserDefaults.standard.string(forKey: "theme_palette") ?? "") ?? .warm
+        self.palette = ThemePalette(rawValue: UserDefaults.standard.string(forKey: "theme_palette") ?? "") ?? .yellow
         self.isDark = UserDefaults.standard.object(forKey: "theme_dark") as? Bool ?? true
         self.typography = ThemeTypography(rawValue: UserDefaults.standard.string(forKey: "theme_typography") ?? "") ?? .technical
         self.density = ThemeDensity(rawValue: UserDefaults.standard.string(forKey: "theme_density") ?? "") ?? .detailed
