@@ -6,6 +6,7 @@ struct AmbidashApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .preferredColorScheme(.dark)
         }
         .modelContainer(for: [
             UserProfile.self,
