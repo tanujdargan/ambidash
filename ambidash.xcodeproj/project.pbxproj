@@ -93,6 +93,7 @@
 		C7C1DBFC629000A2D7E67249 /* GoalHealthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F622E2B5F7A018C1B3EA3C /* GoalHealthService.swift */; };
 		C84508AC103EFF75F541B68A /* DimensionScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3099F0CBCE4380F52D4ADBB6 /* DimensionScoreCalculator.swift */; };
 		C8DD5AC6929AC0EBE8AF59CE /* GoalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B140A14EEEE8BC6C70F1A8F /* GoalListView.swift */; };
+		C9C9BE124ED067322819093F /* EmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCB96FD0B43019990AE873 /* EmptyState.swift */; };
 		CE67117CAFC02BE675D37B67 /* ObsidianService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BCAD31DCCCEDFFDF02F0C2 /* ObsidianService.swift */; };
 		D3D00C97CE252AAFFE9F4B1C /* DimensionScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F2B2B739FF4A7D8AD0A113 /* DimensionScoreCalculatorTests.swift */; };
 		D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557698237B86451559706D44 /* AmbidashApp.swift */; };
@@ -101,6 +102,7 @@
 		DD346661F70EA3838978CC92 /* Streak.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28E88B33A2DF877FBC2E57E /* Streak.swift */; };
 		DEC0EC616EA3799B4E2814F5 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC96295D909EDBC3A912D5DE /* HealthKitService.swift */; };
 		DF8B731A0551043111FABA47 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3CDF2192AEB9764B867246 /* NetworkMonitor.swift */; };
+		E60C26D269DEF64410700B52 /* SpotlightService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */; };
 		F1806EB4832A5DECBD2DE525 /* AssessmentQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343F2BAD8B05D6F390651E44 /* AssessmentQuestion.swift */; };
 		F1C4D073F65A527E6EF02EEF /* ThemeSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D43971DAD901C2756FFED5 /* ThemeSetupView.swift */; };
 		F3EDF9E82DF9383A1CCDD300 /* GoalLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26818C638CFD52394E52477F /* GoalLibrary.swift */; };
@@ -126,6 +128,7 @@
 		079C72EA0A694EB8858FDFBC /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		09115618227349FA26D9E136 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		097D73995EC9BBD4FF1739A4 /* AddGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalView.swift; sourceTree = "<group>"; };
+		0ABCB96FD0B43019990AE873 /* EmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyState.swift; sourceTree = "<group>"; };
 		0BCCF7FED119C86AD1B00F9B /* ambidash.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ambidash.entitlements; sourceTree = "<group>"; };
 		0D7D987D04B3F6BED91E1344 /* GoalQuickSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalQuickSheet.swift; sourceTree = "<group>"; };
 		0DE6A075761C5F7C13EF2BE1 /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
@@ -205,6 +208,7 @@
 		BE58D6B581720991895E3987 /* ambidash.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ambidash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BED6CAF811845880023A84FC /* LifeDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeDimension.swift; sourceTree = "<group>"; };
 		CB77796CED406ECEB71F9B1D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightService.swift; sourceTree = "<group>"; };
 		CCF9FD3FC9D95230E9390295 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D12EBDB103B6522D8960104E /* GoalHorizon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalHorizon.swift; sourceTree = "<group>"; };
 		D33FBBB2BFDC2B4185FE6C8C /* WorkStylePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkStylePreference.swift; sourceTree = "<group>"; };
@@ -426,6 +430,7 @@
 				98498452A2F2F63ADC06CEB6 /* ScreenTimeService.swift */,
 				F9029079DA9843B1733B7A26 /* SkipAnalysisService.swift */,
 				671B9B4705A3549951558745 /* SnapshotBuilder.swift */,
+				CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */,
 				1D85C97171671F9FEA4F482F /* StreakService.swift */,
 				D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */,
 			);
@@ -464,6 +469,7 @@
 				E3DBC8F6AC246D974F0209D8 /* AmbidashTheme.swift */,
 				87606436876B83DE2DD6141D /* Animations.swift */,
 				079C72EA0A694EB8858FDFBC /* Components.swift */,
+				0ABCB96FD0B43019990AE873 /* EmptyState.swift */,
 				FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */,
 			);
 			path = Theme;
@@ -707,6 +713,7 @@
 				BBB3D552D40C210D8372E92A /* DomainAssessment.swift in Sources */,
 				83916156AA043F544442BCC8 /* DomainAssessmentQuestions.swift in Sources */,
 				C1D05B0C26E39115C34974E9 /* DomainAssessmentSheet.swift in Sources */,
+				C9C9BE124ED067322819093F /* EmptyState.swift in Sources */,
 				60F320D28189038F7CE3571E /* ErrorLogger.swift in Sources */,
 				99AB9A98DA6890C879766A36 /* EventKitService.swift in Sources */,
 				90331D5D5B12AB3244A23809 /* FirstLetterView.swift in Sources */,
@@ -761,6 +768,7 @@
 				9487355C3DA87E28DEAC2BC2 /* ShimmerView.swift in Sources */,
 				4BDDB06FAAC8CF015BBE0565 /* SkipAnalysisService.swift in Sources */,
 				0E52B9416614A9425F2A8FBE /* SnapshotBuilder.swift in Sources */,
+				E60C26D269DEF64410700B52 /* SpotlightService.swift in Sources */,
 				DD346661F70EA3838978CC92 /* Streak.swift in Sources */,
 				FA51486D160E2D60E98F332C /* StreakService.swift in Sources */,
 				636A5873CB39E24586D37034 /* SubscriptionService.swift in Sources */,

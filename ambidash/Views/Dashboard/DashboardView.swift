@@ -164,6 +164,7 @@ struct DashboardView: View {
                     }
                 }
                 updateWidgetData()
+                SpotlightService.indexGoals(goals)
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)
