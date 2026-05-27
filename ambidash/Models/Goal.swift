@@ -11,6 +11,8 @@ final class Goal {
     var createdAt: Date
     var lastProgressDate: Date
     var isActive: Bool
+    var horizonRaw: String
+    var subtitle: String
 
     var profile: UserProfile?
     @Relationship(deleteRule: .cascade) var domainAssessment: DomainAssessment?
@@ -26,6 +28,8 @@ final class Goal {
         self.createdAt = .now
         self.lastProgressDate = .now
         self.isActive = true
+        self.horizonRaw = GoalHorizon.now.rawValue
+        self.subtitle = ""
         self.progressEntries = []
     }
 
@@ -40,6 +44,11 @@ final class Goal {
 
     var neglectDays: Int {
         Calendar.current.dateComponents([.day], from: lastProgressDate, to: .now).day ?? 0
+    }
+
+    var horizon: GoalHorizon {
+        get { GoalHorizon(rawValue: horizonRaw) ?? .now }
+        set { horizonRaw = newValue.rawValue }
     }
 
     var computedStatus: GoalStatus {
