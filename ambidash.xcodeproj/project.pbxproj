@@ -58,6 +58,7 @@
 		8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F3135818AB6A21667C3011 /* TodayView.swift */; };
 		8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED6CAF811845880023A84FC /* LifeDimension.swift */; };
 		90331D5D5B12AB3244A23809 /* FirstLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F25BD1C79A41FD3D12A25FC /* FirstLetterView.swift */; };
+		93AAA140CD44B7D8F48BFBDC /* GoalQuickSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7D987D04B3F6BED91E1344 /* GoalQuickSheet.swift */; };
 		9487355C3DA87E28DEAC2BC2 /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */; };
 		95AB685CED015CDD01A32795 /* PulseScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A26D142678147B1F2B091 /* PulseScoreCalculatorTests.swift */; };
 		97C1BAFAEF7B9EE9BD0527A0 /* MentorPromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88911E206DDFC07ECF427A18 /* MentorPromptBuilder.swift */; };
@@ -118,6 +119,7 @@
 		09115618227349FA26D9E136 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		097D73995EC9BBD4FF1739A4 /* AddGoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoalView.swift; sourceTree = "<group>"; };
 		0BCCF7FED119C86AD1B00F9B /* ambidash.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ambidash.entitlements; sourceTree = "<group>"; };
+		0D7D987D04B3F6BED91E1344 /* GoalQuickSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalQuickSheet.swift; sourceTree = "<group>"; };
 		0DE6A075761C5F7C13EF2BE1 /* GoalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDetailView.swift; sourceTree = "<group>"; };
 		1011A65E55C44311E372F71C /* IdentityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityView.swift; sourceTree = "<group>"; };
 		11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkStylePickerView.swift; sourceTree = "<group>"; };
@@ -334,6 +336,7 @@
 				AE8F82D135E34038FA3A0E62 /* DomainAssessmentSheet.swift */,
 				0DE6A075761C5F7C13EF2BE1 /* GoalDetailView.swift */,
 				5B140A14EEEE8BC6C70F1A8F /* GoalListView.swift */,
+				0D7D987D04B3F6BED91E1344 /* GoalQuickSheet.swift */,
 			);
 			path = Goals;
 			sourceTree = "<group>";
@@ -637,6 +640,7 @@
 				F3EDF9E82DF9383A1CCDD300 /* GoalLibrary.swift in Sources */,
 				C8DD5AC6929AC0EBE8AF59CE /* GoalListView.swift in Sources */,
 				DB70F50DF61D7AD483458228 /* GoalProgress.swift in Sources */,
+				93AAA140CD44B7D8F48BFBDC /* GoalQuickSheet.swift in Sources */,
 				34FD720A94B510E303172982 /* GoalStatus.swift in Sources */,
 				A7E80F11D899222A6211EEBC /* GoalStripView.swift in Sources */,
 				F745A6FBBBED0DDA0232652E /* Haptics.swift in Sources */,

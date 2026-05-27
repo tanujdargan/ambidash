@@ -5,6 +5,7 @@ struct GoalListView: View {
     @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
     @State private var showAddGoal = false
+    @State private var selectedGoal: Goal?
 
     private var profile: UserProfile? { profiles.first }
     private var goals: [Goal] { (profile?.goals ?? []).sorted { $0.priority < $1.priority } }
@@ -31,6 +32,9 @@ struct GoalListView: View {
             }
             .sheet(isPresented: $showAddGoal) {
                 AddGoalView()
+            }
+            .sheet(item: $selectedGoal) { goal in
+                GoalQuickSheet(goal: goal)
             }
         }
     }
@@ -82,7 +86,10 @@ struct GoalListView: View {
 
                         VStack(spacing: 0) {
                             ForEach(retired) { goal in
-                                NavigationLink(value: goal.id) {
+                                Button {
+                                    Haptics.selection()
+                                    selectedGoal = goal
+                                } label: {
                                     goalRow(goal, dotColor: t.faint, t: t, retired: true)
                                 }
                                 .buttonStyle(.plain)
@@ -100,11 +107,6 @@ struct GoalListView: View {
                 }
             }
             .padding(.bottom, 100)
-            .navigationDestination(for: UUID.self) { goalId in
-                if let goal = goals.first(where: { $0.id == goalId }) {
-                    GoalDetailView(goal: goal)
-                }
-            }
         }
     }
 
@@ -130,7 +132,10 @@ struct GoalListView: View {
 
             VStack(spacing: 0) {
                 ForEach(goals) { goal in
-                    NavigationLink(value: goal.id) {
+                    Button {
+                        Haptics.selection()
+                        selectedGoal = goal
+                    } label: {
                         goalRow(goal, dotColor: horizon.dotColor, t: t)
                     }
                     .buttonStyle(.plain)

@@ -131,6 +131,23 @@ struct TodayView: View {
         .overlay(
             RoundedRectangle(cornerRadius: 10).stroke(t.hair, lineWidth: 0.5)
         )
+        .contextMenu {
+            Button {
+                action.statusRaw = "done"
+                action.completedAt = .now
+                handleDone(action)
+                Haptics.success()
+            } label: {
+                Label("Mark done", systemImage: "checkmark")
+            }
+            Button {
+                action.statusRaw = "skipped"
+                try? modelContext.save()
+                Haptics.light()
+            } label: {
+                Label("Skip", systemImage: "forward")
+            }
+        }
     }
 
     // MARK: - Timeline Row
@@ -186,6 +203,25 @@ struct TodayView: View {
         .overlay(alignment: .bottom) {
             if showDivider {
                 t.hair.frame(height: 0.5)
+            }
+        }
+        .contextMenu {
+            if action.statusRaw == "pending" {
+                Button {
+                    action.statusRaw = "done"
+                    action.completedAt = .now
+                    handleDone(action)
+                    Haptics.success()
+                } label: {
+                    Label("Mark done", systemImage: "checkmark")
+                }
+                Button {
+                    action.statusRaw = "skipped"
+                    try? modelContext.save()
+                    Haptics.light()
+                } label: {
+                    Label("Skip", systemImage: "forward")
+                }
             }
         }
     }
