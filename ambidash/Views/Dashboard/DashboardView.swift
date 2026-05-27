@@ -98,6 +98,11 @@ struct DashboardView: View {
                         InsightCardView(goals: goals, snapshot: todaySnapshot)
                             .fadeSlideIn(delay: 0.1)
 
+                        // Identity statement
+                        if !goals.isEmpty {
+                            IdentityStatement(text: identityText)
+                        }
+
                         // Goal strip
                         if !goals.isEmpty {
                             GoalStripView(goals: goals)
@@ -191,6 +196,19 @@ struct DashboardView: View {
         if let topGoal = goals.max(by: { $0.neglectDays < $1.neglectDays }) {
             defaults?.set(topGoal.title, forKey: "widget_top_goal")
             defaults?.set(GoalHealthService.summaryText(for: topGoal), forKey: "widget_top_status")
+        }
+    }
+
+    private var identityText: String {
+        let lowestDim = dimensionScores.min(by: { $0.value < $1.value })
+        switch lowestDim?.key {
+        case .body: return "someone who treats their body as the instrument it is."
+        case .mind: return "someone whose mind is sharper than their impulses."
+        case .craft: return "someone who does the work, not just plans it."
+        case .people: return "someone whose attention belongs to the people in front of them."
+        case .wealth: return "someone whose freedom isn't borrowed."
+        case .adventure: return "someone who lives, not just optimizes."
+        case nil: return "someone who finishes what they start."
         }
     }
 
