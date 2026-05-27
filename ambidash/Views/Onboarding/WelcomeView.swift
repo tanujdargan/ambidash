@@ -2,16 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct WelcomeView: View {
-    @Environment(\.modelContext) private var modelContext
     @Environment(ThemeManager.self) private var tm
-    @State private var name = ""
-    @State private var age = ""
-    @State private var showAssessment = false
-
-    private var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        Int(age) != nil && Int(age)! >= 13
-    }
+    @Environment(\.modelContext) private var modelContext
+    @State private var showIdentity = false
 
     var body: some View {
         let t = tm.resolved
@@ -19,63 +12,66 @@ struct WelcomeView: View {
             ZStack {
                 t.bg.ignoresSafeArea()
 
-                VStack(spacing: 32) {
+                VStack(alignment: .leading, spacing: 0) {
                     Spacer()
 
-                    VStack(spacing: 12) {
-                        Text("ambidash")
-                            .font(.system(size: 44, weight: .bold, design: .rounded))
-                            .foregroundStyle(t.ink)
-                        Text("Your life, one dashboard.")
-                            .font(.title3)
-                            .foregroundStyle(t.muted)
+                    // Instrument mark
+                    ZStack {
+                        Circle().stroke(t.ink.opacity(0.15), lineWidth: 0.6).frame(width: 52, height: 52)
+                        Circle().stroke(t.ink.opacity(0.15), lineWidth: 0.6).frame(width: 36, height: 36)
+                        Circle().stroke(t.ink.opacity(0.15), lineWidth: 0.6).frame(width: 20, height: 20)
+                        Circle().fill(t.accent).frame(width: 5, height: 5)
                     }
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 28)
 
-                    VStack(spacing: 16) {
-                        TextField("What's your name?", text: $name)
-                            .font(.title3)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(t.ink)
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 20)
-                            .background(t.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .padding(.horizontal, 32)
+                    Text("AMBIDASH · V0.1")
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .tracking(2)
+                        .foregroundStyle(t.muted)
+                        .padding(.horizontal, 28)
 
-                        TextField("Age", text: $age)
-                            .font(.title3)
-                            .multilineTextAlignment(.center)
-                            .keyboardType(.numberPad)
-                            .foregroundStyle(t.ink)
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 20)
-                            .background(t.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .padding(.horizontal, 32)
+                    Text("A quiet instrument for an ambitious life.")
+                        .font(.system(size: 38, weight: .regular, design: .serif))
+                        .tracking(-0.6)
+                        .lineSpacing(2)
+                        .foregroundStyle(t.ink)
+                        .padding(.horizontal, 28)
+                        .padding(.top, 16)
 
-                        Text("~5 minutes to set up")
-                            .font(.caption)
+                    Text("Not a coach, not a tracker. A mentor who watches, asks better questions, and remembers what you said you cared about — when you forget.")
+                        .font(.system(size: 15))
+                        .lineSpacing(4)
+                        .foregroundStyle(t.ink2)
+                        .padding(.horizontal, 28)
+                        .padding(.top, 18)
+
+                    Spacer()
+                    Spacer()
+
+                    VStack(spacing: 10) {
+                        PrimaryButton(label: "Begin") {
+                            showIdentity = true
+                        }
+
+                        GhostButton(label: "I've been here before") {
+                            // TODO: restore flow
+                        }
+
+                        Text("~ 8 minutes to set up · everything stays on this device")
+                            .font(.system(size: 10, design: .monospaced))
                             .foregroundStyle(t.faint)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 8)
                     }
-
-                    Spacer()
-
-                    AccentButton(label: "Let's go") {
-                        let profile = UserProfile(
-                            name: name.trimmingCharacters(in: .whitespaces),
-                            age: Int(age) ?? 0
-                        )
-                        modelContext.insert(profile)
-                        showAssessment = true
-                    }
-                    .disabled(!isValid)
-                    .padding(.horizontal, 32)
-                    .padding(.bottom, 48)
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 22)
                 }
             }
-            .navigationDestination(isPresented: $showAssessment) {
-                AssessmentFlowView()
+            .navigationDestination(isPresented: $showIdentity) {
+                IdentityView()
             }
         }
+        .preferredColorScheme(tm.isDark ? .dark : .light)
     }
 }

@@ -83,7 +83,7 @@ struct IntegrationSetupView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .navigationDestination(isPresented: $showComplete) {
-            OnboardingCompleteView()
+            FirstLetterView()
         }
     }
 }
