@@ -43,6 +43,7 @@
 		5585B94B4862D4B196856E78 /* MotionPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CCA9EB090C0B07F883749A /* MotionPreference.swift */; };
 		564546D6788F7BA374813141 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 519313A26A851EA1B979BC07 /* PrivacyInfo.xcprivacy */; };
 		58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */; };
+		5C8C3DA18CB1BE586526DF20 /* OnboardingFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1EA91E8A3918D1CE6FFBFA /* OnboardingFlowTests.swift */; };
 		60C2E35CE35FEA13BBECB005 /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC183A57A063887061AA22C /* NotionService.swift */; };
 		60F320D28189038F7CE3571E /* ErrorLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2599FAF6B43DF69E00217AC5 /* ErrorLogger.swift */; };
 		636A5873CB39E24586D37034 /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */; };
@@ -159,6 +160,7 @@
 		73107790D53825C77448FC4E /* ReflectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectView.swift; sourceTree = "<group>"; };
 		74BCAD31DCCCEDFFDF02F0C2 /* ObsidianService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObsidianService.swift; sourceTree = "<group>"; };
 		7CB408A2165C1E61E569D13C /* EventKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventKitService.swift; sourceTree = "<group>"; };
+		7D1EA91E8A3918D1CE6FFBFA /* OnboardingFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowTests.swift; sourceTree = "<group>"; };
 		7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentorFeedback.swift; sourceTree = "<group>"; };
 		80DF9F69EC7D14054E5E4154 /* AIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIConfig.swift; sourceTree = "<group>"; };
 		83302B08A2C9BF4EA6CE66ED /* GoalDeclarationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDeclarationView.swift; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 			isa = PBXGroup;
 			children = (
 				BB53322A625D21C309B8444F /* SanityTests.swift */,
+				6CDC86EDA999C4180986E794 /* Integration */,
 				16832A482158174130D3E1E1 /* Models */,
 				4347CC4E7EF9EC2D288E34F7 /* Services */,
 				94BDDF96E63154D039616730 /* Utilities */,
@@ -339,6 +342,14 @@
 				0D7D987D04B3F6BED91E1344 /* GoalQuickSheet.swift */,
 			);
 			path = Goals;
+			sourceTree = "<group>";
+		};
+		6CDC86EDA999C4180986E794 /* Integration */ = {
+			isa = PBXGroup;
+			children = (
+				7D1EA91E8A3918D1CE6FFBFA /* OnboardingFlowTests.swift */,
+			);
+			path = Integration;
 			sourceTree = "<group>";
 		};
 		72119CB2F63CF325CAA1EEBA /* Views */ = {
@@ -709,6 +720,7 @@
 				C76B5C540C4F5784CCF0EE62 /* GoalDomainTests.swift in Sources */,
 				9CBF25DB0868CBD90EF3B53B /* GoalHealthServiceTests.swift in Sources */,
 				523116C7FB5732C11AF149E1 /* GoalTests.swift in Sources */,
+				5C8C3DA18CB1BE586526DF20 /* OnboardingFlowTests.swift in Sources */,
 				74DF8BD7BF6CFCD9028DB781 /* PlanGeneratorTests.swift in Sources */,
 				95AB685CED015CDD01A32795 /* PulseScoreCalculatorTests.swift in Sources */,
 				637813F66460983915A480D0 /* SanityTests.swift in Sources */,
