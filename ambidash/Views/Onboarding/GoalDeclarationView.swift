@@ -120,10 +120,16 @@ struct GoalDeclarationView: View {
 
     private func saveGoals() {
         guard let profile else { return }
-        for (index, domain) in selectedDomains.sorted(by: { $0.displayName < $1.displayName }).enumerated() {
-            let goal = Goal(title: domain.displayName, domain: domain, priority: index + 1)
-            goal.streak = Streak()
-            profile.goals.append(goal)
+        var priority = 1
+        for domain in selectedDomains.sorted(by: { $0.displayName < $1.displayName }) {
+            for template in GoalLibrary.starterGoals(for: domain) {
+                let goal = Goal(title: template.title, domain: domain, priority: priority)
+                goal.subtitle = template.subtitle
+                goal.horizon = template.horizon
+                goal.streak = Streak()
+                profile.goals.append(goal)
+                priority += 1
+            }
         }
         try? modelContext.save()
     }
