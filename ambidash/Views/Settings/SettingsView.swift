@@ -31,6 +31,41 @@ struct SettingsView: View {
                 }
                 .listRowBackground(t.surface)
 
+                Section("Appearance") {
+                    Picker("Palette", selection: Binding(
+                        get: { tm.palette },
+                        set: { tm.palette = $0 }
+                    )) {
+                        ForEach(ThemePalette.allCases) { p in
+                            Text(p.displayName).tag(p)
+                        }
+                    }
+
+                    Toggle("Dark Mode", isOn: Binding(
+                        get: { tm.isDark },
+                        set: { tm.isDark = $0 }
+                    ))
+
+                    Picker("Typography", selection: Binding(
+                        get: { tm.typography },
+                        set: { tm.typography = $0 }
+                    )) {
+                        ForEach(ThemeTypography.allCases) { t in
+                            Text(t.displayName).tag(t)
+                        }
+                    }
+
+                    Picker("Density", selection: Binding(
+                        get: { tm.density },
+                        set: { tm.density = $0 }
+                    )) {
+                        ForEach(ThemeDensity.allCases) { d in
+                            Text(d.displayName).tag(d)
+                        }
+                    }
+                }
+                .listRowBackground(t.surface)
+
                 Section("Subscription") {
                     if subscription.isPremium {
                         HStack {
