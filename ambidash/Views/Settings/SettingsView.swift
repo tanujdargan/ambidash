@@ -4,11 +4,13 @@ import SwiftData
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
 
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @State private var showPaywall = false
+    @State private var showDeleteConfirmation = false
     @State private var apiKey = ""
     @State private var subscription = SubscriptionService.shared
     @State private var showNotionSetup = false
@@ -181,6 +183,9 @@ struct SettingsView: View {
                         onboardingComplete = false
                         dismiss()
                     }
+                    Button("Delete All Data", role: .destructive) {
+                        showDeleteConfirmation = true
+                    }
                 }
                 .listRowBackground(t.surface)
             }
@@ -210,9 +215,56 @@ struct SettingsView: View {
                     ObsidianService.shared.setVaultURL(url)
                 }
             }
+            .alert("Delete Everything?", isPresented: $showDeleteConfirmation) {
+                Button("Delete", role: .destructive) {
+                    deleteAllData()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will permanently delete all your goals, assessments, plans, reflections, and preferences. This cannot be undone.")
+            }
             .onAppear {
                 apiKey = AIConfig.isConfigured ? "••••••••" : ""
             }
         }
+    }
+
+    private func deleteAllData() {
+        // Delete all SwiftData models
+        try? modelContext.delete(model: UserProfile.self)
+        try? modelContext.delete(model: Goal.self)
+        try? modelContext.delete(model: CoreAssessment.self)
+        try? modelContext.delete(model: WorkStylePreference.self)
+        try? modelContext.delete(model: DomainAssessment.self)
+        try? modelContext.delete(model: GoalProgress.self)
+        try? modelContext.delete(model: Streak.self)
+        try? modelContext.delete(model: IntegrationSnapshot.self)
+        try? modelContext.delete(model: DailyPlan.self)
+        try? modelContext.delete(model: PlannedAction.self)
+        try? modelContext.delete(model: Reflection.self)
+        try? modelContext.delete(model: MentorFeedback.self)
+        try? modelContext.save()
+
+        // Clear preferences
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "theme_palette")
+        defaults.removeObject(forKey: "theme_dark")
+        defaults.removeObject(forKey: "theme_typography")
+        defaults.removeObject(forKey: "theme_density")
+        defaults.removeObject(forKey: "theme_setup_complete")
+        defaults.removeObject(forKey: "onboardingComplete")
+        defaults.removeObject(forKey: "screentime_authorized")
+        defaults.removeObject(forKey: "notion_access_token")
+        defaults.removeObject(forKey: "obsidian_vault_bookmark")
+        defaults.removeObject(forKey: "daily_insight_count")
+        defaults.removeObject(forKey: "daily_plan_count")
+        defaults.removeObject(forKey: "daily_count_reset_date")
+
+        // Clear API key from Keychain
+        AIConfig.setApiKey("")
+
+        // Reset navigation state
+        onboardingComplete = false
+        dismiss()
     }
 }

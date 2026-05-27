@@ -4,6 +4,8 @@ import SwiftData
 struct WelcomeView: View {
     @Environment(ThemeManager.self) private var tm
     @Environment(\.modelContext) private var modelContext
+    @AppStorage("onboardingComplete") private var onboardingComplete = false
+    @AppStorage("theme_setup_complete") private var themeSetupComplete = false
     @State private var showIdentity = false
 
     var body: some View {
@@ -55,7 +57,7 @@ struct WelcomeView: View {
                         }
 
                         GhostButton(label: "I've been here before") {
-                            // TODO: restore flow
+                            onboardingComplete = true
                         }
 
                         Text("~ 8 minutes to set up · everything stays on this device")
