@@ -11,77 +11,107 @@ struct GoalDeclarationView: View {
 
     private var profile: UserProfile? { profiles.first }
 
+    private let pillarInfo: [(domain: GoalDomain, examples: [String])] = [
+        (.body, ["Fix sleep schedule", "Compound lifts 3-4x/week", "Lean toned body", "Clean eating"]),
+        (.mind, ["Control emotions in the moment", "Build genuine self-confidence", "Reading habit", "Therapy or journaling"]),
+        (.craft, ["Crush the internship", "Launch startup solo", "AI research publications", "Public speaking"]),
+        (.people, ["Be more social", "Make real friends", "Build deliberate network", "Find a partner"]),
+        (.wealth, ["Invest every payday", "Financial independence", "Emergency fund"]),
+        (.adventure, ["Keep gaming", "Photography", "Tokyo trip", "Pilot license"]),
+    ]
+
     var body: some View {
         let t = tm.resolved
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("What do you want to work on?")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(t.ink)
+        ZStack {
+            t.bg.ignoresSafeArea()
 
-                        Text("Pick as many as you want. You can always add or remove later.")
-                            .font(.subheadline)
-                            .foregroundStyle(t.muted)
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 24)
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        // Header
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("STEP 04 / 06 · GOALS")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .tracking(2)
+                                .foregroundStyle(t.muted)
 
-                    VStack(spacing: 10) {
-                        ForEach(GoalDomain.allCases) { domain in
-                            let isSelected = selectedDomains.contains(domain)
-
-                            Button {
-                                if isSelected {
-                                    selectedDomains.remove(domain)
-                                } else {
-                                    selectedDomains.insert(domain)
-                                }
-                            } label: {
-                                HStack(spacing: 14) {
-                                    Image(systemName: domain.icon)
-                                        .font(.title3)
-                                        .foregroundStyle(t.accent)
-                                        .frame(width: 32)
-
-                                    Text(domain.displayName)
-                                        .font(.body)
-                                        .foregroundStyle(t.ink)
-
-                                    Spacer()
-
-                                    if isSelected {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(t.accent)
-                                    }
-                                }
-                                .padding(14)
-                                .background(isSelected ? t.accent.opacity(0.15) : t.surface)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(isSelected ? t.accent : t.hair, lineWidth: isSelected ? 1.5 : 0.5)
-                                )
-                            }
-                            .buttonStyle(.plain)
+                            Text("You said yes to all of these once. Which still matter?")
+                                .font(.system(size: 24, weight: .regular, design: .serif))
+                                .tracking(-0.2)
+                                .lineSpacing(2)
+                                .foregroundStyle(t.ink)
                         }
-                    }
-                    .padding(.horizontal)
-                }
-            }
+                        .padding(.horizontal, 22)
+                        .padding(.top, 8)
 
-            AccentButton(label: "Continue") {
-                saveGoals()
-                showWorkStyle = true
+                        // Pillar cards
+                        VStack(spacing: 10) {
+                            ForEach(pillarInfo, id: \.domain) { info in
+                                let isSelected = selectedDomains.contains(info.domain)
+
+                                Button {
+                                    Haptics.selection()
+                                    if isSelected {
+                                        selectedDomains.remove(info.domain)
+                                    } else {
+                                        selectedDomains.insert(info.domain)
+                                    }
+                                } label: {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        HStack {
+                                            Image(systemName: info.domain.icon)
+                                                .font(.system(size: 16))
+                                                .foregroundStyle(isSelected ? t.accent : t.muted)
+                                                .frame(width: 24)
+
+                                            Text(info.domain.displayName)
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundStyle(t.ink)
+
+                                            Spacer()
+
+                                            if isSelected {
+                                                Image(systemName: "checkmark")
+                                                    .font(.system(size: 12, weight: .semibold))
+                                                    .foregroundStyle(t.accent)
+                                            }
+                                        }
+
+                                        Text(info.examples.joined(separator: " · "))
+                                            .font(.system(size: 11, design: .monospaced))
+                                            .foregroundStyle(t.faint)
+                                            .lineLimit(2)
+                                    }
+                                    .padding(14)
+                                    .background(isSelected ? t.accent.opacity(0.08) : t.surface)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(isSelected ? t.accent.opacity(0.4) : t.hair, lineWidth: isSelected ? 1 : 0.5)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal, 22)
+                    }
+                    .padding(.bottom, 24)
+                }
+
+                // Bottom buttons
+                HStack(spacing: 10) {
+                    Spacer()
+                    PillButton(label: "Continue", primary: true) {
+                        saveGoals()
+                        showWorkStyle = true
+                    }
+                }
+                .padding(.horizontal, 22)
+                .padding(.bottom, 24)
+                .opacity(selectedDomains.isEmpty ? 0.4 : 1)
+                .disabled(selectedDomains.isEmpty)
             }
-            .disabled(selectedDomains.isEmpty)
-            .padding()
         }
-        .background(t.bg)
-        .navigationTitle("Your Goals")
-        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .navigationDestination(isPresented: $showWorkStyle) {
             WorkStylePickerView()
@@ -95,5 +125,6 @@ struct GoalDeclarationView: View {
             goal.streak = Streak()
             profile.goals.append(goal)
         }
+        try? modelContext.save()
     }
 }

@@ -57,6 +57,7 @@
 		8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F3135818AB6A21667C3011 /* TodayView.swift */; };
 		8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED6CAF811845880023A84FC /* LifeDimension.swift */; };
 		90331D5D5B12AB3244A23809 /* FirstLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F25BD1C79A41FD3D12A25FC /* FirstLetterView.swift */; };
+		9487355C3DA87E28DEAC2BC2 /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */; };
 		95AB685CED015CDD01A32795 /* PulseScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A26D142678147B1F2B091 /* PulseScoreCalculatorTests.swift */; };
 		97C1BAFAEF7B9EE9BD0527A0 /* MentorPromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88911E206DDFC07ECF427A18 /* MentorPromptBuilder.swift */; };
 		99AB9A98DA6890C879766A36 /* EventKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB408A2165C1E61E569D13C /* EventKitService.swift */; };
@@ -202,6 +203,7 @@
 		F9029079DA9843B1733B7A26 /* SkipAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipAnalysisService.swift; sourceTree = "<group>"; };
 		FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTests.swift; sourceTree = "<group>"; };
 		FF0078242D4C8C835AAF607D /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -397,6 +399,7 @@
 			children = (
 				E3DBC8F6AC246D974F0209D8 /* AmbidashTheme.swift */,
 				079C72EA0A694EB8858FDFBC /* Components.swift */,
+				FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -661,6 +664,7 @@
 				17E6E11A685678AE4A8BEFCC /* ScaffoldingService.swift in Sources */,
 				C5216B8C9D1BEE1A9BD482EF /* ScreenTimeService.swift in Sources */,
 				B98436EEC2041FD122703B60 /* SettingsView.swift in Sources */,
+				9487355C3DA87E28DEAC2BC2 /* ShimmerView.swift in Sources */,
 				4BDDB06FAAC8CF015BBE0565 /* SkipAnalysisService.swift in Sources */,
 				0E52B9416614A9425F2A8FBE /* SnapshotBuilder.swift in Sources */,
 				DD346661F70EA3838978CC92 /* Streak.swift in Sources */,
