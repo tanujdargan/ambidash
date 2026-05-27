@@ -53,7 +53,9 @@ struct SettingsView: View {
                         .textInputAutocapitalization(.never)
 
                     Button("Save API Key") {
-                        AIConfig.setApiKey(apiKey)
+                        if !apiKey.starts(with: "•") {
+                            AIConfig.setApiKey(apiKey)
+                        }
                     }
                     .disabled(apiKey.isEmpty)
 
@@ -209,7 +211,7 @@ struct SettingsView: View {
                 }
             }
             .onAppear {
-                apiKey = AIConfig.apiKey
+                apiKey = AIConfig.isConfigured ? "••••••••" : ""
             }
         }
     }
