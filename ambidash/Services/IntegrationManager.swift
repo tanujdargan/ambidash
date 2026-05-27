@@ -16,7 +16,13 @@ final class IntegrationManager {
     var remindersAuthorized = false
     var isLoading = false
 
+    static var skipPermissions: Bool {
+        CommandLine.arguments.contains("--skip-permissions") ||
+        UserDefaults.standard.bool(forKey: "skip_permissions")
+    }
+
     func requestAllPermissions() async {
+        guard !Self.skipPermissions else { return }
         async let health = healthKit.requestAuthorization()
         async let calendar = eventKit.requestCalendarAccess()
         async let reminders = eventKit.requestRemindersAccess()

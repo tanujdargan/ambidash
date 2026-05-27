@@ -11,6 +11,10 @@ struct AmbidashApp: App {
             UserDefaults.standard.removeObject(forKey: "theme_setup_complete")
             UserDefaults.standard.removeObject(forKey: "onboardingComplete")
         }
+        if CommandLine.arguments.contains("--skip-to-dashboard") {
+            UserDefaults.standard.set(true, forKey: "theme_setup_complete")
+            UserDefaults.standard.set(true, forKey: "onboardingComplete")
+        }
     }
 
     var body: some Scene {
