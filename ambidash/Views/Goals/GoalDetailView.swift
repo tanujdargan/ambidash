@@ -46,6 +46,7 @@ struct GoalDetailView: View {
                 }
 
                 Button("Log Progress") {
+                    Haptics.success()
                     goal.lastProgressDate = .now
                     goal.streak?.recordActivity()
                 }

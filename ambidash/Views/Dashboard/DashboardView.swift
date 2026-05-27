@@ -55,6 +55,7 @@ struct DashboardView: View {
                                     .font(.system(size: 16))
                                     .foregroundStyle(t.muted)
                             }
+                            .accessibilityLabel("Settings")
                         }
 
                         // Composite score + sparkline
@@ -75,6 +76,8 @@ struct DashboardView: View {
                             Spacer()
                             SparklineView(values: [44, 47, 41, 52, 55, 51, 54, 58, 53, 56, 54, Double(compositeScore)], width: 120, height: 48)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Composite score: \(compositeScore) out of 100")
 
                         // Six arc gauges in 3-col grid
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 18) {

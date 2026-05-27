@@ -38,6 +38,7 @@ struct OnboardingCompleteView: View {
                 Spacer()
 
                 AccentButton(label: "Open Dashboard") {
+                    Haptics.success()
                     profile?.onboardingComplete = true
                     try? modelContext.save()
                     onboardingComplete = true

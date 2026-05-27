@@ -90,6 +90,7 @@ struct PrimaryButton: View {
                 .background(t.ink)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .accessibilityHint("Double tap to activate")
     }
 }
 
@@ -139,6 +140,7 @@ struct PillButton: View {
                     primary ? nil : Capsule().stroke(t.rule, lineWidth: 0.5)
                 )
         }
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -234,6 +236,7 @@ struct ArcGauge: View {
                     .foregroundStyle(t.muted)
             }
         }
+        .accessibilityLabel("\(label ?? "Score"): \(Int(value * 100)) out of 100")
     }
 }
 

@@ -109,11 +109,13 @@ struct TodayView: View {
 
             HStack(spacing: 8) {
                 PillButton(label: "Mark done", primary: true) {
+                    Haptics.success()
                     action.statusRaw = "done"
                     action.completedAt = .now
                     handleDone(action)
                 }
                 PillButton(label: "Skip") {
+                    Haptics.light()
                     action.statusRaw = "skipped"
                     try? modelContext.save()
                 }
@@ -303,6 +305,7 @@ struct TodayView: View {
                     modelContext.insert(aiPlan)
                     try? modelContext.save()
                     PremiumGateService.recordPlanGeneration()
+                    Haptics.medium()
                     return
                 }
             }
@@ -318,6 +321,7 @@ struct TodayView: View {
             modelContext.insert(plan)
             try? modelContext.save()
             PremiumGateService.recordPlanGeneration()
+            Haptics.medium()
         }
     }
 

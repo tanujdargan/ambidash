@@ -56,6 +56,7 @@ struct InsightCardView: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(t.hair, lineWidth: 0.5)
         )
+        .accessibilityLabel(insight != nil ? "AI Insight: \(insight!)" : "Tap to generate an AI insight")
         .onTapGesture {
             if !isLoading && AIConfig.isConfigured {
                 Task { await fetchInsight() }
