@@ -38,6 +38,8 @@ targets:
     entitlements:
       path: ambidash/ambidash.entitlements
       properties:
+        com.apple.security.application-groups:
+          - "group.com.ambidash.app"
         com.apple.developer.healthkit: true
         com.apple.developer.healthkit.access: []
         com.apple.developer.icloud-container-identifiers:
@@ -55,6 +57,20 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: true
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.tests
+
+  ambidash-widget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ambidash-widget
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.widget
+        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    dependencies:
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
 
   ambidash-monitor:
     type: app-extension

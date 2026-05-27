@@ -163,6 +163,7 @@ struct DashboardView: View {
                         try? modelContext.save()
                     }
                 }
+                updateWidgetData()
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)
@@ -176,6 +177,16 @@ struct DashboardView: View {
             }
         }
         .preferredColorScheme(tm.isDark ? .dark : .light)
+    }
+
+    private func updateWidgetData() {
+        let defaults = UserDefaults(suiteName: "group.com.ambidash.app")
+        defaults?.set(compositeScore, forKey: "widget_composite")
+        defaults?.set(goals.count, forKey: "widget_pillars")
+        if let topGoal = goals.max(by: { $0.neglectDays < $1.neglectDays }) {
+            defaults?.set(topGoal.title, forKey: "widget_top_goal")
+            defaults?.set(GoalHealthService.summaryText(for: topGoal), forKey: "widget_top_status")
+        }
     }
 
     private var greeting: String {
