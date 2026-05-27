@@ -7,6 +7,9 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
+    @Query private var allPlans: [DailyPlan]
+    @Query private var allReflections: [Reflection]
+    @Query private var allSnapshots: [IntegrationSnapshot]
 
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @State private var showPaywall = false
@@ -213,6 +216,16 @@ struct SettingsView: View {
 
                 Section("Data") {
                     LabeledContent("Goals", value: "\(profile?.goals.count ?? 0)")
+
+                    if let profile {
+                        ShareLink(
+                            item: exportData(profile: profile),
+                            preview: SharePreview("AmbiDash Export", image: Image(systemName: "square.and.arrow.up"))
+                        ) {
+                            Label("Export My Data", systemImage: "square.and.arrow.up")
+                        }
+                    }
+
                     Button("Reset Onboarding", role: .destructive) {
                         profile?.onboardingComplete = false
                         onboardingComplete = false
@@ -262,6 +275,18 @@ struct SettingsView: View {
                 apiKey = AIConfig.isConfigured ? "••••••••" : ""
             }
         }
+    }
+
+    private func exportData(profile: UserProfile) -> URL {
+        let data = DataExportService.exportJSON(
+            profile: profile,
+            plans: allPlans,
+            reflections: allReflections,
+            snapshots: allSnapshots
+        ) ?? Data()
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("ambidash-export.json")
+        try? data.write(to: url)
+        return url
     }
 
     private func deleteAllData() {

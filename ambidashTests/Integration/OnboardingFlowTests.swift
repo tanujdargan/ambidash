@@ -88,3 +88,14 @@ import Foundation
     #expect(summary.longestCurrentStreak == 0)
     #expect(summary.atRiskStreaks.isEmpty)
 }
+
+@Test func dataExportProducesValidJSON() {
+    let profile = UserProfile(name: "Test", age: 21)
+    let data = DataExportService.exportJSON(profile: profile, plans: [], reflections: [], snapshots: [])
+    #expect(data != nil)
+    if let d = data {
+        let json = try? JSONSerialization.jsonObject(with: d) as? [String: Any]
+        #expect(json != nil)
+        #expect(json?["app_version"] as? String == "1.0.0")
+    }
+}
