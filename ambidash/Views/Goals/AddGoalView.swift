@@ -8,7 +8,7 @@ struct AddGoalView: View {
     @Query private var profiles: [UserProfile]
 
     @State private var title = ""
-    @State private var selectedDomain: GoalDomain = .fitness
+    @State private var selectedDomain: GoalDomain = .body
     @State private var newGoal: Goal?
 
     private var profile: UserProfile? { profiles.first }

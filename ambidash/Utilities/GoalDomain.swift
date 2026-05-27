@@ -1,41 +1,40 @@
 import Foundation
 
 enum GoalDomain: String, CaseIterable, Codable, Identifiable {
-    case fitness, cognitive, social, career, language, screenTime, financial
+    case body, mind, craft, people, wealth, adventure
 
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
-        case .fitness: "Fitness & Body"
-        case .cognitive: "Cognitive & Learning"
-        case .social: "Social & Communication"
-        case .career: "Career & Building"
-        case .language: "Language"
-        case .screenTime: "Screen Time"
-        case .financial: "Financial"
+        case .body: "Body & Health"
+        case .mind: "Mind & Character"
+        case .craft: "Craft & Career"
+        case .people: "People & Love"
+        case .wealth: "Wealth & Freedom"
+        case .adventure: "Adventure & Experience"
         }
     }
 
     var dimension: LifeDimension {
         switch self {
-        case .fitness: .body
-        case .cognitive, .language: .mind
-        case .screenTime: .focus
-        case .social: .social
-        case .career, .financial: .growth
+        case .body: .body
+        case .mind: .mind
+        case .craft: .craft
+        case .people: .people
+        case .wealth: .wealth
+        case .adventure: .adventure
         }
     }
 
     var icon: String {
         switch self {
-        case .fitness: "figure.run"
-        case .cognitive: "brain.head.profile"
-        case .social: "person.2"
-        case .career: "briefcase"
-        case .language: "character.bubble"
-        case .screenTime: "iphone"
-        case .financial: "dollarsign.circle"
+        case .body: "figure.strengthtraining.traditional"
+        case .mind: "brain.head.profile"
+        case .craft: "hammer.fill"
+        case .people: "heart.fill"
+        case .wealth: "banknote.fill"
+        case .adventure: "airplane"
         }
     }
 }

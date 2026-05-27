@@ -11,36 +11,35 @@ enum PlanGenerator {
     }
 
     static let domainTemplates: [GoalDomain: [(String, Int, String)]] = [
-        .fitness: [
+        .body: [
             ("Workout session", 45, "Consistency builds the body you want"),
             ("30-minute walk", 30, "Active recovery and fresh air"),
             ("Stretching routine", 15, "Flexibility prevents injury"),
         ],
-        .cognitive: [
+        .mind: [
             ("Deep reading session", 45, "Build knowledge that compounds"),
             ("Learn something new (video/article)", 30, "Expand your mental models"),
             ("Practice recall on recent learning", 20, "Retrieval strengthens memory"),
+            ("Language practice", 20, "Daily practice builds fluency"),
+            ("Phone-free block", 60, "Reclaim your attention"),
+            ("Delete or mute one notification source", 5, "Reduce digital noise"),
         ],
-        .career: [
+        .craft: [
             ("Deep work on main project", 90, "Focused work moves the needle"),
             ("Code review or skill practice", 45, "Sharpen the saw"),
             ("Research/planning session", 30, "Strategy before execution"),
         ],
-        .language: [
-            ("Language practice", 20, "Daily practice builds fluency"),
-            ("Listen to content in target language", 15, "Immersion accelerates learning"),
-        ],
-        .social: [
+        .people: [
             ("Reach out to one person", 10, "Relationships need maintenance"),
             ("Social challenge: start a conversation", 15, "Growth happens outside comfort zones"),
         ],
-        .screenTime: [
-            ("Phone-free block", 60, "Reclaim your attention"),
-            ("Delete or mute one notification source", 5, "Reduce digital noise"),
-        ],
-        .financial: [
+        .wealth: [
             ("Review budget or spending", 20, "Awareness drives better decisions"),
             ("Work on income-generating project", 60, "Build assets, not just habits"),
+        ],
+        .adventure: [
+            ("Do something new today", 60, "Novel experiences expand who you are"),
+            ("Plan an experience", 20, "Anticipation is half the joy"),
         ],
     ]
 

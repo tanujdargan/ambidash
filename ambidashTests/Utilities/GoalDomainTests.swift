@@ -3,17 +3,16 @@ import Testing
 
 @Test func goalDomainHasExpectedCases() {
     let allCases = GoalDomain.allCases
-    #expect(allCases.count == 7)
-    #expect(GoalDomain.fitness.displayName == "Fitness & Body")
-    #expect(GoalDomain.fitness.dimension == .body)
+    #expect(allCases.count == 6)
+    #expect(GoalDomain.body.displayName == "Body & Health")
+    #expect(GoalDomain.body.dimension == .body)
 }
 
 @Test func goalDomainMapsToCorrectDimension() {
-    #expect(GoalDomain.fitness.dimension == .body)
-    #expect(GoalDomain.cognitive.dimension == .mind)
-    #expect(GoalDomain.screenTime.dimension == .focus)
-    #expect(GoalDomain.social.dimension == .social)
-    #expect(GoalDomain.career.dimension == .growth)
-    #expect(GoalDomain.language.dimension == .mind)
-    #expect(GoalDomain.financial.dimension == .growth)
+    #expect(GoalDomain.body.dimension == .body)
+    #expect(GoalDomain.mind.dimension == .mind)
+    #expect(GoalDomain.craft.dimension == .craft)
+    #expect(GoalDomain.people.dimension == .people)
+    #expect(GoalDomain.wealth.dimension == .wealth)
+    #expect(GoalDomain.adventure.dimension == .adventure)
 }

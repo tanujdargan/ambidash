@@ -30,7 +30,7 @@ final class Goal {
     }
 
     var domain: GoalDomain {
-        GoalDomain(rawValue: domainRaw) ?? .fitness
+        GoalDomain(rawValue: domainRaw) ?? .body
     }
 
     var status: GoalStatus {

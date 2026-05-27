@@ -1,25 +1,27 @@
 import Foundation
 
 enum LifeDimension: String, CaseIterable, Codable {
-    case body, mind, focus, social, growth
+    case body, mind, craft, people, wealth, adventure
 
     var displayName: String {
         switch self {
         case .body: "Body"
         case .mind: "Mind"
-        case .focus: "Focus"
-        case .social: "Social"
-        case .growth: "Growth"
+        case .craft: "Craft"
+        case .people: "People"
+        case .wealth: "Wealth"
+        case .adventure: "Adventure"
         }
     }
 
-    var color: String {
+    var fullName: String {
         switch self {
-        case .body: "green"
-        case .mind: "purple"
-        case .focus: "blue"
-        case .social: "pink"
-        case .growth: "orange"
+        case .body: "Body & Health"
+        case .mind: "Mind & Character"
+        case .craft: "Craft & Career"
+        case .people: "People & Love"
+        case .wealth: "Wealth & Freedom"
+        case .adventure: "Adventure & Experience"
         }
     }
 }

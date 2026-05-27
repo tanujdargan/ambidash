@@ -18,6 +18,6 @@ final class DomainAssessment {
     }
 
     var domain: GoalDomain {
-        GoalDomain(rawValue: domainRaw) ?? .fitness
+        GoalDomain(rawValue: domainRaw) ?? .body
     }
 }

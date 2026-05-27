@@ -4,15 +4,15 @@ import Foundation
 
 @Test func dimensionScoreFromGoals() {
     let goals = [
-        makeGoal(domain: .fitness, neglectDays: 0),
-        makeGoal(domain: .cognitive, neglectDays: 5),
-        makeGoal(domain: .social, neglectDays: 12),
+        makeGoal(domain: .body, neglectDays: 0),
+        makeGoal(domain: .mind, neglectDays: 5),
+        makeGoal(domain: .people, neglectDays: 12),
     ]
     let scores = DimensionScoreCalculator.scores(from: goals, snapshot: nil)
 
-    #expect(scores[.body]! > scores[.social]!)
+    #expect(scores[.body]! > scores[.people]!)
     #expect(scores[.body]! >= 70)
-    #expect(scores[.social]! <= 40)
+    #expect(scores[.people]! <= 40)
 }
 
 @Test func dimensionScoreDefaults50WhenNoDimGoals() {

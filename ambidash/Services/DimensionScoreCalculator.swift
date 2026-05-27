@@ -22,7 +22,7 @@ enum DimensionScoreCalculator {
             }
             if snapshot.screenTimeHours > 0 {
                 let screenPenalty = max(100 - Int(snapshot.screenTimeHours * 15), 0)
-                result[.focus] = ((result[.focus] ?? 50) + screenPenalty) / 2
+                result[.craft] = ((result[.craft] ?? 50) + screenPenalty) / 2
             }
         }
 

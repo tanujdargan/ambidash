@@ -180,11 +180,12 @@ final class ThemeManager {
 enum AmbidashTheme {
     static func dimensionColor(for dimension: LifeDimension) -> Color {
         switch dimension {
-        case .body: Color(hex: 0x6A7C4A)
+        case .body: Color(hex: 0x1D9E75)
         case .mind: Color(hex: 0x8B7EC8)
-        case .focus: Color(hex: 0x5C7F8B)
-        case .social: Color(hex: 0xA55E5B)
-        case .growth: Color(hex: 0xB47A3A)
+        case .craft: Color(hex: 0x378ADD)
+        case .people: Color(hex: 0xA55E5B)
+        case .wealth: Color(hex: 0xEF9F27)
+        case .adventure: Color(hex: 0x7F77DD)
         }
     }
 }
