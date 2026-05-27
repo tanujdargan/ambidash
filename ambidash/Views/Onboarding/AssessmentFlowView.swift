@@ -32,15 +32,28 @@ struct AssessmentFlowView: View {
     var body: some View {
         let t = tm.resolved
         VStack(spacing: 0) {
-            ProgressView(value: progress)
-                .tint(t.accent)
-                .padding(.horizontal)
-                .padding(.top, 8)
+            // Step indicator
+            VStack(alignment: .leading, spacing: 6) {
+                Text("STEP 03 / 06 · ATTENTION")
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .tracking(2)
+                    .foregroundStyle(t.muted)
 
-            Text("\(currentIndex + 1) of \(questions.count)")
-                .font(.caption)
-                .foregroundStyle(t.muted)
-                .padding(.top, 4)
+                // Segmented progress bar
+                HStack(spacing: 3) {
+                    ForEach(0..<questions.count, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(i <= currentIndex ? t.ink : t.hair)
+                            .frame(height: 2)
+                    }
+                }
+
+                Text("Q \(currentIndex + 1) OF \(questions.count)")
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundStyle(t.faint)
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 8)
 
             ScrollView {
                 if currentIndex < questions.count {
@@ -53,17 +66,19 @@ struct AssessmentFlowView: View {
                 }
             }
 
-            HStack(spacing: 16) {
+            HStack(spacing: 10) {
                 if currentIndex > 0 {
-                    GhostButton(label: "Back") {
+                    PillButton(label: "Back") {
                         withAnimation { currentIndex -= 1 }
                     }
-                    .frame(maxWidth: .infinity)
                 }
-
                 Spacer()
-
-                AccentButton(label: currentIndex == questions.count - 1 ? "Next" : "Continue") {
+                PillButton(label: "Skip") {
+                    if currentIndex < questions.count - 1 {
+                        withAnimation { currentIndex += 1 }
+                    }
+                }
+                PillButton(label: currentIndex == questions.count - 1 ? "Next" : "Continue", primary: true) {
                     if currentIndex < questions.count - 1 {
                         withAnimation { currentIndex += 1 }
                     } else {
@@ -72,9 +87,9 @@ struct AssessmentFlowView: View {
                     }
                 }
                 .disabled(!canAdvance)
-                .frame(maxWidth: .infinity)
             }
-            .padding()
+            .padding(.horizontal, 22)
+            .padding(.bottom, 24)
         }
         .background(t.bg)
         .navigationTitle("About You")
