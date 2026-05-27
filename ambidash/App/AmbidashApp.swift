@@ -4,12 +4,18 @@ import SwiftData
 @main
 struct AmbidashApp: App {
     @State private var themeManager = ThemeManager()
+    @State private var deepLinkTab: Int?
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            RootView(deepLinkTab: $deepLinkTab)
                 .environment(themeManager)
                 .preferredColorScheme(themeManager.isDark ? .dark : .light)
+                .onOpenURL { url in
+                    if let link = DeepLink.from(url: url) {
+                        deepLinkTab = link.tabIndex
+                    }
+                }
         }
         .modelContainer(for: [
             UserProfile.self,

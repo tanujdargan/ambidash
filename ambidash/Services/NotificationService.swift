@@ -19,6 +19,7 @@ enum NotificationService {
         content.title = "Time to reflect"
         content.body = "How was your day? Take 2 minutes to log your progress."
         content.sound = .default
+        content.userInfo = ["deepLink": DeepLink.reflect.rawValue]
 
         var dateComponents = DateComponents()
         dateComponents.hour = hour
@@ -37,6 +38,7 @@ enum NotificationService {
         content.title = "Your day is ready"
         content.body = "Open ambidash to see today's plan."
         content.sound = .default
+        content.userInfo = ["deepLink": DeepLink.today.rawValue]
 
         var dateComponents = DateComponents()
         dateComponents.hour = hour

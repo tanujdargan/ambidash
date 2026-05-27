@@ -3,6 +3,11 @@ import SwiftUI
 struct MainTabView: View {
     @Environment(ThemeManager.self) private var tm
     @State private var selectedTab = 0
+    var initialTab: Int? = nil
+
+    init(selectedTab: Int? = nil) {
+        self.initialTab = selectedTab
+    }
 
     var body: some View {
         let t = tm.resolved
@@ -37,6 +42,9 @@ struct MainTabView: View {
             )
         }
         .preferredColorScheme(tm.isDark ? .dark : .light)
+        .onAppear {
+            if let tab = initialTab { selectedTab = tab }
+        }
     }
 }
 

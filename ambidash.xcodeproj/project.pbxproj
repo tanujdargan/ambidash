@@ -45,6 +45,7 @@
 		523116C7FB5732C11AF149E1 /* GoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */; };
 		5585B94B4862D4B196856E78 /* MotionPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CCA9EB090C0B07F883749A /* MotionPreference.swift */; };
 		564546D6788F7BA374813141 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 519313A26A851EA1B979BC07 /* PrivacyInfo.xcprivacy */; };
+		5712490E8FF65F298CACDDF0 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550FF629879641F39F8E0B88 /* DeepLink.swift */; };
 		58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */; };
 		5C8C3DA18CB1BE586526DF20 /* OnboardingFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1EA91E8A3918D1CE6FFBFA /* OnboardingFlowTests.swift */; };
 		60C2E35CE35FEA13BBECB005 /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC183A57A063887061AA22C /* NotionService.swift */; };
@@ -151,6 +152,7 @@
 		481505C42AF83DFCBBF91CF4 /* InsightCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCardView.swift; sourceTree = "<group>"; };
 		50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannedAction.swift; sourceTree = "<group>"; };
 		519313A26A851EA1B979BC07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		550FF629879641F39F8E0B88 /* DeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLink.swift; sourceTree = "<group>"; };
 		557698237B86451559706D44 /* AmbidashApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashApp.swift; sourceTree = "<group>"; };
 		56C90553BD1F33180D9B0A91 /* GoalProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProgress.swift; sourceTree = "<group>"; };
 		5AAB2BDBA51600EC90D23C79 /* HonestMirrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HonestMirrorView.swift; sourceTree = "<group>"; };
@@ -351,6 +353,7 @@
 			isa = PBXGroup;
 			children = (
 				343F2BAD8B05D6F390651E44 /* AssessmentQuestion.swift */,
+				550FF629879641F39F8E0B88 /* DeepLink.swift */,
 				A54A9BFF9287FAC9BE85BE5C /* DomainAssessmentQuestions.swift */,
 				B748FC145D8AFDB12B28EDE3 /* GoalDomain.swift */,
 				D12EBDB103B6522D8960104E /* GoalHorizon.swift */,
@@ -699,6 +702,7 @@
 				B89DFDDB97B0B9EDB55E6A05 /* CoreAssessment.swift in Sources */,
 				40421C6CA3534056AF5ADBD5 /* DailyPlan.swift in Sources */,
 				7EC47396C51CCE81CED961CA /* DashboardView.swift in Sources */,
+				5712490E8FF65F298CACDDF0 /* DeepLink.swift in Sources */,
 				C84508AC103EFF75F541B68A /* DimensionScoreCalculator.swift in Sources */,
 				BBB3D552D40C210D8372E92A /* DomainAssessment.swift in Sources */,
 				83916156AA043F544442BCC8 /* DomainAssessmentQuestions.swift in Sources */,
