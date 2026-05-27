@@ -8,149 +8,298 @@ struct TodayView: View {
     @Query private var profiles: [UserProfile]
 
     private var profile: UserProfile? { profiles.first }
-
     private var todayPlan: DailyPlan? {
         plans.first { Calendar.current.isDateInToday($0.date) }
     }
 
     @State private var isGenerating = false
 
-    private var planFormat: PlanFormat {
-        if let raw = profile?.workStylePreference?.planFormat,
-           let fmt = PlanFormat(rawValue: raw) {
-            return fmt
-        }
-        return .focusBlocks
-    }
-
     var body: some View {
         let t = tm.resolved
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    if let plan = todayPlan {
-                        planContent(plan)
-                    } else {
-                        emptyState
+            ZStack {
+                t.bg.ignoresSafeArea()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Header
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(Date.now.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)).uppercased() + " · " + Date.now.formatted(.dateTime.hour().minute()))
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .tracking(1.6)
+                                .foregroundStyle(t.muted)
+
+                            Text("Today, as you set it.")
+                                .font(.system(size: 28, weight: .regular, design: .serif))
+                                .tracking(-0.3)
+                                .foregroundStyle(t.ink)
+                        }
+                        .padding(.horizontal, 22)
+                        .padding(.top, 6)
+                        .padding(.bottom, 14)
+
+                        if let plan = todayPlan {
+                            todayContent(plan, t: t)
+                        } else {
+                            emptyState(t)
+                        }
+                    }
+                    .padding(.bottom, 24)
+                }
+            }
+            .navigationTitle("Today")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    // MARK: - Plan Content
+
+    @ViewBuilder
+    private func todayContent(_ plan: DailyPlan, t: ResolvedTheme) -> some View {
+        let sorted = plan.actions.sorted { $0.timeSlot < $1.timeSlot }
+        let currentAction = sorted.first { $0.statusRaw == "pending" }
+
+        VStack(alignment: .leading, spacing: 22) {
+            // "Now" strip
+            if let current = currentAction {
+                nowStrip(current, t: t)
+                    .padding(.horizontal, 22)
+            }
+
+            // The whole day
+            VStack(alignment: .leading, spacing: 8) {
+                SectionLabel(title: "The whole day")
+                    .padding(.horizontal, 22)
+
+                VStack(spacing: 0) {
+                    ForEach(Array(sorted.enumerated()), id: \.element.id) { index, action in
+                        let isLast = index == sorted.count - 1
+                        timelineRow(action, isNow: action.id == currentAction?.id, t: t, showDivider: !isLast)
                     }
                 }
-                .padding()
+                .padding(.horizontal, 22)
             }
-            .background(t.bg)
-            .navigationTitle("Today")
-            .navigationBarTitleDisplayMode(.large)
+
+            // Time accounting
+            timeAccounting(plan, t: t)
+                .padding(.horizontal, 22)
         }
     }
 
-    @ViewBuilder
-    private func planContent(_ plan: DailyPlan) -> some View {
-        let t = tm.resolved
-        let sorted = plan.actions.sorted {
-            if $0.statusRaw == "pending" && $1.statusRaw != "pending" { return true }
-            if $0.statusRaw != "pending" && $1.statusRaw == "pending" { return false }
-            return $0.timeSlot < $1.timeSlot
-        }
-
-        VStack(alignment: .leading, spacing: 16) {
-            planHeader(plan)
-
-            switch planFormat {
-            case .focusBlocks:
-                FocusBlocksView(
-                    actions: sorted,
-                    onDone: { markDone($0, plan: plan) },
-                    onSkip: { markSkipped($0, plan: plan) }
-                )
-            case .singleAction:
-                SingleActionView(
-                    actions: sorted,
-                    onDone: { markDone($0, plan: plan) },
-                    onSkip: { markSkipped($0, plan: plan) }
-                )
-            case .priorityList:
-                PriorityListView(
-                    actions: sorted,
-                    onDone: { markDone($0, plan: plan) },
-                    onSkip: { markSkipped($0, plan: plan) }
-                )
-            }
-        }
-    }
+    // MARK: - Now Strip
 
     @ViewBuilder
-    private func planHeader(_ plan: DailyPlan) -> some View {
-        let t = tm.resolved
-        let doneCount = plan.actions.filter { $0.statusRaw == "done" }.count
-        let total = plan.actions.count
-        let progress = total > 0 ? Double(doneCount) / Double(total) : 0
-
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(planFormat.displayName)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(t.muted)
-                Spacer()
-                Text("\(doneCount)/\(total) completed")
-                    .font(.caption)
-                    .foregroundStyle(t.muted)
-            }
-
-            ProgressView(value: progress)
-                .tint(t.accent)
-        }
-    }
-
-    @ViewBuilder
-    private var emptyState: some View {
-        let t = tm.resolved
-        VStack(spacing: 24) {
-            Image(systemName: "calendar.badge.plus")
-                .font(.system(size: 56))
+    private func nowStrip(_ action: PlannedAction, t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("NOW · \(action.durationMinutes)M")
+                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                .tracking(1.6)
                 .foregroundStyle(t.accent)
 
+            Text(action.title)
+                .font(.system(size: 20, weight: .regular, design: .serif))
+                .foregroundStyle(t.ink)
+
+            if !action.whyReasoning.isEmpty {
+                Text(action.whyReasoning)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(t.muted)
+                    .padding(.top, 2)
+            }
+
+            HStack(spacing: 8) {
+                PillButton(label: "Mark done", primary: true) {
+                    action.statusRaw = "done"
+                    action.completedAt = .now
+                    handleDone(action)
+                }
+                PillButton(label: "Skip") {
+                    action.statusRaw = "skipped"
+                    try? modelContext.save()
+                }
+            }
+            .padding(.top, 8)
+        }
+        .padding(16)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(alignment: .leading) {
+            t.accent.frame(width: 2).clipShape(RoundedRectangle(cornerRadius: 1)).padding(.vertical, 1)
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 10).stroke(t.hair, lineWidth: 0.5)
+        )
+    }
+
+    // MARK: - Timeline Row
+
+    @ViewBuilder
+    private func timelineRow(_ action: PlannedAction, isNow: Bool, t: ResolvedTheme, showDivider: Bool) -> some View {
+        let isDone = action.statusRaw == "done"
+        let isSkipped = action.statusRaw == "skipped"
+        let isPast = isDone || isSkipped
+
+        HStack(alignment: .top, spacing: 12) {
+            // Time
+            Text(action.timeSlot.isEmpty ? "—" : action.timeSlot)
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(isPast ? t.faint : t.muted)
+                .frame(width: 44, alignment: .leading)
+                .padding(.top, 4)
+
+            // Dot
+            ZStack {
+                Circle()
+                    .fill(isNow ? t.accent : (isPast ? t.faint : .clear))
+                    .frame(width: 9, height: 9)
+                if !isNow && !isPast {
+                    Circle()
+                        .stroke(t.ink2, lineWidth: 1)
+                        .frame(width: 9, height: 9)
+                }
+                if isNow {
+                    Circle()
+                        .stroke(t.accent.opacity(0.5), lineWidth: 0.5)
+                        .frame(width: 15, height: 15)
+                }
+            }
+            .padding(.top, 5)
+
+            // Content
+            VStack(alignment: .leading, spacing: 2) {
+                Text(action.title)
+                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    .strikethrough(isPast, color: t.faint)
+                    .foregroundStyle(isPast ? t.muted : t.ink)
+
+                if !action.whyReasoning.isEmpty {
+                    Text(action.whyReasoning)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(t.faint)
+                }
+            }
+            .opacity(isPast ? 0.5 : 1)
+        }
+        .padding(.vertical, 12)
+        .overlay(alignment: .bottom) {
+            if showDivider {
+                t.hair.frame(height: 0.5)
+            }
+        }
+    }
+
+    // MARK: - Time Accounting
+
+    @ViewBuilder
+    private func timeAccounting(_ plan: DailyPlan, t: ResolvedTheme) -> some View {
+        let done = plan.actions.filter { $0.statusRaw == "done" }
+        let totalDoneMinutes = done.reduce(0) { $0 + $1.durationMinutes }
+        let totalPlannedMinutes = plan.actions.reduce(0) { $0 + $1.durationMinutes }
+        let unaccounted = max(0, 480 - totalPlannedMinutes)
+
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel(title: "Time honestly accounted for")
+
+            // Stacked bar
+            GeometryReader { geo in
+                let total = CGFloat(totalPlannedMinutes + unaccounted)
+                HStack(spacing: 0) {
+                    t.ink
+                        .frame(width: geo.size.width * CGFloat(totalDoneMinutes) / total)
+                    t.accent
+                        .frame(width: geo.size.width * CGFloat(totalPlannedMinutes - totalDoneMinutes) / total)
+                    t.hair
+                        .frame(width: geo.size.width * CGFloat(unaccounted) / total)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 3))
+            }
+            .frame(height: 10)
+
+            // Legend
+            HStack(spacing: 14) {
+                legendDot(color: t.ink, label: "Done · \(totalDoneMinutes)m", t: t)
+                legendDot(color: t.accent, label: "Planned · \(totalPlannedMinutes - totalDoneMinutes)m", t: t)
+                legendDot(color: t.hair, label: "Free · \(unaccounted)m", t: t)
+            }
+        }
+        .padding(16)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
+    }
+
+    private func legendDot(color: Color, label: String, t: ResolvedTheme) -> some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 2).fill(color).frame(width: 8, height: 8)
+            Text(label)
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(t.ink2)
+        }
+    }
+
+    // MARK: - Empty State
+
+    @ViewBuilder
+    private func emptyState(_ t: ResolvedTheme) -> some View {
+        VStack(spacing: 28) {
+            Spacer(minLength: 80)
+
+            // Circle mark
+            ZStack {
+                Circle().stroke(t.hair, lineWidth: 0.5).frame(width: 64, height: 64)
+                Circle()
+                    .trim(from: 0, to: 0.25)
+                    .stroke(t.accent, lineWidth: 1.5)
+                    .frame(width: 64, height: 64)
+                    .rotationEffect(Angle.degrees(-90))
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .light))
+                    .foregroundStyle(t.ink)
+            }
+
             VStack(spacing: 8) {
-                Text("No plan for today")
-                    .font(.title3.weight(.semibold))
+                Text("No plan for today.")
+                    .font(.system(size: 22, weight: .regular, design: .serif))
                     .foregroundStyle(t.ink)
 
-                Text("Generate a personalized action plan based on your goals.")
-                    .font(.body)
+                Text("Generate one from your goals — it takes a few seconds.")
+                    .font(.system(size: 13))
                     .foregroundStyle(t.muted)
                     .multilineTextAlignment(.center)
             }
 
-            AccentButton(label: isGenerating
-                ? (AIConfig.isConfigured ? "AI is thinking..." : "Generating...")
-                : (PremiumGateService.remainingPlans > 0
-                    ? (AIConfig.isConfigured ? "Generate AI Plan" : "Generate Plan")
-                    : "Upgrade for more plans"),
-                action: generatePlan
-            )
+            PrimaryButton(label: isGenerating
+                ? (AIConfig.isConfigured ? "AI is thinking…" : "Generating…")
+                : "Generate today's plan"
+            ) {
+                generatePlan()
+            }
+            .padding(.horizontal, 40)
+            .disabled(isGenerating)
+
+            Spacer(minLength: 80)
         }
-        .frame(maxWidth: .infinity)
-        .padding(32)
-        .background(t.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(t.hair, lineWidth: 0.5)
-        )
+        .padding(.horizontal, 22)
     }
+
+    // MARK: - Logic (unchanged)
 
     private func generatePlan() {
         guard !isGenerating else { return }
         isGenerating = true
-
         Task {
             defer { isGenerating = false }
             guard PremiumGateService.canGeneratePlan() else { return }
 
             let goals = profile?.goals ?? []
             let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
+            let planFormat: PlanFormat = {
+                if let raw = profile?.workStylePreference?.planFormat, let fmt = PlanFormat(rawValue: raw) { return fmt }
+                return .focusBlocks
+            }()
 
-            // Try AI-powered generation first
             if AIConfig.isConfigured {
-                if let aiPlan = await generateAIPlan(goals: goals, maxActions: maxActions) {
+                if let aiPlan = await generateAIPlan(goals: goals, maxActions: maxActions, format: planFormat) {
                     modelContext.insert(aiPlan)
                     try? modelContext.save()
                     PremiumGateService.recordPlanGeneration()
@@ -158,66 +307,39 @@ struct TodayView: View {
                 }
             }
 
-            // Fallback to template-based
-            let freeMinutes = 480
-            let templates = PlanGenerator.generateActions(for: goals, freeMinutes: freeMinutes, maxActions: maxActions)
-
+            let templates = PlanGenerator.generateActions(for: goals, freeMinutes: 480, maxActions: maxActions)
             let plan = DailyPlan(date: .now, format: planFormat)
             plan.actionCount = templates.count
-
             let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
-
-            for (index, template) in templates.enumerated() {
-                let action = PlannedAction(
-                    title: template.title,
-                    why: template.why,
-                    timeSlot: index < timeSlots.count ? timeSlots[index] : "",
-                    duration: template.durationMinutes
-                )
+            for (i, tmpl) in templates.enumerated() {
+                let action = PlannedAction(title: tmpl.title, why: tmpl.why, timeSlot: i < timeSlots.count ? timeSlots[i] : "", duration: tmpl.durationMinutes)
                 plan.actions.append(action)
             }
-
             modelContext.insert(plan)
             try? modelContext.save()
             PremiumGateService.recordPlanGeneration()
         }
     }
 
-    private func generateAIPlan(goals: [Goal], maxActions: Int) async -> DailyPlan? {
+    private func generateAIPlan(goals: [Goal], maxActions: Int, format: PlanFormat) async -> DailyPlan? {
         do {
             let snapshot = try? modelContext.fetch(FetchDescriptor<IntegrationSnapshot>(sortBy: [SortDescriptor(\.date, order: .reverse)])).first
             let jsonText = try await AIService.generatePlanJSON(goals: goals, snapshot: snapshot, profile: profile)
-
             guard let data = jsonText.data(using: .utf8),
-                  let actions = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-                return nil
-            }
-
-            let plan = DailyPlan(date: .now, format: planFormat)
-            for actionDict in actions.prefix(maxActions) {
-                let title = actionDict["title"] as? String ?? ""
-                let why = actionDict["why"] as? String ?? ""
-                let duration = actionDict["duration_minutes"] as? Int ?? 30
-                let timeSlot = actionDict["time_slot"] as? String ?? ""
-                let action = PlannedAction(title: title, why: why, timeSlot: timeSlot, duration: duration)
+                  let actions = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return nil }
+            let plan = DailyPlan(date: .now, format: format)
+            for dict in actions.prefix(maxActions) {
+                let action = PlannedAction(
+                    title: dict["title"] as? String ?? "",
+                    why: dict["why"] as? String ?? "",
+                    timeSlot: dict["time_slot"] as? String ?? "",
+                    duration: dict["duration_minutes"] as? Int ?? 30
+                )
                 plan.actions.append(action)
             }
             plan.actionCount = plan.actions.count
             return plan
-        } catch {
-            return nil
-        }
-    }
-
-    private func markDone(_ action: PlannedAction, plan: DailyPlan) {
-        action.statusRaw = "done"
-        action.completedAt = .now
-        handleDone(action)
-    }
-
-    private func markSkipped(_ action: PlannedAction, plan: DailyPlan) {
-        action.statusRaw = "skipped"
-        try? modelContext.save()
+        } catch { return nil }
     }
 
     private func handleDone(_ action: PlannedAction) {
