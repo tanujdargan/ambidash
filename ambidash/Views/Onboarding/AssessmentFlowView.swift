@@ -57,10 +57,34 @@ struct AssessmentFlowView: View {
 
             ScrollView {
                 if currentIndex < questions.count {
-                    AssessmentQuestionView(
-                        question: questions[currentIndex],
-                        selectedIds: binding(for: questions[currentIndex].id)
-                    )
+                    VStack(alignment: .leading, spacing: 18) {
+                        AssessmentQuestionView(
+                            question: questions[currentIndex],
+                            selectedIds: binding(for: questions[currentIndex].id)
+                        )
+
+                        // Mentor aside (appears on certain questions)
+                        if currentIndex == 0 || currentIndex == questions.count / 2 {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("ASIDE")
+                                    .font(.system(size: 9, weight: .medium, design: .monospaced))
+                                    .tracking(1.6)
+                                    .foregroundStyle(t.muted)
+                                Text("There are no right answers. Honest ones become a better mirror.")
+                                    .font(.system(size: 14, design: .serif))
+                                    .italic()
+                                    .lineSpacing(2)
+                                    .foregroundStyle(t.ink2)
+                            }
+                            .padding(14)
+                            .background(.clear)
+                            .overlay(alignment: .leading) {
+                                t.accent.frame(width: 2)
+                                    .clipShape(RoundedRectangle(cornerRadius: 1))
+                            }
+                            .padding(.horizontal, 22)
+                        }
+                    }
                     .id(currentIndex)
                     .padding(.top, 24)
                 }
