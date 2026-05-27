@@ -59,7 +59,15 @@ struct TodayView: View {
         let sorted = plan.actions.sorted { $0.timeSlot < $1.timeSlot }
         let currentAction = sorted.first { $0.statusRaw == "pending" }
 
+        let allDone = sorted.allSatisfy { $0.statusRaw != "pending" }
+
         VStack(alignment: .leading, spacing: 22) {
+            // Completion state
+            if allDone && !sorted.isEmpty {
+                completionCard(plan: plan, t: t)
+                    .padding(.horizontal, 22)
+            }
+
             // "Now" strip
             if let current = currentAction {
                 nowStrip(current, t: t)
@@ -148,6 +156,42 @@ struct TodayView: View {
                 Label("Skip", systemImage: "forward")
             }
         }
+    }
+
+    // MARK: - Completion Card
+
+    @ViewBuilder
+    private func completionCard(plan: DailyPlan, t: ResolvedTheme) -> some View {
+        let doneCount = plan.actions.filter { $0.statusRaw == "done" }.count
+        let skippedCount = plan.actions.filter { $0.statusRaw == "skipped" }.count
+
+        VStack(spacing: 14) {
+            Image(systemName: "checkmark.circle")
+                .font(.system(size: 36, weight: .light))
+                .foregroundStyle(t.ok)
+
+            Text("Day complete.")
+                .font(.system(size: 22, weight: .regular, design: .serif))
+                .foregroundStyle(t.ink)
+
+            Text("\(doneCount) done · \(skippedCount) skipped")
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(t.muted)
+
+            if skippedCount == 0 {
+                Text("You finished everything you planned. Notice that.")
+                    .font(.system(size: 14, design: .serif))
+                    .italic()
+                    .foregroundStyle(t.ink2)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(24)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
+        .onAppear { Haptics.success() }
     }
 
     // MARK: - Timeline Row

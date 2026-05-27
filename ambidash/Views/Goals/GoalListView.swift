@@ -6,9 +6,25 @@ struct GoalListView: View {
     @Query private var profiles: [UserProfile]
     @State private var showAddGoal = false
     @State private var selectedGoal: Goal?
+    @State private var searchText = ""
+    @State private var filterPillar: GoalDomain?
 
     private var profile: UserProfile? { profiles.first }
     private var goals: [Goal] { (profile?.goals ?? []).sorted { $0.priority < $1.priority } }
+
+    private var filteredGoals: [Goal] {
+        var result = goals
+        if let pillar = filterPillar {
+            result = result.filter { $0.domain == pillar }
+        }
+        if !searchText.isEmpty {
+            result = result.filter {
+                $0.title.localizedCaseInsensitiveContains(searchText) ||
+                $0.subtitle.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        return result
+    }
 
     var body: some View {
         let t = tm.resolved
@@ -41,8 +57,8 @@ struct GoalListView: View {
 
     @ViewBuilder
     private func goalContent(_ t: ResolvedTheme) -> some View {
-        let active = goals.filter(\.isActive)
-        let retired = goals.filter { !$0.isActive }
+        let active = filteredGoals.filter(\.isActive)
+        let retired = filteredGoals.filter { !$0.isActive }
 
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -60,7 +76,40 @@ struct GoalListView: View {
                 }
                 .padding(.horizontal, 22)
                 .padding(.top, 6)
-                .padding(.bottom, 14)
+                .padding(.bottom, 8)
+
+                // Search
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 12))
+                        .foregroundStyle(t.faint)
+                    TextField("Search goals…", text: $searchText)
+                        .font(.system(size: 13))
+                        .foregroundStyle(t.ink)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(t.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(t.hair, lineWidth: 0.5))
+                .padding(.horizontal, 22)
+                .padding(.bottom, 8)
+
+                // Pillar filter chips
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        FilterChip(label: "All", isSelected: filterPillar == nil, theme: t) {
+                            filterPillar = nil
+                        }
+                        ForEach(GoalDomain.allCases) { domain in
+                            FilterChip(label: domain.displayName.components(separatedBy: " ").first ?? domain.displayName, isSelected: filterPillar == domain, theme: t) {
+                                filterPillar = (filterPillar == domain) ? nil : domain
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 22)
+                }
+                .padding(.bottom, 6)
 
                 // Grouped by horizon
                 ForEach(GoalHorizon.allCases, id: \.self) { horizon in
@@ -202,13 +251,37 @@ struct GoalListView: View {
 
     @ViewBuilder
     private func emptyState(_ t: ResolvedTheme) -> some View {
-        VStack(spacing: 16) {
-            Text("No goals yet.")
-                .font(.system(size: 22, weight: .regular, design: .serif))
-                .foregroundStyle(t.ink)
-            Text("Tap + to name what matters.")
-                .font(.system(size: 13))
-                .foregroundStyle(t.muted)
+        EmptyStateView(
+            icon: "target",
+            title: "No goals yet.",
+            subtitle: "Tap + to name what matters.",
+            action: { showAddGoal = true },
+            actionLabel: "Add a goal"
+        )
+    }
+}
+
+private struct FilterChip: View {
+    let label: String
+    let isSelected: Bool
+    let theme: ResolvedTheme
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            Haptics.selection()
+            action()
+        }) {
+            Text(label)
+                .font(.system(size: 11, weight: isSelected ? .medium : .regular))
+                .foregroundStyle(isSelected ? theme.bg : theme.muted)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? theme.ink : .clear)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule().stroke(isSelected ? .clear : theme.hair, lineWidth: 0.5)
+                )
         }
     }
 }
