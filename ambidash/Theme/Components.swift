@@ -333,9 +333,11 @@ struct SparklineView: View {
 
             context.stroke(path, with: .color(t.ink2), lineWidth: 1.2)
 
-            let lastX = canvasSize.width
-            let lastY = canvasSize.height - ((values.last! - minVal) / range) * canvasSize.height
-            context.fill(Circle().path(in: CGRect(x: lastX - 2, y: lastY - 2, width: 4, height: 4)), with: .color(t.ink2))
+            if let lastValue = values.last {
+                let lastX = canvasSize.width
+                let lastY = canvasSize.height - ((lastValue - minVal) / range) * canvasSize.height
+                context.fill(Circle().path(in: CGRect(x: lastX - 2, y: lastY - 2, width: 4, height: 4)), with: .color(t.ink2))
+            }
         }
         .frame(width: width, height: height)
     }
