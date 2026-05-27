@@ -6,6 +6,13 @@ struct AmbidashApp: App {
     @State private var themeManager = ThemeManager()
     @State private var deepLinkTab: Int?
 
+    init() {
+        if CommandLine.arguments.contains("--reset-state") {
+            UserDefaults.standard.removeObject(forKey: "theme_setup_complete")
+            UserDefaults.standard.removeObject(forKey: "onboardingComplete")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView(deepLinkTab: $deepLinkTab)

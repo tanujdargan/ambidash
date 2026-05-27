@@ -61,6 +61,18 @@ targets:
         GENERATE_INFOPLIST_FILE: true
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.tests
 
+  ambidashUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ambidashUITests
+    dependencies:
+      - target: ambidash
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.uitests
+
   ambidash-widget:
     type: app-extension
     platform: iOS

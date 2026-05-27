@@ -74,6 +74,7 @@
 		9BA3D3C109FDE69469C6C9CC /* InsightCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481505C42AF83DFCBBF91CF4 /* InsightCardView.swift */; };
 		9CBF25DB0868CBD90EF3B53B /* GoalHealthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA78034A4A3E081FFE996D5 /* GoalHealthServiceTests.swift */; };
 		A0083D7316A69A0005278D44 /* AIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DF9F69EC7D14054E5E4154 /* AIConfig.swift */; };
+		A5AE83583DEA5B95ABB99FC4 /* OnboardingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91EADDBAB77B975C8E7028EC /* OnboardingUITests.swift */; };
 		A6D9BD7C7ED985DED7045432 /* PlanGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF13B66F23BBABD3F2AD0064 /* PlanGenerator.swift */; };
 		A7828F695E2ECB9451312FD3 /* SnapshotBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE2B3057EE75736C5EC56776 /* SnapshotBuilderTests.swift */; };
 		A7E80F11D899222A6211EEBC /* GoalStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19579A5BD33622DC6BC2FCF5 /* GoalStripView.swift */; };
@@ -116,6 +117,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		43827592A6A9DFDA07CEBD40 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 021C71ADDCFCB90366084403 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C509A9FC71A7CED2FCA21F3A;
+			remoteInfo = ambidash;
+		};
+		7625727328DBB1403463E639 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 021C71ADDCFCB90366084403 /* Project object */;
 			proxyType = 1;
@@ -187,6 +195,7 @@
 		8A38222B4230E1501AA0726E /* CoreAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessment.swift; sourceTree = "<group>"; };
 		8A8718928D7E27FCE4BC3824 /* WeeklyReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReviewView.swift; sourceTree = "<group>"; };
 		8F3398562C23BA55AF8165BB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		91EADDBAB77B975C8E7028EC /* OnboardingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingUITests.swift; sourceTree = "<group>"; };
 		94F0BED7D21FE5BC72E347A5 /* PremiumGateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumGateService.swift; sourceTree = "<group>"; };
 		962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationSnapshot.swift; sourceTree = "<group>"; };
 		969354CE05500BD43D3877B2 /* ambidash-widget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "ambidash-widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -210,6 +219,7 @@
 		BE2B3057EE75736C5EC56776 /* SnapshotBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotBuilderTests.swift; sourceTree = "<group>"; };
 		BE58D6B581720991895E3987 /* ambidash.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ambidash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BED6CAF811845880023A84FC /* LifeDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeDimension.swift; sourceTree = "<group>"; };
+		C256CEFD3EED23BB276B6226 /* ambidashUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ambidashUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB77796CED406ECEB71F9B1D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightService.swift; sourceTree = "<group>"; };
 		CCF9FD3FC9D95230E9390295 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -310,6 +320,14 @@
 			path = "ambidash-monitor";
 			sourceTree = "<group>";
 		};
+		42180C66FAFB85ACF0D8BFCA /* ambidashUITests */ = {
+			isa = PBXGroup;
+			children = (
+				91EADDBAB77B975C8E7028EC /* OnboardingUITests.swift */,
+			);
+			path = ambidashUITests;
+			sourceTree = "<group>";
+		};
 		4347CC4E7EF9EC2D288E34F7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -329,6 +347,7 @@
 				969354CE05500BD43D3877B2 /* ambidash-widget.appex */,
 				BE58D6B581720991895E3987 /* ambidash.app */,
 				1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */,
+				C256CEFD3EED23BB276B6226 /* ambidashUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -352,6 +371,7 @@
 				33CB71B4061E485FBB04FABD /* ambidash-monitor */,
 				838D429C9289F3ECA07C13D2 /* ambidash-widget */,
 				4CD021A9F4970677C078D701 /* ambidashTests */,
+				42180C66FAFB85ACF0D8BFCA /* ambidashUITests */,
 				CC6DFCCE9805631859C180C2 /* Frameworks */,
 				49CDB32D36924640688BB51E /* Products */,
 			);
@@ -650,6 +670,24 @@
 			productReference = BE58D6B581720991895E3987 /* ambidash.app */;
 			productType = "com.apple.product-type.application";
 		};
+		F95C576BB3F88DD22B0A662A /* ambidashUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E96868ED83D771BEC1A23A7 /* Build configuration list for PBXNativeTarget "ambidashUITests" */;
+			buildPhases = (
+				BE644249B24F9DE25318138C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				39BB53AE79612E409C50E3FF /* PBXTargetDependency */,
+			);
+			name = ambidashUITests;
+			packageProductDependencies = (
+			);
+			productName = ambidashUITests;
+			productReference = C256CEFD3EED23BB276B6226 /* ambidashUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -659,6 +697,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					F95C576BB3F88DD22B0A662A = {
+						TestTargetID = C509A9FC71A7CED2FCA21F3A;
+					};
 				};
 			};
 			buildConfigurationList = B9C5711E1001E4923C5F6A47 /* Build configuration list for PBXProject "ambidash" */;
@@ -679,6 +720,7 @@
 				B3DCD28A9232CB58123E071D /* ambidash-monitor */,
 				37EE5B7EB6DBB1D4E0EDBF52 /* ambidash-widget */,
 				55E449DF7F2940133ACE3A79 /* ambidashTests */,
+				F95C576BB3F88DD22B0A662A /* ambidashUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -823,9 +865,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BE644249B24F9DE25318138C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5AE83583DEA5B95ABB99FC4 /* OnboardingUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		39BB53AE79612E409C50E3FF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C509A9FC71A7CED2FCA21F3A /* ambidash */;
+			targetProxy = 7625727328DBB1403463E639 /* PBXContainerItemProxy */;
+		};
 		D38CDAE4F6E96E9CA26B4595 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C509A9FC71A7CED2FCA21F3A /* ambidash */;
@@ -849,6 +904,23 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
+		};
+		12E55FE44E5C8E46F17FF0EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ambidash;
+			};
+			name = Release;
 		};
 		44A375E8D26E6624193CE831 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1018,6 +1090,23 @@
 			};
 			name = Release;
 		};
+		AF3AD8635E410485E6EF014C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ambidash;
+			};
+			name = Debug;
+		};
 		C8731E67EE57F452CAC1A39D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1121,6 +1210,15 @@
 			buildConfigurations = (
 				0355D6CBF812E5F2BECFC358 /* Debug */,
 				8DBFC2115007ADBB8D40F6D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9E96868ED83D771BEC1A23A7 /* Build configuration list for PBXNativeTarget "ambidashUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF3AD8635E410485E6EF014C /* Debug */,
+				12E55FE44E5C8E46F17FF0EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
