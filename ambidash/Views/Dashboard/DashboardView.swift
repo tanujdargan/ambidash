@@ -79,21 +79,24 @@ struct DashboardView: View {
                         }
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("Composite score: \(compositeScore) out of 100")
+                        .fadeSlideIn(delay: 0)
 
                         // Six arc gauges in 3-col grid
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 18) {
-                            ForEach(LifeDimension.allCases, id: \.self) { dim in
+                            ForEach(Array(LifeDimension.allCases.enumerated()), id: \.element) { index, dim in
                                 ArcGauge(
                                     value: Double(dimensionScores[dim] ?? 50) / 100.0,
                                     size: 86,
                                     strokeWidth: 3.5,
                                     label: dim.displayName
                                 )
+                                .staggeredAppear(index: index)
                             }
                         }
 
                         // Mentor surfaced
                         InsightCardView(goals: goals, snapshot: todaySnapshot)
+                            .fadeSlideIn(delay: 0.1)
 
                         // Goal strip
                         if !goals.isEmpty {

@@ -131,7 +131,7 @@ struct GoalListView: View {
             .padding(.bottom, 10)
 
             VStack(spacing: 0) {
-                ForEach(goals) { goal in
+                ForEach(Array(goals.enumerated()), id: \.element.id) { index, goal in
                     Button {
                         Haptics.selection()
                         selectedGoal = goal
@@ -139,6 +139,7 @@ struct GoalListView: View {
                         goalRow(goal, dotColor: horizon.dotColor, t: t)
                     }
                     .buttonStyle(.plain)
+                    .staggeredAppear(index: index)
                 }
             }
             .padding(.horizontal, 22)

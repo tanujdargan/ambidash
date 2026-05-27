@@ -26,12 +26,14 @@ struct WelcomeView: View {
                     }
                     .padding(.horizontal, 28)
                     .padding(.bottom, 28)
+                    .fadeSlideIn(delay: 0.1)
 
                     Text("AMBIDASH · V0.1")
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
                         .tracking(2)
                         .foregroundStyle(t.muted)
                         .padding(.horizontal, 28)
+                        .fadeSlideIn(delay: 0.2)
 
                     Text("A quiet instrument for an ambitious life.")
                         .font(.system(size: 38, weight: .regular, design: .serif))
@@ -40,6 +42,7 @@ struct WelcomeView: View {
                         .foregroundStyle(t.ink)
                         .padding(.horizontal, 28)
                         .padding(.top, 16)
+                        .fadeSlideIn(delay: 0.3)
 
                     Text("Not a coach, not a tracker. A mentor who watches, asks better questions, and remembers what you said you cared about — when you forget.")
                         .font(.system(size: 15))
@@ -47,6 +50,7 @@ struct WelcomeView: View {
                         .foregroundStyle(t.ink2)
                         .padding(.horizontal, 28)
                         .padding(.top, 18)
+                        .fadeSlideIn(delay: 0.4)
 
                     Spacer()
                     Spacer()
@@ -68,6 +72,7 @@ struct WelcomeView: View {
                     }
                     .padding(.horizontal, 28)
                     .padding(.bottom, 22)
+                    .fadeSlideIn(delay: 0.5)
                 }
             }
             .navigationDestination(isPresented: $showIdentity) {

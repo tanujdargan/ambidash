@@ -20,6 +20,7 @@ struct CardView<Content: View>: View {
                 RoundedRectangle(cornerRadius: 14)
                     .stroke(t.hair, lineWidth: 0.5)
             )
+            .scaleOnPress()
     }
 }
 
@@ -91,6 +92,7 @@ struct PrimaryButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .accessibilityHint("Double tap to activate")
+        .scaleOnPress()
     }
 }
 
@@ -141,6 +143,7 @@ struct PillButton: View {
                 )
         }
         .accessibilityAddTraits(.isButton)
+        .scaleOnPress()
     }
 }
 
