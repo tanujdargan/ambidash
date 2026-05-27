@@ -157,7 +157,7 @@ struct ThemeSetupView: View {
                                     .font(.system(size: 14, design: .monospaced))
                                     .foregroundStyle(t.faint)
 
-                                Text("Body · Mind · Craft · Social · Capital")
+                                Text("Body · Mind · Craft · People · Wealth · Adventure")
                                     .font(.system(size: 10, weight: .medium, design: .monospaced))
                                     .tracking(1)
                                     .foregroundStyle(t.muted)
