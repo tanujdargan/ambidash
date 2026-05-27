@@ -1,6 +1,6 @@
-// ambidash/Views/Reflect/WeeklyReviewView.swift
 import SwiftUI
 import SwiftData
+import Charts
 
 struct WeeklyReviewView: View {
     @Environment(ThemeManager.self) private var tm
@@ -17,110 +17,218 @@ struct WeeklyReviewView: View {
 
     private var weekSnapshots: [IntegrationSnapshot] {
         let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: .now)!
-        return snapshots.filter { $0.date >= weekAgo }
+        return snapshots.filter { $0.date >= weekAgo }.sorted { $0.date < $1.date }
     }
 
     var body: some View {
         let t = tm.resolved
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Weekly Review")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(t.ink)
-
-                // Action Stats
-                CardView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        SectionHeader(title: "Actions")
-
-                        let totalActions = weekPlans.flatMap(\.actions)
-                        let doneCount = totalActions.filter { $0.statusRaw == "done" }.count
-                        let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
-
-                        HStack(spacing: 24) {
-                            StatColumn(value: "\(doneCount)", label: "Completed", color: t.ok)
-                            StatColumn(value: "\(skippedCount)", label: "Skipped", color: t.danger)
-                            StatColumn(value: "\(weekPlans.count)", label: "Plans Made", color: t.accent)
-                        }
-                    }
+            VStack(alignment: .leading, spacing: 22) {
+                // Header
+                VStack(alignment: .leading, spacing: 4) {
+                    SectionLabel(title: "This week")
+                    Text("Honest charts. No badges.")
+                        .font(.system(size: 28, weight: .regular, design: .serif))
+                        .tracking(-0.3)
+                        .foregroundStyle(t.ink)
                 }
 
-                // Health Averages
+                // Action completion chart
+                actionChart(t)
+
+                // Sleep trend chart
                 if !weekSnapshots.isEmpty {
-                    CardView {
-                        VStack(alignment: .leading, spacing: 8) {
-                            SectionHeader(title: "Health Averages")
-
-                            let avgSleep = weekSnapshots.map(\.sleepHours).reduce(0, +) / Double(weekSnapshots.count)
-                            let avgScreen = weekSnapshots.map(\.screenTimeHours).reduce(0, +) / Double(weekSnapshots.count)
-                            let avgSteps = weekSnapshots.map { Double($0.steps) }.reduce(0, +) / Double(weekSnapshots.count)
-
-                            HStack(spacing: 24) {
-                                StatColumn(value: String(format: "%.1fh", avgSleep), label: "Avg Sleep", color: avgSleep >= 7 ? t.ok : t.accent)
-                                StatColumn(value: String(format: "%.1fh", avgScreen), label: "Avg Screen", color: avgScreen <= 3 ? t.ok : t.danger)
-                                StatColumn(value: String(format: "%.0f", avgSteps), label: "Avg Steps", color: avgSteps >= 8000 ? t.ok : t.accent)
-                            }
-                        }
-                    }
+                    sleepChart(t)
                 }
 
-                // Goal Health
-                CardView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        SectionHeader(title: "Goal Health")
+                // Goal health
+                goalHealthSection(t)
 
-                        let goals = profile?.goals.filter(\.isActive) ?? []
-                        ForEach(goals) { goal in
-                            HStack {
-                                Circle()
-                                    .fill(goal.computedStatus.color)
-                                    .frame(width: 8, height: 8)
-                                Text(goal.title)
-                                    .font(.subheadline)
-                                    .foregroundStyle(t.ink)
-                                Spacer()
-                                Text(goal.computedStatus.label)
-                                    .font(.caption)
-                                    .foregroundStyle(goal.computedStatus.color)
-                                if let streak = goal.streak, streak.currentCount > 0 {
-                                    HStack(spacing: 2) {
-                                        Image(systemName: "flame.fill")
-                                            .font(.caption2)
-                                            .foregroundStyle(t.accent)
-                                        Text("\(streak.currentCount)d")
-                                            .font(.caption2)
-                                            .foregroundStyle(t.muted)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                // Mentor note
+                MentorNote(
+                    text: "You finished what you started on \(weekPlans.filter { plan in plan.actions.allSatisfy { $0.statusRaw == "done" } }.count) of \(weekPlans.count) days. Patterns are more honest than intentions.",
+                    signature: "M."
+                )
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 6)
+            .padding(.bottom, 24)
+        }
+        .background(t.bg)
+    }
+
+    @ViewBuilder
+    private func actionChart(_ t: ResolvedTheme) -> some View {
+        let totalActions = weekPlans.flatMap(\.actions)
+        let doneCount = totalActions.filter { $0.statusRaw == "done" }.count
+        let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
+        let pendingCount = totalActions.count - doneCount - skippedCount
+
+        VStack(alignment: .leading, spacing: 12) {
+            SectionLabel(title: "Actions")
+
+            // Bar chart data
+            let data: [(String, Int, Color)] = [
+                ("Done", doneCount, t.ok),
+                ("Skipped", skippedCount, t.danger),
+                ("Pending", pendingCount, t.faint),
+            ]
+
+            Chart(data, id: \.0) { item in
+                BarMark(
+                    x: .value("Count", item.1),
+                    y: .value("Status", item.0)
+                )
+                .foregroundStyle(item.2)
+                .cornerRadius(3)
+            }
+            .chartXAxis(.hidden)
+            .chartYAxis {
+                AxisMarks { value in
+                    AxisValueLabel()
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(t.muted)
                 }
             }
-            .padding()
+            .frame(height: 80)
+
+            // Summary
+            HStack(spacing: 16) {
+                Text("\(doneCount)")
+                    .font(.system(size: 32, design: .monospaced))
+                    .monospacedDigit()
+                    .foregroundStyle(t.ink)
+                + Text(" / \(totalActions.count)")
+                    .font(.system(size: 14, design: .monospaced))
+                    .foregroundStyle(t.faint)
+
+                Spacer()
+
+                if totalActions.count > 0 {
+                    Text("\(Int(Double(doneCount) / Double(totalActions.count) * 100))% completion")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundStyle(t.muted)
+                }
+            }
         }
-        .background(tm.resolved.bg)
+        .padding(16)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
     }
-}
 
-private struct StatColumn: View {
-    let value: String
-    let label: String
-    let color: Color
+    @ViewBuilder
+    private func sleepChart(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                SectionLabel(title: "Sleep")
+                Spacer()
+                Text("7 D")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(t.faint)
+            }
 
-    @Environment(ThemeManager.self) private var tm
+            Chart(weekSnapshots, id: \.id) { snap in
+                LineMark(
+                    x: .value("Day", snap.date, unit: .day),
+                    y: .value("Hours", snap.sleepHours)
+                )
+                .foregroundStyle(t.ink)
+                .lineStyle(StrokeStyle(lineWidth: 1.5))
 
-    var body: some View {
-        let t = tm.resolved
-        VStack(spacing: 4) {
-            Text(value)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
-                .foregroundStyle(color)
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(t.muted)
+                AreaMark(
+                    x: .value("Day", snap.date, unit: .day),
+                    y: .value("Hours", snap.sleepHours)
+                )
+                .foregroundStyle(t.ink.opacity(0.06))
+
+                PointMark(
+                    x: .value("Day", snap.date, unit: .day),
+                    y: .value("Hours", snap.sleepHours)
+                )
+                .foregroundStyle(t.ink)
+                .symbolSize(16)
+            }
+            .chartYScale(domain: 0...12)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day)) { value in
+                    AxisValueLabel(format: .dateTime.weekday(.abbreviated))
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(t.muted)
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading, values: [0, 4, 8, 12]) { value in
+                    AxisGridLine().foregroundStyle(t.hair)
+                    AxisValueLabel()
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(t.faint)
+                }
+            }
+            .frame(height: 140)
+
+            // Average
+            let avg = weekSnapshots.map(\.sleepHours).reduce(0, +) / max(Double(weekSnapshots.count), 1)
+            HStack {
+                Text("\(String(format: "%.1f", avg))")
+                    .font(.system(size: 24, design: .monospaced))
+                    .monospacedDigit()
+                    .foregroundStyle(t.ink)
+                Text("hr avg")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(t.muted)
+                Spacer()
+                Text(avg >= 7 ? "on target" : "below 7hr target")
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(avg >= 7 ? t.ok : t.danger)
+            }
         }
-        .frame(maxWidth: .infinity)
+        .padding(16)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
+    }
+
+    @ViewBuilder
+    private func goalHealthSection(_ t: ResolvedTheme) -> some View {
+        let goals = profile?.goals.filter(\.isActive) ?? []
+
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(title: "Goal health")
+
+            ForEach(goals) { goal in
+                HStack(spacing: 10) {
+                    Circle().fill(goal.horizon.dotColor).frame(width: 6, height: 6)
+
+                    Text(goal.title)
+                        .font(.system(size: 14, weight: .regular, design: .serif))
+                        .foregroundStyle(t.ink)
+                        .lineLimit(1)
+
+                    Spacer()
+
+                    Text(goal.computedStatus.label.lowercased())
+                        .font(.system(size: 9, design: .monospaced))
+                        .foregroundStyle(t.muted)
+
+                    if let streak = goal.streak, streak.currentCount > 0 {
+                        HStack(spacing: 2) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 8))
+                                .foregroundStyle(t.accent)
+                            Text("\(streak.currentCount)d")
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(t.faint)
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+                .overlay(alignment: .bottom) { t.hair.frame(height: 0.5) }
+            }
+        }
+        .padding(16)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
     }
 }
