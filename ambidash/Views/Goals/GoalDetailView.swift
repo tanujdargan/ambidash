@@ -60,6 +60,15 @@ struct GoalDetailView: View {
                         }
                     }
 
+                    // Progress trend
+                    let scores = GoalProgressTracker.recentScores(for: goal, days: 14)
+                    if scores.count > 1 {
+                        VStack(alignment: .leading, spacing: 8) {
+                            SectionLabel(title: "14-day trend")
+                            SparklineView(values: scores.map { Double($0) }, width: 280, height: 40)
+                        }
+                    }
+
                     // Actions
                     VStack(spacing: 10) {
                         PrimaryButton(label: "Log progress") {

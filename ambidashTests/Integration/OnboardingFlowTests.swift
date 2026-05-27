@@ -99,3 +99,9 @@ import Foundation
         #expect(json?["app_version"] as? String == "1.0.0")
     }
 }
+
+@Test func goalProgressTrackerReturnsScores() {
+    let goal = Goal(title: "Test", domain: .body, priority: 1)
+    let scores = GoalProgressTracker.recentScores(for: goal, days: 7)
+    #expect(scores.isEmpty)
+}

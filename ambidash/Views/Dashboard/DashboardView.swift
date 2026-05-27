@@ -165,6 +165,10 @@ struct DashboardView: View {
                 }
                 updateWidgetData()
                 SpotlightService.indexGoals(goals)
+                for goal in goals {
+                    GoalProgressTracker.recordDaily(goal: goal, context: modelContext)
+                }
+                try? modelContext.save()
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)

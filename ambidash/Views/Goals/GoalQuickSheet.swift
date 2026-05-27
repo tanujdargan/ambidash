@@ -77,6 +77,13 @@ struct GoalQuickSheet: View {
                         dismiss()
                     }
                 }
+
+                GhostButton(label: "Move to top priority") {
+                    Haptics.medium()
+                    goal.priority = 0
+                    try? modelContext.save()
+                    dismiss()
+                }
             }
             .padding(.horizontal, 22)
             .padding(.top, 20)
