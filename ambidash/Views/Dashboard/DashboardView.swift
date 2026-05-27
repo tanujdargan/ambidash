@@ -157,9 +157,11 @@ struct DashboardView: View {
             .task {
                 await manager.requestAllPermissions()
                 await manager.refreshTodaySnapshot(in: modelContext)
-                await NotificationService.requestPermission()
-                NotificationService.scheduleDailyReminder()
-                NotificationService.scheduleMorningPlan()
+                if !IntegrationManager.skipPermissions {
+                    await NotificationService.requestPermission()
+                    NotificationService.scheduleDailyReminder()
+                    NotificationService.scheduleMorningPlan()
+                }
                 StreakService.scheduleWarnings(for: goals)
                 StreakService.scheduleDriftNudges(for: goals)
                 if let profile {
