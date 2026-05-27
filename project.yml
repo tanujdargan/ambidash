@@ -35,6 +35,9 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         INFOPLIST_KEY_CFBundleDisplayName: "AmbiDash"
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.lifestyle"
+        INFOPLIST_KEY_CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - ambidash
     entitlements:
       path: ambidash/ambidash.entitlements
       properties:
