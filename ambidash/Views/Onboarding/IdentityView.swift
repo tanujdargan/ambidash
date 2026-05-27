@@ -15,7 +15,10 @@ struct IdentityView: View {
     private var profile: UserProfile? { profiles.first }
 
     private var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && Int(age) != nil
+        let trimmedName = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmedName.isEmpty, trimmedName.count <= 50 else { return false }
+        guard let ageInt = Int(age), ageInt >= 13, ageInt <= 120 else { return false }
+        return true
     }
 
     var body: some View {

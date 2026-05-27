@@ -70,6 +70,11 @@ struct InsightCardView: View {
     }
 
     private func fetchInsight() async {
+        guard NetworkMonitor.shared.isConnected else {
+            insight = "No internet connection. Insights require a network connection."
+            return
+        }
+
         guard PremiumGateService.canFetchInsight() else {
             insight = "You've used your free insight for today. Upgrade to Premium for unlimited insights."
             return

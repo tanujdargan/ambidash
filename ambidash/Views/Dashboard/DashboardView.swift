@@ -4,6 +4,7 @@ import SwiftData
 struct DashboardView: View {
     @Environment(ThemeManager.self) private var tm
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var manager = IntegrationManager()
     @Query private var profiles: [UserProfile]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
@@ -162,6 +163,13 @@ struct DashboardView: View {
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    Task {
+                        await manager.refreshTodaySnapshot(in: modelContext)
+                    }
+                }
             }
         }
         .preferredColorScheme(tm.isDark ? .dark : .light)

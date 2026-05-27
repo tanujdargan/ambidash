@@ -46,6 +46,7 @@ enum AIService {
         let url = URL(string: "https://api.anthropic.com/v1/messages")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.timeoutInterval = 30
         request.setValue("application/json", forHTTPHeaderField: "content-type")
         request.setValue(AIConfig.apiKey, forHTTPHeaderField: "x-api-key")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
@@ -57,7 +58,13 @@ enum AIService {
         )
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            ErrorLogger.log(error, context: "AIService.callAPI")
+            throw AIError.networkError(error)
+        }
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw AIError.invalidResponse
@@ -65,7 +72,9 @@ enum AIService {
 
         if httpResponse.statusCode != 200 {
             let errorText = String(data: data, encoding: .utf8) ?? "Unknown error"
-            throw AIError.apiError("HTTP \(httpResponse.statusCode): \(errorText)")
+            let apiError = AIError.apiError("HTTP \(httpResponse.statusCode): \(errorText)")
+            ErrorLogger.log(apiError, context: "AIService.callAPI")
+            throw apiError
         }
 
         let apiResponse = try JSONDecoder().decode(APIResponse.self, from: data)
