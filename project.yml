@@ -51,6 +51,9 @@ targets:
           - "iCloud.com.ambidash.app"
         com.apple.developer.icloud-services:
           - "CloudKit"
+    dependencies:
+      - target: ambidash-widget
+        embed: true
   ambidashTests:
     type: bundle.unit-test
     platform: iOS
@@ -89,18 +92,5 @@ targets:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
 
-  ambidash-monitor:
-    type: app-extension
-    platform: iOS
-    sources:
-      - path: ambidash-monitor
-        excludes:
-          - Info.plist
-    info:
-      path: ambidash-monitor/Info.plist
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.monitor
-    dependencies:
-      - sdk: DeviceActivity.framework
-      - sdk: ManagedSettings.framework
+  # ambidash-monitor: disabled until Family Controls entitlement approved
+  # Re-enable after Apple grants com.apple.developer.family-controls

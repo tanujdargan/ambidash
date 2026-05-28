@@ -19,7 +19,6 @@
 		1F8A1E1EA102D6C80718A641 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99293D596B35EC9D61FFE9E2 /* Goal.swift */; };
 		202B2A27F8A5F62BE84EB01E /* HonestMirrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AAB2BDBA51600EC90D23C79 /* HonestMirrorView.swift */; };
 		2200D05DA1B93A702178200C /* GoalProgressTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B73B908D3586F0C284753C /* GoalProgressTracker.swift */; };
-		2388185131310E0E214A881F /* DeviceActivityMonitorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420BFB646EE93A1A310BA415 /* DeviceActivityMonitorExtension.swift */; };
 		23D30FEF3895CE79E050A119 /* IntegrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A33E9CED2D0772100C550 /* IntegrationManager.swift */; };
 		24FDA9B6ABFF5CB69741C235 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE9BC2C6D2DB031A788193C /* AIService.swift */; };
 		25BCD30136EDBDDADB9F9EBA /* ReflectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73107790D53825C77448FC4E /* ReflectView.swift */; };
@@ -29,7 +28,6 @@
 		2CABC22C4FB5FEFC5B6AF2CC /* WorkStylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */; };
 		2F2D10F9D9FCB47C08357338 /* AddGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097D73995EC9BBD4FF1739A4 /* AddGoalView.swift */; };
 		331B02D2EB6C3B1FFF162090 /* AmbidashTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3DBC8F6AC246D974F0209D8 /* AmbidashTheme.swift */; };
-		34AA7E63B7BF264A58D392C9 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F03206FDBB4076414660C33D /* DeviceActivity.framework */; };
 		34FD720A94B510E303172982 /* GoalStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45E866B8C0DAA8861F70564 /* GoalStatus.swift */; };
 		35BEE7DC85E47A51A896A606 /* AmbidashWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3AFDDC2F74A33BC395F2031 /* AmbidashWidget.swift */; };
 		3AC8FF3BC3B5EA992533CBA8 /* IdentityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1011A65E55C44311E372F71C /* IdentityView.swift */; };
@@ -52,6 +50,7 @@
 		58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */; };
 		5C8C3DA18CB1BE586526DF20 /* OnboardingFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1EA91E8A3918D1CE6FFBFA /* OnboardingFlowTests.swift */; };
 		60C2E35CE35FEA13BBECB005 /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC183A57A063887061AA22C /* NotionService.swift */; };
+		60D781D5FE043CE2CA6A1882 /* ambidash-widget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 969354CE05500BD43D3877B2 /* ambidash-widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		60F320D28189038F7CE3571E /* ErrorLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2599FAF6B43DF69E00217AC5 /* ErrorLogger.swift */; };
 		636A5873CB39E24586D37034 /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */; };
 		637813F66460983915A480D0 /* SanityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB53322A625D21C309B8444F /* SanityTests.swift */; };
@@ -60,7 +59,6 @@
 		70849E13A9A45DEE1B248606 /* PlanFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */; };
 		74DF8BD7BF6CFCD9028DB781 /* PlanGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BD4D96F1AD5BC044A123D8 /* PlanGeneratorTests.swift */; };
 		7B524D3727795C6DA9478A34 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89FB14763BD36D1D0E2C76C1 /* SwiftUI.framework */; };
-		7E778DD61C63656D724DC527 /* ManagedSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 009036D3AB170DBC5C917DD4 /* ManagedSettings.framework */; };
 		7EC47396C51CCE81CED961CA /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09115618227349FA26D9E136 /* DashboardView.swift */; };
 		83916156AA043F544442BCC8 /* DomainAssessmentQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54A9BFF9287FAC9BE85BE5C /* DomainAssessmentQuestions.swift */; };
 		87C3AE7CC9AF7F96FCA6BA0C /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE6A075761C5F7C13EF2BE1 /* GoalDetailView.swift */; };
@@ -121,6 +119,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1F9E01C04157B89126C89267 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 021C71ADDCFCB90366084403 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 37EE5B7EB6DBB1D4E0EDBF52;
+			remoteInfo = "ambidash-widget";
+		};
 		43827592A6A9DFDA07CEBD40 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 021C71ADDCFCB90366084403 /* Project object */;
@@ -137,8 +142,21 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		DEAF3A67BBA204325BCCEAEA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				60D781D5FE043CE2CA6A1882 /* ambidash-widget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		009036D3AB170DBC5C917DD4 /* ManagedSettings.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ManagedSettings.framework; path = System/Library/Frameworks/ManagedSettings.framework; sourceTree = SDKROOT; };
 		06B28262EA68702E892BDD82 /* MorningBriefView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningBriefView.swift; sourceTree = "<group>"; };
 		079C72EA0A694EB8858FDFBC /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		09115618227349FA26D9E136 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
@@ -153,7 +171,6 @@
 		19579A5BD33622DC6BC2FCF5 /* GoalStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStripView.swift; sourceTree = "<group>"; };
 		198A33E9CED2D0772100C550 /* IntegrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationManager.swift; sourceTree = "<group>"; };
 		1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ambidashTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		1CBD2F70C369469AD6F4E148 /* ambidash-monitor.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "ambidash-monitor.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D85C97171671F9FEA4F482F /* StreakService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakService.swift; sourceTree = "<group>"; };
 		24A30F431A850B4444C16E78 /* IntegrationSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationSetupView.swift; sourceTree = "<group>"; };
 		2599FAF6B43DF69E00217AC5 /* ErrorLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorLogger.swift; sourceTree = "<group>"; };
@@ -167,7 +184,6 @@
 		39AFD66F9A9C15CB9E46793D /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
 		3F3FF7B43385E48B63BBEC41 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		3FC183A57A063887061AA22C /* NotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionService.swift; sourceTree = "<group>"; };
-		420BFB646EE93A1A310BA415 /* DeviceActivityMonitorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActivityMonitorExtension.swift; sourceTree = "<group>"; };
 		481505C42AF83DFCBBF91CF4 /* InsightCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCardView.swift; sourceTree = "<group>"; };
 		50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannedAction.swift; sourceTree = "<group>"; };
 		519313A26A851EA1B979BC07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -248,7 +264,6 @@
 		EB8AB6B613C1E35A8C681943 /* LaunchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		EC96295D909EDBC3A912D5DE /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
 		EF13B66F23BBABD3F2AD0064 /* PlanGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanGenerator.swift; sourceTree = "<group>"; };
-		F03206FDBB4076414660C33D /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
 		F3B73B908D3586F0C284753C /* GoalProgressTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProgressTracker.swift; sourceTree = "<group>"; };
 		F5F622E2B5F7A018C1B3EA3C /* GoalHealthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalHealthService.swift; sourceTree = "<group>"; };
 		F9029079DA9843B1733B7A26 /* SkipAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipAnalysisService.swift; sourceTree = "<group>"; };
@@ -264,15 +279,6 @@
 			files = (
 				A8CE58D0DBAD57E23C80EEDA /* WidgetKit.framework in Frameworks */,
 				7B524D3727795C6DA9478A34 /* SwiftUI.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F231E4F0BD299440F7779AA6 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				34AA7E63B7BF264A58D392C9 /* DeviceActivity.framework in Frameworks */,
-				7E778DD61C63656D724DC527 /* ManagedSettings.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,14 +328,6 @@
 			path = Today;
 			sourceTree = "<group>";
 		};
-		33CB71B4061E485FBB04FABD /* ambidash-monitor */ = {
-			isa = PBXGroup;
-			children = (
-				420BFB646EE93A1A310BA415 /* DeviceActivityMonitorExtension.swift */,
-			);
-			path = "ambidash-monitor";
-			sourceTree = "<group>";
-		};
 		42180C66FAFB85ACF0D8BFCA /* ambidashUITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -353,7 +351,6 @@
 		49CDB32D36924640688BB51E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1CBD2F70C369469AD6F4E148 /* ambidash-monitor.appex */,
 				969354CE05500BD43D3877B2 /* ambidash-widget.appex */,
 				BE58D6B581720991895E3987 /* ambidash.app */,
 				1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */,
@@ -378,7 +375,6 @@
 			isa = PBXGroup;
 			children = (
 				9AF0F69B308DBCDE37605B0E /* ambidash */,
-				33CB71B4061E485FBB04FABD /* ambidash-monitor */,
 				838D429C9289F3ECA07C13D2 /* ambidash-widget */,
 				4CD021A9F4970677C078D701 /* ambidashTests */,
 				42180C66FAFB85ACF0D8BFCA /* ambidashUITests */,
@@ -581,8 +577,6 @@
 		CC6DFCCE9805631859C180C2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F03206FDBB4076414660C33D /* DeviceActivity.framework */,
-				009036D3AB170DBC5C917DD4 /* ManagedSettings.framework */,
 				89FB14763BD36D1D0E2C76C1 /* SwiftUI.framework */,
 				3F3FF7B43385E48B63BBEC41 /* WidgetKit.framework */,
 			);
@@ -657,34 +651,18 @@
 			productReference = 1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		B3DCD28A9232CB58123E071D /* ambidash-monitor */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A7132BA19ADAF6F36086BE80 /* Build configuration list for PBXNativeTarget "ambidash-monitor" */;
-			buildPhases = (
-				745667EA3D2E84C7B4273A4B /* Sources */,
-				F231E4F0BD299440F7779AA6 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "ambidash-monitor";
-			packageProductDependencies = (
-			);
-			productName = "ambidash-monitor";
-			productReference = 1CBD2F70C369469AD6F4E148 /* ambidash-monitor.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		C509A9FC71A7CED2FCA21F3A /* ambidash */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B6A812A2FED503F0BC856D73 /* Build configuration list for PBXNativeTarget "ambidash" */;
 			buildPhases = (
 				2A68DF3DA458B84007CDABFF /* Sources */,
 				598A6AD6C58EA6811A6889EF /* Resources */,
+				DEAF3A67BBA204325BCCEAEA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				5D84CE44C95B43693EF80693 /* PBXTargetDependency */,
 			);
 			name = ambidash;
 			packageProductDependencies = (
@@ -740,7 +718,6 @@
 			projectRoot = "";
 			targets = (
 				C509A9FC71A7CED2FCA21F3A /* ambidash */,
-				B3DCD28A9232CB58123E071D /* ambidash-monitor */,
 				37EE5B7EB6DBB1D4E0EDBF52 /* ambidash-widget */,
 				55E449DF7F2940133ACE3A79 /* ambidashTests */,
 				F95C576BB3F88DD22B0A662A /* ambidashUITests */,
@@ -860,14 +837,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		745667EA3D2E84C7B4273A4B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2388185131310E0E214A881F /* DeviceActivityMonitorExtension.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		ABFA802FA9EFDE3760024BDC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -908,6 +877,11 @@
 			isa = PBXTargetDependency;
 			target = C509A9FC71A7CED2FCA21F3A /* ambidash */;
 			targetProxy = 7625727328DBB1403463E639 /* PBXContainerItemProxy */;
+		};
+		5D84CE44C95B43693EF80693 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 37EE5B7EB6DBB1D4E0EDBF52 /* ambidash-widget */;
+			targetProxy = 1F9E01C04157B89126C89267 /* PBXContainerItemProxy */;
 		};
 		D38CDAE4F6E96E9CA26B4595 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -981,21 +955,6 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
-		};
-		799311AEE718B0ABABF48523 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				INFOPLIST_FILE = "ambidash-monitor/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app.monitor;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
 		};
 		7F725722D4D7633678FABDF9 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -1215,21 +1174,6 @@
 			};
 			name = Debug;
 		};
-		FEB54C356F6E27D515504135 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				INFOPLIST_FILE = "ambidash-monitor/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ambidash.app.monitor;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1247,15 +1191,6 @@
 			buildConfigurations = (
 				AF3AD8635E410485E6EF014C /* Debug */,
 				12E55FE44E5C8E46F17FF0EB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		A7132BA19ADAF6F36086BE80 /* Build configuration list for PBXNativeTarget "ambidash-monitor" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FEB54C356F6E27D515504135 /* Debug */,
-				799311AEE718B0ABABF48523 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
