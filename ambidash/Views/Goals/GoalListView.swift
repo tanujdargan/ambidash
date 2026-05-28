@@ -262,6 +262,7 @@ struct GoalListView: View {
             action: { showAddGoal = true },
             actionLabel: "Add a goal"
         )
+        .fadeSlideIn(delay: 0.1)
     }
 }
 

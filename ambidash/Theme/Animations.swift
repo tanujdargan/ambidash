@@ -15,9 +15,11 @@ struct StaggeredAppear: ViewModifier {
         content
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 12)
-            .onAppear {
+            .task {
+                guard !appeared else { return }
                 let delay = Double(index) * 0.04
-                withAnimation(.ambidashSpring.delay(delay)) {
+                try? await Task.sleep(for: .seconds(delay))
+                withAnimation(.ambidashSpring) {
                     appeared = true
                 }
             }
@@ -47,8 +49,12 @@ struct FadeSlideIn: ViewModifier {
         content
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared ? 0 : 20)
-            .onAppear {
-                withAnimation(.ambidashSlow.delay(delay)) {
+            .task {
+                guard !appeared else { return }
+                if delay > 0 {
+                    try? await Task.sleep(for: .seconds(delay))
+                }
+                withAnimation(.ambidashSlow) {
                     appeared = true
                 }
             }
