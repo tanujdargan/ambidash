@@ -23,7 +23,7 @@ struct AssessmentQuestionView: View {
             }
 
             VStack(spacing: 10) {
-                ForEach(question.options) { option in
+                ForEach(Array(question.options.enumerated()), id: \.element.id) { index, option in
                     let isSelected = selectedIds.contains(option.id)
 
                     Button {
@@ -65,6 +65,7 @@ struct AssessmentQuestionView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .staggeredAppear(index: index)
                 }
             }
         }

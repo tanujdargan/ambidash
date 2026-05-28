@@ -40,6 +40,7 @@ struct GoalQuickSheet: View {
                 }
             }
             .padding(.horizontal, 22)
+            .fadeSlideIn(delay: 0)
 
             // Stats
             VStack(spacing: 0) {
@@ -51,6 +52,7 @@ struct GoalQuickSheet: View {
             }
             .padding(.horizontal, 22)
             .padding(.top, 16)
+            .fadeSlideIn(delay: 0.1)
 
             // Actions
             VStack(spacing: 10) {
@@ -88,6 +90,7 @@ struct GoalQuickSheet: View {
             .padding(.horizontal, 22)
             .padding(.top, 20)
             .padding(.bottom, 8)
+            .fadeSlideIn(delay: 0.2)
         }
         .background(t.bg)
         .presentationDetents([.medium])

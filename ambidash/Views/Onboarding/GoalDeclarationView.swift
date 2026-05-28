@@ -46,7 +46,7 @@ struct GoalDeclarationView: View {
 
                         // Pillar cards
                         VStack(spacing: 10) {
-                            ForEach(pillarInfo, id: \.domain) { info in
+                            ForEach(Array(pillarInfo.enumerated()), id: \.element.domain) { index, info in
                                 let isSelected = selectedDomains.contains(info.domain)
 
                                 Button {
@@ -91,6 +91,7 @@ struct GoalDeclarationView: View {
                                     )
                                 }
                                 .buttonStyle(.plain)
+                                .staggeredAppear(index: index)
                             }
                         }
                         .padding(.horizontal, 22)

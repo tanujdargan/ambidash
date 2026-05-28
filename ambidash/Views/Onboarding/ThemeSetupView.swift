@@ -24,6 +24,7 @@ struct ThemeSetupView: View {
                                 .foregroundStyle(t.ink)
                         }
                         .padding(.top, 20)
+                        .fadeSlideIn(delay: 0)
 
                         // Palette
                         VStack(alignment: .leading, spacing: 12) {
@@ -59,6 +60,7 @@ struct ThemeSetupView: View {
                                 }
                             }
                         }
+                        .fadeSlideIn(delay: 0.1)
 
                         // Mode
                         VStack(alignment: .leading, spacing: 12) {
@@ -73,6 +75,7 @@ struct ThemeSetupView: View {
                                 }
                             }
                         }
+                        .fadeSlideIn(delay: 0.15)
 
                         // Typography
                         VStack(alignment: .leading, spacing: 12) {
@@ -110,6 +113,7 @@ struct ThemeSetupView: View {
                                 }
                             }
                         }
+                        .fadeSlideIn(delay: 0.2)
 
                         // Density
                         VStack(alignment: .leading, spacing: 12) {
@@ -139,6 +143,7 @@ struct ThemeSetupView: View {
                                 }
                             }
                         }
+                        .fadeSlideIn(delay: 0.25)
 
                         // Preview
                         VStack(alignment: .leading, spacing: 8) {
@@ -171,6 +176,7 @@ struct ThemeSetupView: View {
                                     .stroke(t.hair, lineWidth: 0.5)
                             )
                         }
+                        .fadeSlideIn(delay: 0.3)
 
                         // Continue
                         PrimaryButton(label: "Continue") {

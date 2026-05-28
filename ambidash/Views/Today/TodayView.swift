@@ -72,6 +72,7 @@ struct TodayView: View {
             if let current = currentAction {
                 nowStrip(current, t: t)
                     .padding(.horizontal, 22)
+                    .fadeSlideIn(delay: 0)
             }
 
             // The whole day
@@ -83,6 +84,7 @@ struct TodayView: View {
                     ForEach(Array(sorted.enumerated()), id: \.element.id) { index, action in
                         let isLast = index == sorted.count - 1
                         timelineRow(action, isNow: action.id == currentAction?.id, t: t, showDivider: !isLast)
+                            .staggeredAppear(index: index)
                     }
                 }
                 .padding(.horizontal, 22)
@@ -91,6 +93,7 @@ struct TodayView: View {
             // Time accounting
             timeAccounting(plan, t: t)
                 .padding(.horizontal, 22)
+                .fadeSlideIn(delay: 0.1)
         }
     }
 
@@ -358,10 +361,12 @@ struct TodayView: View {
             }
             .padding(.horizontal, 40)
             .disabled(isGenerating)
+            .scaleOnPress()
 
             Spacer(minLength: 80)
         }
         .padding(.horizontal, 22)
+        .fadeSlideIn(delay: 0)
     }
 
     // MARK: - Logic (unchanged)

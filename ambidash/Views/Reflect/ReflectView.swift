@@ -49,6 +49,7 @@ struct ReflectView: View {
                                 .foregroundStyle(t.muted)
                                 .padding(.horizontal, 22)
                                 .padding(.top, 8)
+                                .fadeSlideIn(delay: 0)
 
                             Text("Three questions.\nTake your time.")
                                 .font(.system(size: 28, weight: .regular, design: .serif))
@@ -57,6 +58,7 @@ struct ReflectView: View {
                                 .foregroundStyle(t.ink)
                                 .padding(.horizontal, 22)
                                 .padding(.top, 14)
+                                .fadeSlideIn(delay: 0.1)
 
                             // Day summary (compact)
                             if let plan = todayPlan {
@@ -78,14 +80,17 @@ struct ReflectView: View {
                                     question: "What did you actually do today?",
                                     hint: "Not what was on the list. What you did.",
                                     text: $q1Text)
+                                    .fadeSlideIn(delay: 0.2)
                                 ReflectionQuestion(number: 2,
                                     question: "Where did the time you can't account for go?",
                                     hint: "Approximate is fine.",
                                     text: $q2Text)
+                                    .fadeSlideIn(delay: 0.3)
                                 ReflectionQuestion(number: 3,
                                     question: "What is one thing tomorrow's you will need from tonight's you?",
                                     hint: "",
                                     text: $q3Text)
+                                    .fadeSlideIn(delay: 0.4)
                             }
                             .padding(.horizontal, 22)
                             .padding(.top, 28)
@@ -105,6 +110,7 @@ struct ReflectView: View {
                             }
                             .padding(.horizontal, 22)
                             .padding(.top, 18)
+                            .fadeSlideIn(delay: 0.5)
                         }
                         .padding(.bottom, 24)
                     }

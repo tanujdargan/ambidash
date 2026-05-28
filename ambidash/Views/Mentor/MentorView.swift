@@ -32,11 +32,13 @@ struct MentorView: View {
                     .padding(.horizontal, 22)
                     .padding(.top, 6)
                     .padding(.bottom, 14)
+                    .fadeSlideIn(delay: 0)
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 16) {
                             if letters.isEmpty {
                                 firstLetter(t)
+                                    .fadeSlideIn(delay: 0.15)
                             } else {
                                 ForEach(letters) { letter in
                                     if letter.role == "mentor" {
@@ -50,6 +52,8 @@ struct MentorView: View {
                             // Write prompt
                             if !isWriting {
                                 writePrompt(t)
+                                    .fadeSlideIn(delay: 0.3)
+                                    .scaleOnPress()
                             } else {
                                 replyComposer(t)
                             }

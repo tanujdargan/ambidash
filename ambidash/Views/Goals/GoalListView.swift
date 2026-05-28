@@ -77,6 +77,7 @@ struct GoalListView: View {
                 .padding(.horizontal, 22)
                 .padding(.top, 6)
                 .padding(.bottom, 8)
+                .fadeSlideIn(delay: 0)
 
                 // Search
                 HStack(spacing: 8) {
@@ -94,6 +95,7 @@ struct GoalListView: View {
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(t.hair, lineWidth: 0.5))
                 .padding(.horizontal, 22)
                 .padding(.bottom, 8)
+                .fadeSlideIn(delay: 0.05)
 
                 // Pillar filter chips
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -153,6 +155,7 @@ struct GoalListView: View {
                     mentorCard(activeCount: active.count, retiredCount: retired.count, t: t)
                         .padding(.horizontal, 22)
                         .padding(.top, 22)
+                        .fadeSlideIn(delay: 0.2)
                 }
             }
             .padding(.bottom, 100)
@@ -188,6 +191,7 @@ struct GoalListView: View {
                         goalRow(goal, dotColor: horizon.dotColor, t: t)
                     }
                     .buttonStyle(.plain)
+                    .scaleOnPress()
                     .staggeredAppear(index: index)
                 }
             }
