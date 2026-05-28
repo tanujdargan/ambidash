@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import SwiftData
 @testable import ambidash
 
 @Test func goalLibraryReturnsGoalsForAllDomains() {
@@ -104,4 +105,18 @@ import Foundation
     let goal = Goal(title: "Test", domain: .body, priority: 1)
     let scores = GoalProgressTracker.recentScores(for: goal, days: 7)
     #expect(scores.isEmpty)
+}
+
+@Test func syncServiceSkipsWhenNotAuthenticated() async {
+    // SyncService should gracefully skip when not authenticated
+    await SyncService.fullSync(context: ModelContext(try! ModelContainer(for: UserProfile.self, Goal.self, Streak.self, GoalProgress.self, DomainAssessment.self)), profile: nil)
+    // No crash = pass
+}
+
+@Test func goalLibraryContainsAll52Goals() {
+    var total = 0
+    for domain in GoalDomain.allCases {
+        total += GoalLibrary.starterGoals(for: domain).count
+    }
+    #expect(total == 52, "GoalLibrary should contain all 52 goals from life map")
 }
