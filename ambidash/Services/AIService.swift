@@ -31,11 +31,46 @@ enum AIService {
     }
 
     static func generateInsight(goals: [Goal], snapshot: IntegrationSnapshot?, streakSummary: String) async throws -> String {
+        // Try edge function first (API key stays server-side)
+        if SupabaseService.shared.isAuthenticated {
+            let context: [String: Any] = [
+                "goals": goals.map { [
+                    "title": $0.title, "domain": $0.domainRaw,
+                    "neglect_days": $0.neglectDays, "streak": $0.streak?.currentCount ?? 0
+                ] },
+                "snapshot": snapshot.map { [
+                    "sleep_hours": $0.sleepHours, "steps": $0.steps,
+                    "screen_time_hours": $0.screenTimeHours
+                ] } as Any,
+            ]
+            if let result = await SupabaseService.shared.callMentor(action: "insight", context: context) {
+                return result
+            }
+        }
+        // Fallback to direct API
         let prompt = MentorPromptBuilder.insightPrompt(goals: goals, snapshot: snapshot, streakSummary: streakSummary)
         return try await callAPI(prompt: prompt)
     }
 
     static func generatePlanJSON(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?) async throws -> String {
+        // Try edge function first
+        if SupabaseService.shared.isAuthenticated {
+            let context: [String: Any] = [
+                "goals": goals.map { [
+                    "title": $0.title, "domain": $0.domainRaw,
+                    "neglect_days": $0.neglectDays, "streak": $0.streak?.currentCount ?? 0
+                ] },
+                "profile": profile.map { [
+                    "name": $0.name, "age": $0.age,
+                    "peak_energy": $0.coreAssessment?.peakEnergyTime ?? "",
+                    "cognitive_style": $0.coreAssessment?.cognitiveStyle ?? ""
+                ] } as Any,
+            ]
+            if let result = await SupabaseService.shared.callMentor(action: "plan", context: context) {
+                return result
+            }
+        }
+        // Fallback to direct API
         let prompt = MentorPromptBuilder.planPrompt(goals: goals, snapshot: snapshot, profile: profile)
         return try await callAPI(prompt: prompt)
     }

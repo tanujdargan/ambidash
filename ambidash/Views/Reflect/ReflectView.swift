@@ -149,6 +149,9 @@ struct ReflectView: View {
             modelContext.insert(reflection)
         }
         try? modelContext.save()
+        Task {
+            await SyncService.syncReflectionToCloud(mood: "", blockers: [], text: combined)
+        }
     }
 }
 
