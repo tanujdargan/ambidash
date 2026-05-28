@@ -12,12 +12,12 @@ struct GoalDeclarationView: View {
     private var profile: UserProfile? { profiles.first }
 
     private let pillarInfo: [(domain: GoalDomain, examples: [String])] = [
-        (.body, ["Fix sleep schedule", "Compound lifts 3-4x/week", "Lean toned body", "Clean eating"]),
-        (.mind, ["Control emotions in the moment", "Build genuine self-confidence", "Reading habit", "Therapy or journaling"]),
-        (.craft, ["Crush the internship", "Launch startup solo", "AI research publications", "Public speaking"]),
-        (.people, ["Be more social", "Make real friends", "Build deliberate network", "Find a partner"]),
-        (.wealth, ["Invest every payday", "Financial independence", "Emergency fund"]),
-        (.adventure, ["Keep gaming", "Photography", "Tokyo trip", "Pilot license"]),
+        (.body, ["Fix sleep", "Compound lifts 3–4x/week", "Lean toned body", "Grooming locked in"]),
+        (.mind, ["Honour dad's wish", "Control emotions", "Build self-confidence", "Reading habit", "Fix oversharing"]),
+        (.craft, ["Crush Amazon internship", "Launch startup solo", "AI research", "Public speaking", "Canadian PR"]),
+        (.people, ["Be more social", "Make real friends", "Build deliberate network", "Decide what kind of son to be"]),
+        (.wealth, ["XEQT compounding", "Financial independence", "Buy the Porsche 911"]),
+        (.adventure, ["Keep gaming", "Photography", "Tokyo trip", "Nordschleife lap", "Pilot license"]),
     ]
 
     var body: some View {
