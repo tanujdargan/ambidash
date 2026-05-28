@@ -8,6 +8,7 @@ struct DashboardView: View {
     @State private var manager = IntegrationManager()
     @Query private var profiles: [UserProfile]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
+    @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @State private var showSettings = false
 
     private var profile: UserProfile? { profiles.first }
@@ -28,6 +29,9 @@ struct DashboardView: View {
     private var streakSummary: StreakService.StreakSummary {
         StreakService.summary(for: goals)
     }
+    private var todayPlan: DailyPlan? {
+        plans.first { Calendar.current.isDateInToday($0.date) }
+    }
 
     var body: some View {
         let t = tm.resolved
@@ -37,7 +41,7 @@ struct DashboardView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
-                        // Header with settings
+                        // 1. Header (date + serif subtitle + settings gear)
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)).uppercased())
@@ -59,7 +63,7 @@ struct DashboardView: View {
                             .accessibilityLabel("Settings")
                         }
 
-                        // Composite score + sparkline
+                        // 2. Composite score + sparkline
                         HStack(alignment: .bottom, spacing: 16) {
                             VStack(alignment: .leading, spacing: 2) {
                                 SectionLabel(title: "Composite")
@@ -81,7 +85,7 @@ struct DashboardView: View {
                         .accessibilityLabel("Composite score: \(compositeScore) out of 100")
                         .fadeSlideIn(delay: 0)
 
-                        // Six arc gauges in 3-col grid
+                        // 3. Arc gauges in 3-col grid
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 18) {
                             ForEach(Array(LifeDimension.allCases.enumerated()), id: \.element) { index, dim in
                                 ArcGauge(
@@ -94,63 +98,28 @@ struct DashboardView: View {
                             }
                         }
 
-                        // Mentor surfaced
+                        // 4. Mentor surfaced
                         InsightCardView(goals: goals, snapshot: todaySnapshot)
                             .fadeSlideIn(delay: 0.1)
 
-                        // Identity statement
-                        if !goals.isEmpty {
-                            IdentityStatement(text: identityText)
-                        }
-
-                        // Goal strip
-                        if !goals.isEmpty {
-                            GoalStripView(goals: goals)
-                                .padding(.horizontal, -22)
-                        }
-
-                        // Streak section
-                        if streakSummary.totalActiveStreaks > 0 {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "flame.fill")
-                                        .foregroundStyle(t.accent)
-                                    Text("\(streakSummary.totalActiveStreaks) active streak\(streakSummary.totalActiveStreaks == 1 ? "" : "s")")
-                                        .font(.system(size: 13, weight: .medium))
-                                        .foregroundStyle(t.ink)
-                                    Spacer()
-                                    Text("Best: \(streakSummary.longestCurrentStreak)d")
-                                        .font(.system(size: 10, design: .monospaced))
-                                        .foregroundStyle(t.faint)
-                                }
-                                ForEach(streakSummary.atRiskStreaks, id: \.goalTitle) { risk in
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                            .font(.caption2)
-                                            .foregroundStyle(t.accent)
-                                        Text("\(risk.goalTitle) streak (\(risk.count)d) ends tonight")
-                                            .font(.system(size: 11, design: .monospaced))
-                                            .foregroundStyle(t.accent)
-                                    }
-                                }
-                            }
-                            .padding(16)
-                            .background(t.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                            .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
-                        }
-
-                        // Today, narrow
-                        VStack(alignment: .leading, spacing: 8) {
+                        // 5. Today, narrow
+                        VStack(alignment: .leading, spacing: 6) {
                             SectionLabel(title: "Today, narrow")
-                            DataRowView(label: "Free time", value: "\(todaySnapshot?.calendarFreeMinutes ?? 0)", unit: "min")
-                            DataRowView(label: "Sleep", value: String(format: "%.1f", todaySnapshot?.sleepHours ?? 0), unit: "hr")
-                            DataRowView(label: "Steps", value: "\(todaySnapshot?.steps ?? 0)")
+                            if let plan = todayPlan, !plan.actions.isEmpty {
+                                let topActions = plan.actions.sorted { $0.timeSlot < $1.timeSlot }.prefix(3)
+                                ForEach(Array(topActions), id: \.id) { action in
+                                    DataRowView(label: action.title, value: action.timeSlot, unit: "\(action.durationMinutes)m")
+                                }
+                            } else {
+                                DataRowView(label: "Free time", value: "\(todaySnapshot?.calendarFreeMinutes ?? 0)", unit: "min")
+                                DataRowView(label: "Sleep", value: String(format: "%.1f", todaySnapshot?.sleepHours ?? 0), unit: "hr")
+                                DataRowView(label: "Steps", value: "\(todaySnapshot?.steps ?? 0)")
+                            }
                         }
                     }
                     .padding(.horizontal, 22)
                     .padding(.top, 6)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, 100)
                 }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
