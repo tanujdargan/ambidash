@@ -11,11 +11,11 @@ final class SupabaseService {
     private(set) var accessToken: String?
 
     private var supabaseURL: String {
-        UserDefaults.standard.string(forKey: "supabase_url") ?? "http://127.0.0.1:54321"
+        UserDefaults.standard.string(forKey: "supabase_url") ?? SupabaseConfig.url
     }
 
     private var supabaseAnonKey: String {
-        UserDefaults.standard.string(forKey: "supabase_anon_key") ?? ""
+        UserDefaults.standard.string(forKey: "supabase_anon_key").flatMap { $0.isEmpty ? nil : $0 } ?? SupabaseConfig.anonKey
     }
 
     func configure(url: String, anonKey: String) {

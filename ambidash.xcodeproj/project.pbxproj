@@ -101,6 +101,7 @@
 		CE67117CAFC02BE675D37B67 /* ObsidianService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BCAD31DCCCEDFFDF02F0C2 /* ObsidianService.swift */; };
 		D3D00C97CE252AAFFE9F4B1C /* DimensionScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F2B2B739FF4A7D8AD0A113 /* DimensionScoreCalculatorTests.swift */; };
 		D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557698237B86451559706D44 /* AmbidashApp.swift */; };
+		DA5ECFDBDF34EC48379D5C47 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78FF5763EBED7079842E6CE /* SupabaseConfig.swift */; };
 		DB70F50DF61D7AD483458228 /* GoalProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C90553BD1F33180D9B0A91 /* GoalProgress.swift */; };
 		DC691D226B10307AE06EFFD9 /* LogProgressIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80277931E967A1E0EB5D661 /* LogProgressIntent.swift */; };
 		DD346661F70EA3838978CC92 /* Streak.swift in Sources */ = {isa = PBXBuildFile; fileRef = A28E88B33A2DF877FBC2E57E /* Streak.swift */; };
@@ -233,6 +234,7 @@
 		D33FBBB2BFDC2B4185FE6C8C /* WorkStylePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkStylePreference.swift; sourceTree = "<group>"; };
 		D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionService.swift; sourceTree = "<group>"; };
 		D45E866B8C0DAA8861F70564 /* GoalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStatus.swift; sourceTree = "<group>"; };
+		D78FF5763EBED7079842E6CE /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseScoreCalculator.swift; sourceTree = "<group>"; };
 		DCDB2D5CC80B55EA184C74EC /* FocusGuardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusGuardView.swift; sourceTree = "<group>"; };
 		DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessmentTests.swift; sourceTree = "<group>"; };
@@ -466,6 +468,7 @@
 				CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */,
 				1D85C97171671F9FEA4F482F /* StreakService.swift */,
 				D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */,
+				D78FF5763EBED7079842E6CE /* SupabaseConfig.swift */,
 				C2473637BAF241EE9EAE5E50 /* SupabaseService.swift */,
 				39AFD66F9A9C15CB9E46793D /* SyncService.swift */,
 			);
@@ -840,6 +843,7 @@
 				DD346661F70EA3838978CC92 /* Streak.swift in Sources */,
 				FA51486D160E2D60E98F332C /* StreakService.swift in Sources */,
 				636A5873CB39E24586D37034 /* SubscriptionService.swift in Sources */,
+				DA5ECFDBDF34EC48379D5C47 /* SupabaseConfig.swift in Sources */,
 				F8BEC975D913A5E5A057F861 /* SupabaseService.swift in Sources */,
 				F9DEACC546CB90B9E6E34A49 /* SyncService.swift in Sources */,
 				F1C4D073F65A527E6EF02EEF /* ThemeSetupView.swift in Sources */,
