@@ -145,9 +145,8 @@ struct DashboardView: View {
                     GoalProgressTracker.recordDaily(goal: goal, context: modelContext)
                 }
                 try? modelContext.save()
-                // Cloud sync
-                await SyncService.syncGoalsToCloud(goals: goals)
-                if let profile { await SyncService.syncProfileToCloud(profile: profile) }
+                // Cloud sync (push + pull with conflict resolution)
+                await SyncService.fullSync(context: modelContext, profile: profile)
             }
             .refreshable {
                 await manager.refreshTodaySnapshot(in: modelContext)
