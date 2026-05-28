@@ -83,11 +83,16 @@ targets:
     platform: iOS
     sources:
       - path: ambidash-widget
+        excludes:
+          - Info.plist
+    info:
+      path: ambidash-widget/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:
       base:
-        GENERATE_INFOPLIST_FILE: true
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.widget
-        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
