@@ -4,11 +4,14 @@ struct RootView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @AppStorage("theme_setup_complete") private var themeSetupComplete = false
     @State private var showLaunch = true
+    @State private var supabase = SupabaseService.shared
     @Binding var deepLinkTab: Int?
 
     var body: some View {
         ZStack {
-            if !themeSetupComplete {
+            if !supabase.isAuthenticated && supabase.isConfigured {
+                AuthView()
+            } else if !themeSetupComplete {
                 ThemeSetupView()
             } else if onboardingComplete {
                 MainTabView(selectedTab: deepLinkTab)
@@ -16,13 +19,14 @@ struct RootView: View {
                 WelcomeView()
             }
 
-            if showLaunch && themeSetupComplete {
+            if showLaunch && themeSetupComplete && supabase.isAuthenticated {
                 LaunchScreen()
                     .transition(.opacity)
                     .zIndex(1)
             }
         }
         .onAppear {
+            supabase.restoreSession()
             if themeSetupComplete {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                     withAnimation(.easeOut(duration: 0.4)) {

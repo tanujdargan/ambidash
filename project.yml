@@ -41,6 +41,8 @@ targets:
     entitlements:
       path: ambidash/ambidash.entitlements
       properties:
+        com.apple.developer.applesignin:
+          - "Default"
         com.apple.security.application-groups:
           - "group.com.ambidash.app"
         com.apple.developer.healthkit: true

@@ -31,6 +31,13 @@ struct SettingsView: View {
                         LabeledContent("Name", value: profile.name)
                         LabeledContent("Age", value: "\(profile.age)")
                     }
+                    if SupabaseService.shared.isAuthenticated {
+                        LabeledContent("Signed in", value: SupabaseService.shared.userId?.prefix(8).description ?? "")
+                        Button("Sign Out", role: .destructive) {
+                            SupabaseService.shared.signOut()
+                            dismiss()
+                        }
+                    }
                 }
                 .listRowBackground(t.surface)
 
