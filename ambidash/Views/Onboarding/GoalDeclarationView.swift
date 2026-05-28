@@ -6,7 +6,7 @@ struct GoalDeclarationView: View {
     @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
 
-    @State private var selectedDomains: Set<GoalDomain> = []
+    @State private var selectedDomains: Set<GoalDomain> = Set(GoalDomain.allCases)
     @State private var showWorkStyle = false
 
     private var profile: UserProfile? { profiles.first }
@@ -120,14 +120,25 @@ struct GoalDeclarationView: View {
     }
 
     private func saveGoals() {
-        guard let profile else { return }
+        let profile: UserProfile
+        if let existing = self.profile {
+            profile = existing
+        } else {
+            let p = UserProfile(name: "", age: 0)
+            modelContext.insert(p)
+            profile = p
+        }
         var priority = 1
         for domain in selectedDomains.sorted(by: { $0.displayName < $1.displayName }) {
             for template in GoalLibrary.starterGoals(for: domain) {
                 let goal = Goal(title: template.title, domain: domain, priority: priority)
                 goal.subtitle = template.subtitle
                 goal.horizon = template.horizon
-                goal.streak = Streak()
+                let streak = Streak()
+                modelContext.insert(goal)
+                modelContext.insert(streak)
+                goal.streak = streak
+                goal.profile = profile
                 profile.goals.append(goal)
                 priority += 1
             }

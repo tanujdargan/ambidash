@@ -72,6 +72,7 @@
 		95AB685CED015CDD01A32795 /* PulseScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A26D142678147B1F2B091 /* PulseScoreCalculatorTests.swift */; };
 		97C1BAFAEF7B9EE9BD0527A0 /* MentorPromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88911E206DDFC07ECF427A18 /* MentorPromptBuilder.swift */; };
 		99AB9A98DA6890C879766A36 /* EventKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB408A2165C1E61E569D13C /* EventKitService.swift */; };
+		9B9FAADD4C9DC7FF470720D3 /* SeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B94C94E8C51510A117636F /* SeedService.swift */; };
 		9BA3D3C109FDE69469C6C9CC /* InsightCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481505C42AF83DFCBBF91CF4 /* InsightCardView.swift */; };
 		9CBF25DB0868CBD90EF3B53B /* GoalHealthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA78034A4A3E081FFE996D5 /* GoalHealthServiceTests.swift */; };
 		A0083D7316A69A0005278D44 /* AIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DF9F69EC7D14054E5E4154 /* AIConfig.swift */; };
@@ -173,6 +174,7 @@
 		550FF629879641F39F8E0B88 /* DeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLink.swift; sourceTree = "<group>"; };
 		557698237B86451559706D44 /* AmbidashApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashApp.swift; sourceTree = "<group>"; };
 		56C90553BD1F33180D9B0A91 /* GoalProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProgress.swift; sourceTree = "<group>"; };
+		57B94C94E8C51510A117636F /* SeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedService.swift; sourceTree = "<group>"; };
 		5AAB2BDBA51600EC90D23C79 /* HonestMirrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HonestMirrorView.swift; sourceTree = "<group>"; };
 		5B140A14EEEE8BC6C70F1A8F /* GoalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalListView.swift; sourceTree = "<group>"; };
 		5CFCFCEBE1F67A57F743D718 /* PlanFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanFormat.swift; sourceTree = "<group>"; };
@@ -463,6 +465,7 @@
 				D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */,
 				A4004EE008BD6D70D44DF2FA /* ScaffoldingService.swift */,
 				98498452A2F2F63ADC06CEB6 /* ScreenTimeService.swift */,
+				57B94C94E8C51510A117636F /* SeedService.swift */,
 				F9029079DA9843B1733B7A26 /* SkipAnalysisService.swift */,
 				671B9B4705A3549951558745 /* SnapshotBuilder.swift */,
 				CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */,
@@ -835,6 +838,7 @@
 				F672462D0640E3EB97773133 /* RootView.swift in Sources */,
 				17E6E11A685678AE4A8BEFCC /* ScaffoldingService.swift in Sources */,
 				C5216B8C9D1BEE1A9BD482EF /* ScreenTimeService.swift in Sources */,
+				9B9FAADD4C9DC7FF470720D3 /* SeedService.swift in Sources */,
 				B98436EEC2041FD122703B60 /* SettingsView.swift in Sources */,
 				9487355C3DA87E28DEAC2BC2 /* ShimmerView.swift in Sources */,
 				4BDDB06FAAC8CF015BBE0565 /* SkipAnalysisService.swift in Sources */,

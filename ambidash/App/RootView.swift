@@ -9,9 +9,7 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
-            if !supabase.isAuthenticated && supabase.isConfigured {
-                AuthView()
-            } else if !themeSetupComplete {
+            if !themeSetupComplete {
                 ThemeSetupView()
             } else if onboardingComplete {
                 MainTabView(selectedTab: deepLinkTab)

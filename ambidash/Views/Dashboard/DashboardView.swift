@@ -124,6 +124,7 @@ struct DashboardView: View {
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .task {
+                SeedService.seedIfNeeded(context: modelContext)
                 await manager.requestAllPermissions()
                 await manager.refreshTodaySnapshot(in: modelContext)
                 if !IntegrationManager.skipPermissions {
