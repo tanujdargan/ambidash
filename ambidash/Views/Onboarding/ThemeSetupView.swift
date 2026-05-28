@@ -7,9 +7,7 @@ struct ThemeSetupView: View {
     var body: some View {
         let t = tm.resolved
         NavigationStack {
-            ZStack {
-                t.bg.ignoresSafeArea()
-
+            VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 28) {
                         VStack(alignment: .leading, spacing: 8) {
@@ -178,22 +176,27 @@ struct ThemeSetupView: View {
                         }
                         .fadeSlideIn(delay: 0.3)
 
-                        // Continue
-                        PrimaryButton(label: "Continue") {
-                            UserDefaults.standard.set(true, forKey: "theme_setup_complete")
-                            showOnboarding = true
-                        }
-                        .padding(.top, 8)
-
-                        Text("You can change all of this later in Settings.")
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundStyle(t.faint)
-                            .frame(maxWidth: .infinity, alignment: .center)
                     }
                     .padding(.horizontal, 22)
-                    .padding(.bottom, 32)
+                    .padding(.bottom, 16)
                 }
+
+                // Fixed Continue button at bottom
+                VStack(spacing: 8) {
+                    PrimaryButton(label: "Continue") {
+                        UserDefaults.standard.set(true, forKey: "theme_setup_complete")
+                        showOnboarding = true
+                    }
+
+                    Text("You can change all of this later in Settings.")
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundStyle(t.faint)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .padding(.horizontal, 22)
+                .padding(.bottom, 16)
             }
+            .background(t.bg)
             .navigationDestination(isPresented: $showOnboarding) {
                 WelcomeView()
             }
