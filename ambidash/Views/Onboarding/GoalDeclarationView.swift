@@ -28,7 +28,6 @@ struct GoalDeclarationView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
-                        // Header
                         VStack(alignment: .leading, spacing: 8) {
                             Text("STEP 04 / 06 · GOALS")
                                 .font(.system(size: 10, weight: .medium, design: .monospaced))
@@ -44,7 +43,6 @@ struct GoalDeclarationView: View {
                         .padding(.horizontal, 22)
                         .padding(.top, 8)
 
-                        // Pillar cards
                         VStack(spacing: 10) {
                             ForEach(Array(pillarInfo.enumerated()), id: \.element.domain) { index, info in
                                 let isSelected = selectedDomains.contains(info.domain)
@@ -99,7 +97,6 @@ struct GoalDeclarationView: View {
                     .padding(.bottom, 24)
                 }
 
-                // Bottom buttons
                 HStack(spacing: 10) {
                     Spacer()
                     PillButton(label: "Continue", primary: true) {
@@ -120,29 +117,41 @@ struct GoalDeclarationView: View {
     }
 
     private func saveGoals() {
-        let profile: UserProfile
-        if let existing = self.profile {
-            profile = existing
+        // Ensure we have a profile
+        let targetProfile: UserProfile
+        if let existing = profile {
+            targetProfile = existing
         } else {
-            let p = UserProfile(name: "", age: 0)
-            modelContext.insert(p)
-            profile = p
+            targetProfile = UserProfile(name: "", age: 0)
+            modelContext.insert(targetProfile)
         }
+
+        // Create goals — insert each independently into modelContext
+        // Don't rely on relationship cascade; set the inverse explicitly
         var priority = 1
         for domain in selectedDomains.sorted(by: { $0.displayName < $1.displayName }) {
             for template in GoalLibrary.starterGoals(for: domain) {
                 let goal = Goal(title: template.title, domain: domain, priority: priority)
                 goal.subtitle = template.subtitle
-                goal.horizon = template.horizon
-                let streak = Streak()
+                goal.horizonRaw = template.horizon.rawValue
                 modelContext.insert(goal)
+
+                let streak = Streak()
                 modelContext.insert(streak)
                 goal.streak = streak
-                goal.profile = profile
-                profile.goals.append(goal)
+
+                // Set the relationship from the goal side
+                goal.profile = targetProfile
+
                 priority += 1
             }
         }
-        try? modelContext.save()
+
+        do {
+            try modelContext.save()
+            ErrorLogger.info("Saved \(priority - 1) goals for profile \(targetProfile.name)")
+        } catch {
+            ErrorLogger.log(error, context: "GoalDeclarationView.saveGoals")
+        }
     }
 }

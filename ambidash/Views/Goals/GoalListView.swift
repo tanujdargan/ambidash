@@ -4,13 +4,14 @@ import SwiftData
 struct GoalListView: View {
     @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
+    @Query(sort: \Goal.priority) private var allGoals: [Goal]
     @State private var showAddGoal = false
     @State private var selectedGoal: Goal?
     @State private var searchText = ""
     @State private var filterPillar: GoalDomain?
 
     private var profile: UserProfile? { profiles.first }
-    private var goals: [Goal] { (profile?.goals ?? []).sorted { $0.priority < $1.priority } }
+    private var goals: [Goal] { allGoals }
 
     private var filteredGoals: [Goal] {
         var result = goals

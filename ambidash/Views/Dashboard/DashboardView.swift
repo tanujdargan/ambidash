@@ -9,6 +9,7 @@ struct DashboardView: View {
     @Query private var profiles: [UserProfile]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
+    @Query(filter: #Predicate<Goal> { $0.isActive }, sort: \Goal.priority) private var activeGoals: [Goal]
     @State private var showSettings = false
 
     private var profile: UserProfile? { profiles.first }
@@ -18,7 +19,7 @@ struct DashboardView: View {
         return snapshots.first { Calendar.current.isDate($0.date, inSameDayAs: yesterday) }
     }
 
-    private var goals: [Goal] { profile?.goals.filter(\.isActive) ?? [] }
+    private var goals: [Goal] { activeGoals }
 
     private var dimensionScores: [LifeDimension: Int] {
         DimensionScoreCalculator.scores(from: goals, snapshot: todaySnapshot)
