@@ -23,7 +23,14 @@ final class PlannedAction {
     /// this adds traceability to the checkpoint the action chips away at.
     var milestone: Milestone? = nil
 
-    init(title: String, why: String = "", timeSlot: String = "", duration: Int = 30, goalID: UUID? = nil, goalTitleSnapshot: String? = nil, loggedAmount: Double? = nil, milestone: Milestone? = nil) {
+    /// C2 — the date of the prior DailyPlan this action was carried forward from,
+    /// when it resurfaced as unfinished work. nil for freshly generated/added
+    /// actions. Doubles as the idempotency marker so CarryOverService never
+    /// double-clones the same prior action into one day's plan.
+    /// Optional/defaulted (additive, CloudKit-safe).
+    var carriedOverFrom: Date? = nil
+
+    init(title: String, why: String = "", timeSlot: String = "", duration: Int = 30, goalID: UUID? = nil, goalTitleSnapshot: String? = nil, loggedAmount: Double? = nil, milestone: Milestone? = nil, carriedOverFrom: Date? = nil) {
         self.id = UUID()
         self.title = title
         self.whyReasoning = why
@@ -36,5 +43,6 @@ final class PlannedAction {
         self.goalTitleSnapshot = goalTitleSnapshot
         self.loggedAmount = loggedAmount
         self.milestone = milestone
+        self.carriedOverFrom = carriedOverFrom
     }
 }

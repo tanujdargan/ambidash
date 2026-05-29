@@ -22,14 +22,39 @@ interface MentorGoal {
   expected_value?: number;
 }
 
+// C1 — an existing checkpoint summary passed to the decompose action so the
+// model can avoid duplicating and fill gaps.
+interface MentorMilestone {
+  title: string;
+  period: string; // "year" | "quarter" | "month" | "week"
+}
+
 interface MentorRequest {
-  action: "insight" | "plan" | "mirror";
+  action: "insight" | "plan" | "mirror" | "decompose";
   context: {
     goals?: Array<MentorGoal>;
     snapshot?: { sleep_hours: number; steps: number; screen_time_hours: number };
     profile?: { name: string; age: number; peak_energy: string; cognitive_style: string };
     reflection?: { mood: string; blockers: string[]; text: string };
+    // C1 — decompose action payload: ONE goal (with horizon) + its existing chain.
+    goal?: MentorGoal & { horizon?: string; subtitle?: string };
+    milestones?: Array<MentorMilestone>;
   };
+}
+
+// C1 — coarse→fine band guidance per horizon, mirrors MilestoneGenerator.chainPeriods
+// and MentorPromptBuilder.decomposePrompt on the client.
+function chainBands(horizon: string | undefined): string {
+  switch (horizon) {
+    case "dream":
+    case "build":
+      return "year, then quarter, then month";
+    case "now":
+      return "month, then week";
+    case "soon":
+    default:
+      return "quarter, then month, then week";
+  }
 }
 
 /// Renders the F2 measurable/variance descriptor for a goal, or "" if no target.
@@ -147,6 +172,28 @@ function buildPrompt(body: MentorRequest): string {
       }
     }
     prompt += "\nCreate 4-6 actions. Prioritize goals that are BEHIND pace toward their target, then neglected goals. Respond with ONLY the JSON array.";
+  } else if (action === "decompose") {
+    prompt = "You are an AI mentor inside ambidash, a life dashboard app. Break ONE long-range goal into a concrete checkpoint chain — the missing middle between the goal and a same-day action.\n\n";
+    const g = context.goal;
+    if (g) {
+      prompt += `GOAL: ${g.title} (${g.domain})\n`;
+      if (g.horizon) prompt += `HORIZON: ${g.horizon}\n`;
+      if (g.subtitle) prompt += `CONTEXT: ${g.subtitle}\n`;
+      prompt += measurableLine(g);
+      if (g.target_value !== undefined) prompt += "\n";
+      prompt += `\nCHAIN SHAPE: For a ${g.horizon ?? "soon"} goal, nest checkpoints from coarse to fine — ${chainBands(g.horizon)}. Each finer node should be a child of the coarser node it advances.\n`;
+    }
+    if (context.milestones?.length) {
+      prompt += "\nEXISTING CHECKPOINTS (do not duplicate; fill gaps or refine):\n";
+      for (const m of context.milestones) {
+        prompt += `- [${m.period}] ${m.title}\n`;
+      }
+    }
+    prompt += "\nRespond with ONLY a JSON array of checkpoint items. Each item: ";
+    prompt += "{\"title\": \"...\", \"detail\": \"...\", \"period\": \"year|quarter|month|week\", ";
+    prompt += "\"parent_index\": N or null, \"target_value\": N or null, \"unit\": \"...\" or null, ";
+    prompt += "\"weeks_from_now_start\": N, \"weeks_from_now_end\": N}\n";
+    prompt += "Rules: period MUST be exactly one of year|quarter|month|week. parent_index references the zero-based position of an EARLIER item in this same array (the coarser checkpoint this one nests under), or null for a top-level node — this expresses the tree. weeks_from_now_start/weeks_from_now_end are integer week offsets from today defining the checkpoint window (start < end). Set target_value + unit only for measurable checkpoints; otherwise null. Keep the chain tight (typically 1 node per band, 2-4 items total). Make titles concrete and outcome-oriented, not generic.";
   } else if (action === "mirror") {
     prompt = "You are the Honest Mirror mentor. Reflect reality without sugar-coating.\n\n";
     if (context.reflection) {

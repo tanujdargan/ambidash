@@ -4,7 +4,7 @@ import SwiftData
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(ThemeManager.self) private var tm
-    @Query private var plans: [DailyPlan]
+    @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query private var profiles: [UserProfile]
 
     private var profile: UserProfile? { profiles.first }
@@ -12,7 +12,15 @@ struct TodayView: View {
         plans.first { Calendar.current.isDateInToday($0.date) }
     }
 
+    /// The most recent plan strictly before today — the source CarryOverService
+    /// pulls unfinished work forward from. nil when there is no prior plan.
+    private var mostRecentPriorPlan: DailyPlan? {
+        plans.first { $0.date < Calendar.current.startOfDay(for: .now) }
+    }
+
     @State private var isGenerating = false
+    @State private var showAddAction = false
+    @State private var rescheduleTarget: PlannedAction?
 
     var body: some View {
         let t = tm.resolved
@@ -49,6 +57,53 @@ struct TodayView: View {
             }
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if let plan = todayPlan {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        planMenu(plan, t: t)
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddAction) {
+                if let plan = todayPlan {
+                    AddActionSheet(plan: plan, goals: profile?.goals ?? [])
+                }
+            }
+            .sheet(item: $rescheduleTarget) { action in
+                RescheduleSheet(action: action)
+            }
+        }
+    }
+
+    // MARK: - Plan Menu (reachable controls once a plan exists)
+
+    @ViewBuilder
+    private func planMenu(_ plan: DailyPlan, t: ResolvedTheme) -> some View {
+        Menu {
+            Button {
+                showAddAction = true
+            } label: {
+                Label("Add action", systemImage: "plus")
+            }
+
+            Button {
+                replanRestOfToday(plan)
+            } label: {
+                Label("Re-plan rest of today", systemImage: "clock.arrow.circlepath")
+            }
+            .disabled(isGenerating)
+
+            Divider()
+
+            Button(role: .destructive) {
+                regeneratePlan(plan)
+            } label: {
+                Label("Regenerate plan", systemImage: "arrow.triangle.2.circlepath")
+            }
+            .disabled(isGenerating)
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .foregroundStyle(t.ink)
         }
     }
 
@@ -77,8 +132,15 @@ struct TodayView: View {
 
             // The whole day
             VStack(alignment: .leading, spacing: 8) {
-                SectionLabel(title: "The whole day")
-                    .padding(.horizontal, 22)
+                HStack {
+                    SectionLabel(title: "The whole day")
+                    Spacer()
+                    PillButton(label: "Add action") {
+                        Haptics.light()
+                        showAddAction = true
+                    }
+                }
+                .padding(.horizontal, 22)
 
                 VStack(spacing: 0) {
                     ForEach(Array(sorted.enumerated()), id: \.element.id) { index, action in
@@ -102,10 +164,16 @@ struct TodayView: View {
     @ViewBuilder
     private func nowStrip(_ action: PlannedAction, t: ResolvedTheme) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("NOW · \(action.durationMinutes)M")
-                .font(.system(size: 9, weight: .medium, design: .monospaced))
-                .tracking(1.6)
-                .foregroundStyle(t.accent)
+            HStack(spacing: 6) {
+                Text("NOW · \(action.durationMinutes)M")
+                    .font(.system(size: 9, weight: .medium, design: .monospaced))
+                    .tracking(1.6)
+                    .foregroundStyle(t.accent)
+
+                if action.carriedOverFrom != nil {
+                    carriedOverTag(t)
+                }
+            }
 
             Text(action.title)
                 .font(.system(size: 20, weight: .regular, design: .serif))
@@ -143,21 +211,7 @@ struct TodayView: View {
             RoundedRectangle(cornerRadius: 10).stroke(t.hair, lineWidth: 0.5)
         )
         .contextMenu {
-            Button {
-                action.statusRaw = "done"
-                action.completedAt = .now
-                handleDone(action)
-                Haptics.success()
-            } label: {
-                Label("Mark done", systemImage: "checkmark")
-            }
-            Button {
-                action.statusRaw = "skipped"
-                try? modelContext.save()
-                Haptics.light()
-            } label: {
-                Label("Skip", systemImage: "forward")
-            }
+            actionContextMenu(action)
         }
     }
 
@@ -233,10 +287,16 @@ struct TodayView: View {
 
             // Content
             VStack(alignment: .leading, spacing: 2) {
-                Text(action.title)
-                    .font(.system(size: 15, weight: .regular, design: .serif))
-                    .strikethrough(isPast, color: t.faint)
-                    .foregroundStyle(isPast ? t.muted : t.ink)
+                HStack(spacing: 6) {
+                    Text(action.title)
+                        .font(.system(size: 15, weight: .regular, design: .serif))
+                        .strikethrough(isPast, color: t.faint)
+                        .foregroundStyle(isPast ? t.muted : t.ink)
+
+                    if action.carriedOverFrom != nil && !isPast {
+                        carriedOverTag(t)
+                    }
+                }
 
                 if !action.whyReasoning.isEmpty {
                     Text(action.whyReasoning)
@@ -253,22 +313,56 @@ struct TodayView: View {
             }
         }
         .contextMenu {
-            if action.statusRaw == "pending" {
-                Button {
-                    action.statusRaw = "done"
-                    action.completedAt = .now
-                    handleDone(action)
-                    Haptics.success()
-                } label: {
-                    Label("Mark done", systemImage: "checkmark")
-                }
-                Button {
-                    action.statusRaw = "skipped"
-                    try? modelContext.save()
-                    Haptics.light()
-                } label: {
-                    Label("Skip", systemImage: "forward")
-                }
+            actionContextMenu(action)
+        }
+    }
+
+    /// A small "carried over" tag, marking actions resurfaced from a prior day.
+    @ViewBuilder
+    private func carriedOverTag(_ t: ResolvedTheme) -> some View {
+        Text("CARRIED OVER")
+            .font(.system(size: 7, weight: .medium, design: .monospaced))
+            .tracking(1.0)
+            .foregroundStyle(t.muted)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 2)
+            .background(t.hair)
+            .clipShape(Capsule())
+    }
+
+    /// Shared per-row context menu: done/skip plus the C2 reschedule + move-to-
+    /// tomorrow controls. Only offered while the action is still pending.
+    @ViewBuilder
+    private func actionContextMenu(_ action: PlannedAction) -> some View {
+        if action.statusRaw == "pending" {
+            Button {
+                action.statusRaw = "done"
+                action.completedAt = .now
+                handleDone(action)
+                Haptics.success()
+            } label: {
+                Label("Mark done", systemImage: "checkmark")
+            }
+            Button {
+                action.statusRaw = "skipped"
+                try? modelContext.save()
+                Haptics.light()
+            } label: {
+                Label("Skip", systemImage: "forward")
+            }
+
+            Divider()
+
+            Button {
+                Haptics.light()
+                rescheduleTarget = action
+            } label: {
+                Label("Reschedule", systemImage: "clock")
+            }
+            Button {
+                moveToTomorrow(action)
+            } label: {
+                Label("Move to tomorrow", systemImage: "arrow.right.to.line")
             }
         }
     }
@@ -369,8 +463,16 @@ struct TodayView: View {
         .fadeSlideIn(delay: 0)
     }
 
-    // MARK: - Logic (unchanged)
+    // MARK: - Generation
 
+    private var resolvedPlanFormat: PlanFormat {
+        if let raw = profile?.workStylePreference?.planFormat, let fmt = PlanFormat(rawValue: raw) { return fmt }
+        return .focusBlocks
+    }
+
+    /// Full plan generation from the empty state. Carries forward yesterday's
+    /// unfinished work and links every generated action to its goal's current
+    /// WEEK Milestone so completing it rolls up the C1 chain.
     private func generatePlan() {
         guard !isGenerating else { return }
         isGenerating = true
@@ -380,53 +482,74 @@ struct TodayView: View {
 
             let goals = profile?.goals ?? []
             let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
-            let planFormat: PlanFormat = {
-                if let raw = profile?.workStylePreference?.planFormat, let fmt = PlanFormat(rawValue: raw) { return fmt }
-                return .focusBlocks
-            }()
+            let planFormat = resolvedPlanFormat
 
-            if AIConfig.isConfigured {
-                if let aiPlan = await generateAIPlan(goals: goals, maxActions: maxActions, format: planFormat) {
-                    modelContext.insert(aiPlan)
-                    try? modelContext.save()
-                    PremiumGateService.recordPlanGeneration()
-                    Haptics.medium()
-                    return
-                }
-            }
+            // Capture the carry-over source BEFORE inserting today's plan so we
+            // don't try to carry into a plan that doesn't exist yet, and so the
+            // freshly inserted plan isn't itself a candidate "prior" plan.
+            let prior = mostRecentPriorPlan
 
-            let templates = PlanGenerator.generateActions(for: goals, freeMinutes: 480, maxActions: maxActions)
             let plan = DailyPlan(date: .now, format: planFormat)
-            plan.actionCount = templates.count
-            let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
-            for (i, tmpl) in templates.enumerated() {
-                let resolvedGoal = goals.first { $0.id == tmpl.goalID }
-                let action = PlannedAction(
-                    title: tmpl.title,
-                    why: tmpl.why,
-                    timeSlot: i < timeSlots.count ? timeSlots[i] : "",
-                    duration: tmpl.durationMinutes,
-                    goalID: tmpl.goalID,
-                    goalTitleSnapshot: tmpl.goalTitle,
-                    milestone: resolvedGoal.flatMap(Self.activeCheckpoint(for:))
-                )
-                plan.actions.append(action)
-            }
             modelContext.insert(plan)
+            await populate(plan, goals: goals, maxActions: maxActions)
+
+            if let prior {
+                CarryOverService.carryForward(into: plan, from: prior, context: modelContext)
+            }
             try? modelContext.save()
             PremiumGateService.recordPlanGeneration()
             Haptics.medium()
         }
     }
 
-    private func generateAIPlan(goals: [Goal], maxActions: Int, format: PlanFormat) async -> DailyPlan? {
+    /// Appends a freshly generated batch of actions (AI first, template fallback)
+    /// into `plan`, sized to `maxActions`. Each action is inserted into the
+    /// context and linked to its goal's current WEEK Milestone.
+    private func populate(_ plan: DailyPlan, goals: [Goal], maxActions: Int) async {
+        let actions: [PlannedAction]
+        if AIConfig.isConfigured, let aiActions = await buildAIActions(goals: goals, maxActions: maxActions) {
+            actions = aiActions
+        } else {
+            actions = buildTemplateActions(goals: goals, maxActions: maxActions)
+        }
+        for action in actions {
+            modelContext.insert(action)
+            plan.actions.append(action)
+        }
+        plan.actionCount = plan.actions.count
+    }
+
+    /// Builds template-backed actions (offline path), linking each to its goal's
+    /// current week Milestone via `ensureWeekMilestone`. Actions are NOT yet
+    /// inserted — the caller inserts + attaches them to a plan.
+    private func buildTemplateActions(goals: [Goal], maxActions: Int) -> [PlannedAction] {
+        let templates = PlanGenerator.generateActions(for: goals, freeMinutes: 480, maxActions: maxActions)
+        let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
+        return templates.enumerated().map { (i, tmpl) in
+            let resolvedGoal = goals.first { $0.id == tmpl.goalID }
+            return PlannedAction(
+                title: tmpl.title,
+                why: tmpl.why,
+                timeSlot: i < timeSlots.count ? timeSlots[i] : "",
+                duration: tmpl.durationMinutes,
+                goalID: tmpl.goalID,
+                goalTitleSnapshot: tmpl.goalTitle,
+                milestone: resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
+            )
+        }
+    }
+
+    /// Calls the AI planner and parses its JSON into actions, each linked to its
+    /// goal's current week Milestone. Returns nil on any failure so the caller can
+    /// fall back to templates. Actions are NOT yet inserted.
+    private func buildAIActions(goals: [Goal], maxActions: Int) async -> [PlannedAction]? {
         do {
             let snapshot = try? modelContext.fetch(FetchDescriptor<IntegrationSnapshot>(sortBy: [SortDescriptor(\.date, order: .reverse)])).first
             let jsonText = try await AIService.generatePlanJSON(goals: goals, snapshot: snapshot, profile: profile)
             guard let data = jsonText.data(using: .utf8),
                   let actions = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return nil }
-            let plan = DailyPlan(date: .now, format: format)
             let goalIDs = Set(goals.map { $0.id })
+            var built: [PlannedAction] = []
             for dict in actions.prefix(maxActions) {
                 var resolvedGoalID: UUID? = nil
                 if let goalIDStr = dict["goal_id"] as? String,
@@ -447,7 +570,10 @@ struct TodayView: View {
                         loggedAmount = Double(amount)
                     }
                 }
-                let action = PlannedAction(
+                // C2 — ensure (get-or-create) the goal's current WEEK milestone
+                // BEFORE constructing the action, so its id is available to link.
+                let weekMilestone = resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
+                built.append(PlannedAction(
                     title: dict["title"] as? String ?? "",
                     why: dict["why"] as? String ?? "",
                     timeSlot: dict["time_slot"] as? String ?? "",
@@ -455,24 +581,129 @@ struct TodayView: View {
                     goalID: resolvedGoalID,
                     goalTitleSnapshot: resolvedGoal?.title,
                     loggedAmount: loggedAmount,
-                    milestone: resolvedGoal.flatMap(Self.activeCheckpoint(for:))
-                )
-                plan.actions.append(action)
+                    milestone: weekMilestone
+                ))
             }
-            plan.actionCount = plan.actions.count
-            return plan
+            return built
         } catch { return nil }
     }
 
-    /// C1 — the finest-grained checkpoint a daily action should chip away at.
-    /// Prefers the active week node, falling back to the active month node, so
-    /// completing the action can roll its increment up the parentMilestone chain
-    /// via MilestoneProgressService.contribute. Returns nil when the goal has no
-    /// active checkpoint in either band (e.g. milestones not yet generated).
-    private static func activeCheckpoint(for goal: Goal) -> Milestone? {
-        MilestoneGenerator.currentMilestone(for: goal, period: .week)
-            ?? MilestoneGenerator.currentMilestone(for: goal, period: .month)
+    // MARK: - Re-planning controls (once a plan exists)
+
+    /// Clears today's plan and re-runs full generation, marking the resulting
+    /// plan as user-initiated (`regenerated = true`). Carries forward yesterday's
+    /// unfinished work just like the initial generation.
+    private func regeneratePlan(_ plan: DailyPlan) {
+        guard !isGenerating else { return }
+        isGenerating = true
+        Task {
+            defer { isGenerating = false }
+            guard PremiumGateService.canGeneratePlan() else { return }
+
+            let goals = profile?.goals ?? []
+            let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
+            let prior = mostRecentPriorPlan
+
+            // Clear the existing actions (cascade delete) before rebuilding.
+            for action in plan.actions {
+                modelContext.delete(action)
+            }
+            plan.actions.removeAll()
+
+            await populate(plan, goals: goals, maxActions: maxActions)
+
+            if let prior {
+                CarryOverService.carryForward(into: plan, from: prior, context: modelContext)
+            }
+
+            plan.regenerated = true
+            plan.generatedAt = .now
+            try? modelContext.save()
+            PremiumGateService.recordPlanGeneration()
+            Haptics.medium()
+        }
     }
+
+    /// Re-plans only the still-pending actions: drops them and regenerates a
+    /// fresh set for the remainder of today, preserving everything already done
+    /// or skipped. Marks the plan as user-initiated.
+    private func replanRestOfToday(_ plan: DailyPlan) {
+        guard !isGenerating else { return }
+        isGenerating = true
+        Task {
+            defer { isGenerating = false }
+            guard PremiumGateService.canGeneratePlan() else { return }
+
+            let goals = profile?.goals ?? []
+            let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
+
+            // Remember how many slots the settled (done/skipped) actions consumed
+            // so the fresh batch is sized to what remains.
+            let settled = plan.actions.filter { $0.statusRaw != "pending" }
+            let remainingSlots = max(1, maxActions - settled.count)
+
+            // Drop the pending actions only.
+            for action in plan.actions where action.statusRaw == "pending" {
+                modelContext.delete(action)
+            }
+            plan.actions.removeAll { $0.statusRaw == "pending" }
+
+            await populate(plan, goals: goals, maxActions: remainingSlots)
+
+            plan.regenerated = true
+            try? modelContext.save()
+            PremiumGateService.recordPlanGeneration()
+            Haptics.medium()
+        }
+    }
+
+    /// Carries a pending action forward to tomorrow's plan (creating tomorrow's
+    /// plan if needed), marking the original skipped today. Preserves the goal
+    /// lineage + milestone link via the carriedOverFrom marker.
+    private func moveToTomorrow(_ action: PlannedAction) {
+        Haptics.light()
+        let calendar = Calendar.current
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: .now)) ?? .now
+
+        // Get-or-create tomorrow's plan.
+        let tomorrowPlan: DailyPlan
+        if let existing = plans.first(where: { calendar.isDate($0.date, inSameDayAs: tomorrow) }) {
+            tomorrowPlan = existing
+        } else {
+            let format = PlanFormat(rawValue: action.plan?.formatRaw ?? "") ?? .focusBlocks
+            let created = DailyPlan(date: tomorrow, format: format)
+            modelContext.insert(created)
+            tomorrowPlan = created
+        }
+
+        // Idempotency: don't duplicate the same title carried from today.
+        let originDate = action.plan?.date ?? Calendar.current.startOfDay(for: .now)
+        let alreadyThere = tomorrowPlan.actions.contains {
+            $0.carriedOverFrom == originDate && $0.title == action.title
+        }
+        if !alreadyThere {
+            let clone = PlannedAction(
+                title: action.title,
+                why: action.whyReasoning,
+                timeSlot: action.timeSlot,
+                duration: action.durationMinutes,
+                goalID: action.goalID,
+                goalTitleSnapshot: action.goalTitleSnapshot,
+                loggedAmount: action.loggedAmount,
+                milestone: action.milestone,
+                carriedOverFrom: originDate
+            )
+            modelContext.insert(clone)
+            tomorrowPlan.actions.append(clone)
+            tomorrowPlan.actionCount = tomorrowPlan.actions.count
+        }
+
+        // Retire the original on today's plan.
+        action.statusRaw = "skipped"
+        try? modelContext.save()
+    }
+
+    // MARK: - Done handling (C1 milestone credit preserved)
 
     private func handleDone(_ action: PlannedAction) {
         let goals = profile?.goals ?? []
@@ -505,15 +736,225 @@ struct TodayView: View {
             }
         }
 
-        // C1 — credit the checkpoint chain. When this action advances a milestone
-        // that carries a measurable key-result, roll the action's logged amount
-        // (or a single unit) up the parentMilestone chain via the service. Runs in
-        // ADDITION to the goalID credit + cadence logCheckIn above.
-        if let milestone = action.milestone, milestone.hasTarget {
+        // C1/C2 — credit the checkpoint chain. Roll the action's logged amount (or
+        // a single unit) up the parentMilestone chain via the service whenever the
+        // action is linked to ANY milestone — not only when the leaf node itself
+        // carries a target. The week/month planning node is intentionally
+        // target-less (C2), but its targeted month/quarter/year ancestors must
+        // still be credited; contribute() already rolls the number only into
+        // ancestors that hasTarget, so a target-less leaf is a safe no-op locally
+        // while propagating up the chain. Runs in ADDITION to the goalID credit +
+        // cadence logCheckIn above.
+        if let milestone = action.milestone {
             let amount = (action.loggedAmount.map { $0 != 0 ? $0 : 1 }) ?? 1
             MilestoneProgressService.contribute(amount: amount, to: milestone, context: modelContext)
         }
 
         try? modelContext.save()
+    }
+}
+
+// MARK: - Add Action Sheet (manual PlannedAction)
+
+/// A small sheet to add a manual `PlannedAction` to an existing plan: title,
+/// duration, time slot, and an optional goal. Links the action to the goal's
+/// current week Milestone so manual work also rolls up the C1 chain.
+private struct AddActionSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
+
+    let plan: DailyPlan
+    let goals: [Goal]
+
+    @State private var title = ""
+    @State private var timeSlot = ""
+    @State private var durationMinutes = 30
+    @State private var selectedGoalID: UUID?
+
+    private var activeGoals: [Goal] { goals.filter(\.isActive) }
+
+    var body: some View {
+        let t = tm.resolved
+        NavigationStack {
+            ZStack {
+                t.bg.ignoresSafeArea()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        // Title
+                        VStack(alignment: .leading, spacing: 6) {
+                            SectionLabel(title: "Action")
+                            TextField("What will you do?", text: $title)
+                                .font(.system(size: 18, weight: .regular, design: .serif))
+                                .foregroundStyle(t.ink)
+                            t.rule.frame(height: 1)
+                        }
+
+                        // Time + duration
+                        HStack(spacing: 14) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                SectionLabel(title: "Time (optional)")
+                                TextField("e.g. 14:00", text: $timeSlot)
+                                    .font(.system(size: 16, design: .monospaced))
+                                    .foregroundStyle(t.ink)
+                                t.rule.frame(height: 1)
+                            }
+                            VStack(alignment: .leading, spacing: 6) {
+                                SectionLabel(title: "Minutes")
+                                Stepper(value: $durationMinutes, in: 5...240, step: 5) {
+                                    Text("\(durationMinutes)m")
+                                        .font(.system(size: 16, design: .monospaced))
+                                        .monospacedDigit()
+                                        .foregroundStyle(t.ink)
+                                }
+                                .tint(t.accent)
+                            }
+                        }
+
+                        // Goal picker (optional)
+                        VStack(alignment: .leading, spacing: 10) {
+                            SectionLabel(title: "Toward (optional)")
+                            VStack(spacing: 6) {
+                                goalPickerRow(goal: nil, t: t)
+                                ForEach(activeGoals) { goal in
+                                    goalPickerRow(goal: goal, t: t)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 22)
+                    .padding(.top, 16)
+                    .padding(.bottom, 24)
+                }
+            }
+            .navigationTitle("Add Action")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") { add() }
+                        .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+    }
+
+    @ViewBuilder
+    private func goalPickerRow(goal: Goal?, t: ResolvedTheme) -> some View {
+        let isSelected = selectedGoalID == goal?.id
+        Button {
+            Haptics.selection()
+            selectedGoalID = goal?.id
+        } label: {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(goal?.horizon.dotColor ?? t.faint)
+                    .frame(width: 6, height: 6)
+                Text(goal?.title ?? "No specific goal")
+                    .font(.system(size: 14))
+                    .foregroundStyle(isSelected ? t.bg : t.ink)
+                    .lineLimit(1)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(t.bg)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(isSelected ? t.ink : .clear)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? .clear : t.hair, lineWidth: 0.5)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func add() {
+        Haptics.success()
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        let resolvedGoal = selectedGoalID.flatMap { gid in goals.first { $0.id == gid } }
+        let action = PlannedAction(
+            title: trimmed,
+            why: "",
+            timeSlot: timeSlot.trimmingCharacters(in: .whitespaces),
+            duration: durationMinutes,
+            goalID: resolvedGoal?.id,
+            goalTitleSnapshot: resolvedGoal?.title,
+            milestone: resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
+        )
+        modelContext.insert(action)
+        plan.actions.append(action)
+        plan.actionCount = plan.actions.count
+        try? modelContext.save()
+        dismiss()
+    }
+}
+
+// MARK: - Reschedule Sheet (edit timeSlot)
+
+/// A compact sheet to edit a pending action's time slot.
+private struct RescheduleSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
+
+    @Bindable var action: PlannedAction
+    @State private var timeSlot = ""
+
+    var body: some View {
+        let t = tm.resolved
+        NavigationStack {
+            ZStack {
+                t.bg.ignoresSafeArea()
+
+                VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        SectionLabel(title: "Action")
+                        Text(action.title)
+                            .font(.system(size: 18, weight: .regular, design: .serif))
+                            .foregroundStyle(t.ink)
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        SectionLabel(title: "New time")
+                        TextField("e.g. 16:30", text: $timeSlot)
+                            .font(.system(size: 18, design: .monospaced))
+                            .foregroundStyle(t.ink)
+                        t.rule.frame(height: 1)
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 22)
+                .padding(.top, 16)
+            }
+            .navigationTitle("Reschedule")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Haptics.success()
+                        action.timeSlot = timeSlot.trimmingCharacters(in: .whitespaces)
+                        try? modelContext.save()
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear { timeSlot = action.timeSlot }
+        }
+        .presentationDetents([.height(240), .medium])
+        .presentationDragIndicator(.visible)
     }
 }

@@ -28,6 +28,7 @@
 		25BCD30136EDBDDADB9F9EBA /* ReflectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73107790D53825C77448FC4E /* ReflectView.swift */; };
 		262FD968E4BA0DE7BA34E784 /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 9C1D64BB0837A1295A3AFDF8 /* Products.storekit */; };
 		275B6E00406F18ECBF29EA34 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0078242D4C8C835AAF607D /* PaywallView.swift */; };
+		279AED51D78C3B22AD2285D1 /* CarryOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF9029A4FA5B65A6C5FA5FC /* CarryOverService.swift */; };
 		2808079C5A85336AED273C59 /* IntegrationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */; };
 		2CABC22C4FB5FEFC5B6AF2CC /* WorkStylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B9E7F9C90C4E5DC88D1E77 /* WorkStylePickerView.swift */; };
 		2F2D10F9D9FCB47C08357338 /* AddGoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097D73995EC9BBD4FF1739A4 /* AddGoalView.swift */; };
@@ -112,6 +113,7 @@
 		C8DD5AC6929AC0EBE8AF59CE /* GoalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B140A14EEEE8BC6C70F1A8F /* GoalListView.swift */; };
 		C9C9BE124ED067322819093F /* EmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCB96FD0B43019990AE873 /* EmptyState.swift */; };
 		CC30456721EBCFBB6B31F9D0 /* GoalTypeInferenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDD6B23DDBD944124DC382E /* GoalTypeInferenceService.swift */; };
+		CDFB2414F93CEF8289BFFE1C /* WeeklyPlanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06A390E83D88E68BBBC75FEE /* WeeklyPlanService.swift */; };
 		CE67117CAFC02BE675D37B67 /* ObsidianService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BCAD31DCCCEDFFDF02F0C2 /* ObsidianService.swift */; };
 		D3D00C97CE252AAFFE9F4B1C /* DimensionScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F2B2B739FF4A7D8AD0A113 /* DimensionScoreCalculatorTests.swift */; };
 		D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557698237B86451559706D44 /* AmbidashApp.swift */; };
@@ -174,6 +176,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		06A390E83D88E68BBBC75FEE /* WeeklyPlanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyPlanService.swift; sourceTree = "<group>"; };
 		06B28262EA68702E892BDD82 /* MorningBriefView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningBriefView.swift; sourceTree = "<group>"; };
 		079C72EA0A694EB8858FDFBC /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		09115618227349FA26D9E136 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
@@ -271,6 +274,7 @@
 		B8D8C1F4A2DBFE2EA96A5863 /* AssessmentFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentFlowView.swift; sourceTree = "<group>"; };
 		BB53322A625D21C309B8444F /* SanityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SanityTests.swift; sourceTree = "<group>"; };
 		BBDD6B23DDBD944124DC382E /* GoalTypeInferenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTypeInferenceService.swift; sourceTree = "<group>"; };
+		BBF9029A4FA5B65A6C5FA5FC /* CarryOverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarryOverService.swift; sourceTree = "<group>"; };
 		BE2B3057EE75736C5EC56776 /* SnapshotBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotBuilderTests.swift; sourceTree = "<group>"; };
 		BE58D6B581720991895E3987 /* ambidash.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ambidash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BED6CAF811845880023A84FC /* LifeDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeDimension.swift; sourceTree = "<group>"; };
@@ -486,6 +490,7 @@
 			children = (
 				80DF9F69EC7D14054E5E4154 /* AIConfig.swift */,
 				9EE9BC2C6D2DB031A788193C /* AIService.swift */,
+				BBF9029A4FA5B65A6C5FA5FC /* CarryOverService.swift */,
 				807163D3523A51DB7F3CAD31 /* DataExportService.swift */,
 				3099F0CBCE4380F52D4ADBB6 /* DimensionScoreCalculator.swift */,
 				2599FAF6B43DF69E00217AC5 /* ErrorLogger.swift */,
@@ -518,6 +523,7 @@
 				C2473637BAF241EE9EAE5E50 /* SupabaseService.swift */,
 				39AFD66F9A9C15CB9E46793D /* SyncService.swift */,
 				58CA38068162063792691849 /* TargetMath.swift */,
+				06A390E83D88E68BBBC75FEE /* WeeklyPlanService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -805,6 +811,7 @@
 				F1806EB4832A5DECBD2DE525 /* AssessmentQuestion.swift in Sources */,
 				6ED1E00B86F4364ACC9479EC /* AssessmentQuestionView.swift in Sources */,
 				5303D3ED3F890F04602D9600 /* AuthView.swift in Sources */,
+				279AED51D78C3B22AD2285D1 /* CarryOverService.swift in Sources */,
 				4EBEC68E0B32FBD6E4E19CBD /* Components.swift in Sources */,
 				B89DFDDB97B0B9EDB55E6A05 /* CoreAssessment.swift in Sources */,
 				40421C6CA3534056AF5ADBD5 /* DailyPlan.swift in Sources */,
@@ -898,6 +905,7 @@
 				F1C4D073F65A527E6EF02EEF /* ThemeSetupView.swift in Sources */,
 				8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */,
 				BF7B417354D625B13969A6E5 /* UserProfile.swift in Sources */,
+				CDFB2414F93CEF8289BFFE1C /* WeeklyPlanService.swift in Sources */,
 				3F0A99685AE6C9DB9DCE79E2 /* WeeklyReviewView.swift in Sources */,
 				51F95F75A464BD2C74FB13FC /* WelcomeView.swift in Sources */,
 				2CABC22C4FB5FEFC5B6AF2CC /* WorkStylePickerView.swift in Sources */,
