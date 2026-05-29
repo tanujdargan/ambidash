@@ -86,6 +86,47 @@ enum MentorPromptBuilder {
         return context
     }
 
+    /// C1 — decomposition prompt. Asks Claude to break ONE goal into a checkpoint
+    /// chain appropriate to its horizon, returned as a JSON array of milestone
+    /// items. Kept in sync with the `decompose` branch in the edge function.
+    static func decomposePrompt(goal: Goal, horizon: GoalHorizon, existingMilestones: [Milestone]) -> String {
+        var context = "You are an AI mentor inside ambidash, a life dashboard app. Break ONE long-range goal into a concrete checkpoint chain — the missing middle between the goal and a same-day action.\n\n"
+
+        context += "GOAL: \(goal.title) (\(goal.domain.displayName))\n"
+        context += "HORIZON: \(horizon.displayName) (\(horizon.timeframe))\n"
+        if !goal.subtitle.isEmpty {
+            context += "CONTEXT: \(goal.subtitle)\n"
+        }
+        context += measurableLine(for: goal)
+        if goal.hasTarget { context += "\n" }
+        context += habitualLine(for: goal)
+        if goal.isHabitual { context += "\n" }
+
+        // Shape guidance mirrors MilestoneGenerator.chainPeriods.
+        let bands: String
+        switch horizon {
+        case .dream, .build: bands = "year, then quarter, then month"
+        case .soon: bands = "quarter, then month, then week"
+        case .now: bands = "month, then week"
+        }
+        context += "\nCHAIN SHAPE: For a \(horizon.displayName) goal, nest checkpoints from coarse to fine — \(bands). Each finer node should be a child of the coarser node it advances.\n"
+
+        if !existingMilestones.isEmpty {
+            context += "\nEXISTING CHECKPOINTS (do not duplicate; fill gaps or refine):\n"
+            for m in existingMilestones.sorted(by: { $0.startDate < $1.startDate }) {
+                context += "- [\(m.period.displayName)] \(m.title)\n"
+            }
+        }
+
+        context += "\nRespond with ONLY a JSON array of checkpoint items. Each item: "
+        context += "{\"title\": \"...\", \"detail\": \"...\", \"period\": \"year|quarter|month|week\", "
+        context += "\"parent_index\": N or null, \"target_value\": N or null, \"unit\": \"...\" or null, "
+        context += "\"weeks_from_now_start\": N, \"weeks_from_now_end\": N}\n"
+        context += "Rules: period MUST be exactly one of year|quarter|month|week. parent_index references the zero-based position of an EARLIER item in this same array (the coarser checkpoint this one nests under), or null for a top-level node — this expresses the tree. weeks_from_now_start/weeks_from_now_end are integer week offsets from today defining the checkpoint window (start < end). Set target_value + unit only for measurable checkpoints; otherwise null. Keep the chain tight (typically 1 node per band, 2-4 items total). Make titles concrete and outcome-oriented, not generic."
+
+        return context
+    }
+
     static func planPrompt(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?) -> String {
         var context = "You are an AI mentor generating a daily action plan. Create specific, time-aware actions.\n\n"
 

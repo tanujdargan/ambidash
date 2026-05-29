@@ -400,7 +400,16 @@ struct TodayView: View {
             plan.actionCount = templates.count
             let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
             for (i, tmpl) in templates.enumerated() {
-                let action = PlannedAction(title: tmpl.title, why: tmpl.why, timeSlot: i < timeSlots.count ? timeSlots[i] : "", duration: tmpl.durationMinutes, goalID: tmpl.goalID, goalTitleSnapshot: tmpl.goalTitle)
+                let resolvedGoal = goals.first { $0.id == tmpl.goalID }
+                let action = PlannedAction(
+                    title: tmpl.title,
+                    why: tmpl.why,
+                    timeSlot: i < timeSlots.count ? timeSlots[i] : "",
+                    duration: tmpl.durationMinutes,
+                    goalID: tmpl.goalID,
+                    goalTitleSnapshot: tmpl.goalTitle,
+                    milestone: resolvedGoal.flatMap(Self.activeCheckpoint(for:))
+                )
                 plan.actions.append(action)
             }
             modelContext.insert(plan)
@@ -445,13 +454,24 @@ struct TodayView: View {
                     duration: dict["duration_minutes"] as? Int ?? 30,
                     goalID: resolvedGoalID,
                     goalTitleSnapshot: resolvedGoal?.title,
-                    loggedAmount: loggedAmount
+                    loggedAmount: loggedAmount,
+                    milestone: resolvedGoal.flatMap(Self.activeCheckpoint(for:))
                 )
                 plan.actions.append(action)
             }
             plan.actionCount = plan.actions.count
             return plan
         } catch { return nil }
+    }
+
+    /// C1 — the finest-grained checkpoint a daily action should chip away at.
+    /// Prefers the active week node, falling back to the active month node, so
+    /// completing the action can roll its increment up the parentMilestone chain
+    /// via MilestoneProgressService.contribute. Returns nil when the goal has no
+    /// active checkpoint in either band (e.g. milestones not yet generated).
+    private static func activeCheckpoint(for goal: Goal) -> Milestone? {
+        MilestoneGenerator.currentMilestone(for: goal, period: .week)
+            ?? MilestoneGenerator.currentMilestone(for: goal, period: .month)
     }
 
     private func handleDone(_ action: PlannedAction) {
@@ -484,6 +504,16 @@ struct TodayView: View {
                 }
             }
         }
+
+        // C1 — credit the checkpoint chain. When this action advances a milestone
+        // that carries a measurable key-result, roll the action's logged amount
+        // (or a single unit) up the parentMilestone chain via the service. Runs in
+        // ADDITION to the goalID credit + cadence logCheckIn above.
+        if let milestone = action.milestone, milestone.hasTarget {
+            let amount = (action.loggedAmount.map { $0 != 0 ? $0 : 1 }) ?? 1
+            MilestoneProgressService.contribute(amount: amount, to: milestone, context: modelContext)
+        }
+
         try? modelContext.save()
     }
 }

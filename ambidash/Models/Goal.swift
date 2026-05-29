@@ -32,6 +32,9 @@ final class Goal {
     @Relationship(deleteRule: .cascade) var progressEntries: [GoalProgress]
     @Relationship(deleteRule: .cascade) var streak: Streak?
     @Relationship(deleteRule: .cascade) var progressLogs: [ProgressLog] = []
+    // C1 — decomposition chain: the goal's Milestone tree (year → quarter →
+    // month → week). Cascade so deleting a goal removes its checkpoints.
+    @Relationship(deleteRule: .cascade, inverse: \Milestone.goal) var milestones: [Milestone] = []
 
     init(title: String, domain: GoalDomain, priority: Int) {
         self.id = UUID()

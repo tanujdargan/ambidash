@@ -18,8 +18,12 @@ final class PlannedAction {
     var loggedAmount: Double?
 
     var plan: DailyPlan?
+    /// C1 — the Milestone (week/month node) this daily action advances, if any.
+    /// Optional/defaulted: goal lineage still flows through the `goalID` scalar;
+    /// this adds traceability to the checkpoint the action chips away at.
+    var milestone: Milestone? = nil
 
-    init(title: String, why: String = "", timeSlot: String = "", duration: Int = 30, goalID: UUID? = nil, goalTitleSnapshot: String? = nil, loggedAmount: Double? = nil) {
+    init(title: String, why: String = "", timeSlot: String = "", duration: Int = 30, goalID: UUID? = nil, goalTitleSnapshot: String? = nil, loggedAmount: Double? = nil, milestone: Milestone? = nil) {
         self.id = UUID()
         self.title = title
         self.whyReasoning = why
@@ -31,5 +35,6 @@ final class PlannedAction {
         self.goalID = goalID
         self.goalTitleSnapshot = goalTitleSnapshot
         self.loggedAmount = loggedAmount
+        self.milestone = milestone
     }
 }

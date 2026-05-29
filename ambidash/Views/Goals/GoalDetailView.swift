@@ -67,6 +67,9 @@ struct GoalDetailView: View {
                         }
                     }
 
+                    // Roadmap: link to the milestone tree + next-checkpoint preview.
+                    roadmapSection(t)
+
                     // Cadence / adherence section for habitual goals
                     if goal.isHabitual {
                         VStack(alignment: .leading, spacing: 12) {
@@ -178,6 +181,65 @@ struct GoalDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showLogProgress) {
             LogProgressSheet(goal: goal)
+        }
+    }
+
+    // MARK: - Roadmap
+
+    /// The next 1–2 upcoming (not-yet-completed) checkpoints by end date, used for
+    /// the compact preview beneath the Roadmap link.
+    private var upcomingMilestones: [Milestone] {
+        goal.milestones
+            .filter { !$0.isCompleted }
+            .sorted { $0.endDate < $1.endDate }
+            .prefix(2)
+            .map { $0 }
+    }
+
+    @ViewBuilder
+    private func roadmapSection(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            NavigationLink {
+                GoalRoadmapView(goal: goal)
+            } label: {
+                HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        SectionLabel(title: "Roadmap")
+                        Text(goal.milestones.isEmpty
+                            ? "Break this goal into a checkpoint chain"
+                            : "\(goal.milestones.count) checkpoint\(goal.milestones.count == 1 ? "" : "s")")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(t.muted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(t.faint)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            // Compact preview of the next 1–2 checkpoints.
+            if !upcomingMilestones.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(upcomingMilestones) { milestone in
+                        HStack(spacing: 8) {
+                            StatusDot(status: milestone.status)
+                            Text(milestone.title)
+                                .font(.system(size: 13, weight: .regular, design: .serif))
+                                .foregroundStyle(t.ink2)
+                                .lineLimit(1)
+                            Spacer()
+                            Text(milestone.endDate.formatted(.dateTime.month(.abbreviated).day()))
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundStyle(t.faint)
+                        }
+                        .padding(.vertical, 8)
+                        .overlay(alignment: .bottom) { HairlineRule() }
+                    }
+                }
+            }
         }
     }
 

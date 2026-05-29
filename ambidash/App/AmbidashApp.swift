@@ -42,6 +42,7 @@ struct AmbidashApp: App {
             Reflection.self,
             MentorFeedback.self,
             ProgressLog.self,
+            Milestone.self,
         ])
     }
 }

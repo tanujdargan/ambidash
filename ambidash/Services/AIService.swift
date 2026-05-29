@@ -98,6 +98,40 @@ enum AIService {
         return try await callAPI(prompt: prompt)
     }
 
+    /// C1 — decompose ONE goal into a checkpoint chain. Returns the raw JSON
+    /// array text (caller parses + materializes via MilestoneGenerator). Follows
+    /// generatePlanJSON's dual-path: edge function first, direct Anthropic API
+    /// fallback. Offline-skeleton fallback (MilestoneGenerator.defaultChain) is
+    /// the view's responsibility when this throws.
+    static func decomposeGoalJSON(goal: Goal, horizon: GoalHorizon) async throws -> String {
+        // Try edge function first (API key stays server-side).
+        if SupabaseService.shared.isAuthenticated {
+            var goalEntry = goalContext(goal, includeID: true)
+            goalEntry["horizon"] = horizon.rawValue
+            goalEntry["subtitle"] = goal.subtitle
+            let existing: [[String: Any]] = goal.milestones
+                .sorted { $0.startDate < $1.startDate }
+                .map { [
+                    "title": $0.title,
+                    "period": $0.periodRaw,
+                ] }
+            let context: [String: Any] = [
+                "goal": goalEntry,
+                "milestones": existing,
+            ]
+            if let result = await SupabaseService.shared.callMentor(action: "decompose", context: context) {
+                return result
+            }
+        }
+        // Fallback to direct API.
+        let prompt = MentorPromptBuilder.decomposePrompt(
+            goal: goal,
+            horizon: horizon,
+            existingMilestones: goal.milestones
+        )
+        return try await callAPI(prompt: prompt)
+    }
+
     private static func callAPI(prompt: String) async throws -> String {
         guard AIConfig.isConfigured else { throw AIError.notConfigured }
 

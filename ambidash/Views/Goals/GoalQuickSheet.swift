@@ -7,6 +7,15 @@ struct GoalQuickSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var goal: Goal
     @State private var showLogProgress = false
+    @State private var showRoadmap = false
+
+    /// The next upcoming (not-yet-completed) checkpoint by end date, for the
+    /// compact preview on the Roadmap row.
+    private var nextMilestone: Milestone? {
+        goal.milestones
+            .filter { !$0.isCompleted }
+            .min { $0.endDate < $1.endDate }
+    }
 
     var body: some View {
         let t = tm.resolved
@@ -79,6 +88,41 @@ struct GoalQuickSheet: View {
                     .fadeSlideIn(delay: 0.15)
             }
 
+            // Roadmap entry + next-checkpoint preview
+            VStack(alignment: .leading, spacing: 10) {
+                Button {
+                    Haptics.selection()
+                    showRoadmap = true
+                } label: {
+                    HStack(spacing: 8) {
+                        SectionLabel(title: "Roadmap")
+                        Spacer()
+                        if let next = nextMilestone {
+                            StatusDot(status: next.status)
+                            Text(next.title)
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(t.muted)
+                                .lineLimit(1)
+                            Text(next.endDate.formatted(.dateTime.month(.abbreviated).day()))
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundStyle(t.faint)
+                        } else {
+                            Text(goal.milestones.isEmpty ? "Map this goal" : "\(goal.milestones.count) checkpoints")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(t.muted)
+                        }
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(t.faint)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 18)
+            .fadeSlideIn(delay: 0.18)
+
             // Actions
             VStack(spacing: 10) {
                 PrimaryButton(label: logButtonLabel) {
@@ -126,6 +170,11 @@ struct GoalQuickSheet: View {
         .presentationCornerRadius(20)
         .sheet(isPresented: $showLogProgress) {
             LogProgressSheet(goal: goal)
+        }
+        .sheet(isPresented: $showRoadmap) {
+            NavigationStack {
+                GoalRoadmapView(goal: goal)
+            }
         }
     }
 
