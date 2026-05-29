@@ -12,12 +12,12 @@ struct GoalDeclarationView: View {
     private var profile: UserProfile? { profiles.first }
 
     private let pillarInfo: [(domain: GoalDomain, examples: [String])] = [
-        (.body, ["Fix sleep", "Compound lifts 3–4x/week", "Lean toned body", "Grooming locked in"]),
-        (.mind, ["Honour dad's wish", "Control emotions", "Build self-confidence", "Reading habit", "Fix oversharing"]),
-        (.craft, ["Crush Amazon internship", "Launch startup solo", "AI research", "Public speaking", "Canadian PR"]),
-        (.people, ["Be more social", "Make real friends", "Build deliberate network", "Decide what kind of son to be"]),
-        (.wealth, ["XEQT compounding", "Financial independence", "Buy the Porsche 911"]),
-        (.adventure, ["Keep gaming", "Photography", "Tokyo trip", "Nordschleife lap", "Pilot license"]),
+        (.body, ["Sleep", "Training", "Nutrition", "Energy"]),
+        (.mind, ["Focus", "Emotions", "Learning", "Reflection"]),
+        (.craft, ["Career", "Skills", "Projects", "Craft"]),
+        (.people, ["Friends", "Family", "Network", "Belonging"]),
+        (.wealth, ["Saving", "Investing", "Financial freedom"]),
+        (.adventure, ["Travel", "Hobbies", "Experiences", "Play"]),
     ]
 
     var body: some View {
@@ -34,7 +34,7 @@ struct GoalDeclarationView: View {
                                 .tracking(2)
                                 .foregroundStyle(t.muted)
 
-                            Text("You said yes to all of these once. Which still matter?")
+                            Text("Which areas of life matter most right now?")
                                 .font(.system(size: 24, weight: .regular, design: .serif))
                                 .tracking(-0.2)
                                 .lineSpacing(2)
@@ -117,54 +117,16 @@ struct GoalDeclarationView: View {
     }
 
     private func saveGoals() {
-        // Ensure we have a profile
-        let targetProfile: UserProfile
-        if let existing = profile {
-            targetProfile = existing
-        } else {
-            targetProfile = UserProfile(name: "", age: 0)
-            modelContext.insert(targetProfile)
-        }
-
-        // Create goals — insert each independently into modelContext
-        // Don't rely on relationship cascade; set the inverse explicitly
-        var priority = 1
-        for domain in selectedDomains.sorted(by: { $0.displayName < $1.displayName }) {
-            for template in GoalLibrary.starterGoals(for: domain) {
-                let goal = Goal(title: template.title, domain: domain, priority: priority)
-                goal.subtitle = template.subtitle
-                goal.horizonRaw = template.horizon.rawValue
-                // F3 — set curated type/cadence, falling back to inference.
-                goal.goalType = template.goalType ?? GoalTypeInferenceService.infer(goal)
-                goal.timesPerWeek = template.timesPerWeek
-                goal.recurrence = recurrence(for: goal.goalType, timesPerWeek: template.timesPerWeek)
-                modelContext.insert(goal)
-
-                let streak = Streak()
-                modelContext.insert(streak)
-                goal.streak = streak
-
-                // Set the relationship from the goal side
-                goal.profile = targetProfile
-
-                priority += 1
-            }
-        }
-
+        // Goals are no longer auto-seeded from a hardcoded library — the user
+        // adds their own (or they sync in from iCloud). Just ensure a profile
+        // exists so the rest of onboarding has something to attach to.
+        guard profile == nil else { return }
+        let targetProfile = UserProfile(name: "", age: 0)
+        modelContext.insert(targetProfile)
         do {
             try modelContext.save()
-            ErrorLogger.info("Saved \(priority - 1) goals for profile \(targetProfile.name)")
         } catch {
             ErrorLogger.log(error, context: "GoalDeclarationView.saveGoals")
-        }
-    }
-
-    /// Maps an F3 type + cadence to a recurrence rule for seeded goals.
-    private func recurrence(for type: GoalType, timesPerWeek: Int) -> GoalRecurrence {
-        switch type {
-        case .habit: return .daily
-        case .recurring: return timesPerWeek >= 7 ? .daily : .weekly
-        case .project, .milestone, .accumulation: return .none
         }
     }
 }

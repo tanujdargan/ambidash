@@ -153,7 +153,6 @@ struct DashboardView: View {
                     .environment(\.modelContext, modelContext)
             }
             .task {
-                SeedService.seedIfNeeded(context: modelContext)
                 await manager.requestAllPermissions()
                 await manager.refreshTodaySnapshot(in: modelContext)
                 if !IntegrationManager.skipPermissions {

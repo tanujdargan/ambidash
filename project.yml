@@ -32,7 +32,7 @@ targets:
         INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "ambidash reads your calendar to find free time for your daily action plan and understand how you spend your time."
         INFOPLIST_KEY_NSRemindersFullAccessUsageDescription: "ambidash reads your reminders to understand what tasks are on your mind."
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "5"
+        CURRENT_PROJECT_VERSION: "6"
         INFOPLIST_KEY_CFBundleDisplayName: "AmbiDash"
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.lifestyle"
         INFOPLIST_KEY_CFBundleURLTypes:
@@ -97,7 +97,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.widget
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "5"
+        CURRENT_PROJECT_VERSION: "6"
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework

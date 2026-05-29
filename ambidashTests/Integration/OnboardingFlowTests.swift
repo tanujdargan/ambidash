@@ -3,23 +3,6 @@ import Foundation
 import SwiftData
 @testable import ambidash
 
-@Test func goalLibraryReturnsGoalsForAllDomains() {
-    for domain in GoalDomain.allCases {
-        let goals = GoalLibrary.starterGoals(for: domain)
-        #expect(!goals.isEmpty, "GoalLibrary should return goals for \(domain.displayName)")
-        #expect(goals.allSatisfy { !$0.title.isEmpty }, "All goals should have titles for \(domain.displayName)")
-    }
-}
-
-@Test func goalLibraryHorizonsAreValid() {
-    for domain in GoalDomain.allCases {
-        let goals = GoalLibrary.starterGoals(for: domain)
-        for goal in goals {
-            #expect(GoalHorizon.allCases.contains(goal.horizon), "Horizon should be valid for \(goal.title)")
-        }
-    }
-}
-
 @Test func allAssessmentQuestionsHaveOptions() {
     let questions = CoreAssessmentQuestions.all
     #expect(questions.count >= 8, "Should have at least 8 assessment questions")
@@ -111,12 +94,4 @@ import SwiftData
     // SyncService should gracefully skip when not authenticated
     await SyncService.fullSync(context: ModelContext(try! ModelContainer(for: UserProfile.self, Goal.self, Streak.self, GoalProgress.self, DomainAssessment.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))), profile: nil)
     // No crash = pass
-}
-
-@Test func goalLibraryContainsAll52Goals() {
-    var total = 0
-    for domain in GoalDomain.allCases {
-        total += GoalLibrary.starterGoals(for: domain).count
-    }
-    #expect(total == 52, "GoalLibrary should contain all 52 goals from life map")
 }
