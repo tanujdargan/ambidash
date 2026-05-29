@@ -470,16 +470,16 @@ struct TodayView: View {
                         context: modelContext
                     )
                 } else {
-                    goal.lastProgressDate = .now
-                    goal.streak?.recordActivity()
+                    // Non-measurable completion: cadence-aware streak + a
+                    // zero-amount log so weekly adherence reflects the touch.
+                    ProgressLogService.logCheckIn(goal: goal, source: .action, context: modelContext)
                 }
             }
         } else {
             for goal in goals {
                 let temps = PlanGenerator.templates(for: goal.domain)
                 if temps.contains(where: { $0.0 == action.title }) {
-                    goal.lastProgressDate = .now
-                    goal.streak?.recordActivity()
+                    ProgressLogService.logCheckIn(goal: goal, source: .action, context: modelContext)
                     break
                 }
             }

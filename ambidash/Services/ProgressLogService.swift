@@ -48,6 +48,27 @@ enum ProgressLogService {
         )
     }
 
+    /// Records a non-measurable check-in: marks today as touched, advances the
+    /// streak (cadence-aware for habitual goals), and writes a zero-amount log so
+    /// weekly adherence reflects the touch. Used by Today completions and the
+    /// goal detail/quick sheets.
+    static func logCheckIn(
+        goal: Goal,
+        source: ProgressLogSource = .manual,
+        context: ModelContext
+    ) {
+        goal.lastProgressDate = .now
+        if goal.isHabitual {
+            let log = ProgressLog(amount: 0, resultingValue: goal.currentValue, source: source)
+            context.insert(log)
+            log.goal = goal
+            goal.progressLogs.append(log)
+            goal.streak?.recordActivity(forCadence: goal.timesPerWeek)
+        } else {
+            goal.streak?.recordActivity()
+        }
+    }
+
     private static func apply(
         goal: Goal,
         amount: Double,

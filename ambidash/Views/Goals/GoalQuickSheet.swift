@@ -27,6 +27,7 @@ struct GoalQuickSheet: View {
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
                         .tracking(1.2)
                         .foregroundStyle(t.muted)
+                    GoalTypeChip(type: goal.goalType, theme: t)
                 }
 
                 Text(goal.title)
@@ -46,7 +47,11 @@ struct GoalQuickSheet: View {
             // Stats
             VStack(spacing: 0) {
                 DataRowView(label: "Health", value: goal.computedStatus.label)
-                DataRowView(label: "Neglect", value: "\(goal.neglectDays)", unit: "days")
+                if goal.isHabitual {
+                    DataRowView(label: "Adherence", value: AdherenceFormat.fraction(for: goal))
+                } else {
+                    DataRowView(label: "Neglect", value: "\(goal.neglectDays)", unit: "days")
+                }
                 if let streak = goal.streak, streak.currentCount > 0 {
                     DataRowView(label: "Streak", value: "\(streak.currentCount)", unit: "days")
                 }
@@ -67,19 +72,22 @@ struct GoalQuickSheet: View {
                     .padding(.horizontal, 22)
                     .padding(.top, 12)
                     .fadeSlideIn(delay: 0.15)
+            } else if goal.isHabitual {
+                AdherenceBar(goal: goal, maxWidth: .infinity)
+                    .padding(.horizontal, 22)
+                    .padding(.top, 12)
+                    .fadeSlideIn(delay: 0.15)
             }
 
             // Actions
             VStack(spacing: 10) {
-                PrimaryButton(label: "Log progress") {
+                PrimaryButton(label: logButtonLabel) {
                     if goal.hasTarget {
                         Haptics.light()
                         showLogProgress = true
                     } else {
                         Haptics.success()
-                        goal.lastProgressDate = .now
-                        goal.streak?.recordActivity()
-                        try? modelContext.save()
+                        logCheckIn()
                         dismiss()
                     }
                 }
@@ -119,5 +127,17 @@ struct GoalQuickSheet: View {
         .sheet(isPresented: $showLogProgress) {
             LogProgressSheet(goal: goal)
         }
+    }
+
+    private var logButtonLabel: String {
+        goal.isHabitual ? "Log today" : "Log progress"
+    }
+
+    /// Records a non-measurable check-in: marks today as touched, advances the
+    /// streak (cadence-aware for habitual goals), and writes a zero-amount log so
+    /// weekly adherence reflects the touch.
+    private func logCheckIn() {
+        ProgressLogService.logCheckIn(goal: goal, source: .manual, context: modelContext)
+        try? modelContext.save()
     }
 }

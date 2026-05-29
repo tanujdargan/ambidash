@@ -34,6 +34,10 @@ enum SeedService {
                 let goal = Goal(title: template.title, domain: domain, priority: priority)
                 goal.subtitle = template.subtitle
                 goal.horizon = template.horizon
+                // F3 — set curated type/cadence, falling back to inference.
+                goal.goalType = template.goalType ?? GoalTypeInferenceService.infer(goal)
+                goal.timesPerWeek = template.timesPerWeek
+                goal.recurrence = recurrence(for: goal.goalType, timesPerWeek: template.timesPerWeek)
                 goal.streak = Streak()
                 // Simulate some progress
                 if template.horizon == .now {
@@ -51,5 +55,14 @@ enum SeedService {
         context.insert(profile)
         try? context.save()
         ErrorLogger.info("Seeded profile with \(profile.goals.count) goals")
+    }
+
+    /// Maps an F3 type + cadence to a recurrence rule for seeded goals.
+    private static func recurrence(for type: GoalType, timesPerWeek: Int) -> GoalRecurrence {
+        switch type {
+        case .habit: return .daily
+        case .recurring: return timesPerWeek >= 7 ? .daily : .weekly
+        case .project, .milestone, .accumulation: return .none
+        }
     }
 }

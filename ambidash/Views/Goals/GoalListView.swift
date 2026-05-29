@@ -249,13 +249,22 @@ struct GoalListView: View {
     @ViewBuilder
     private func goalRow(_ goal: Goal, dotColor: Color, t: ResolvedTheme, retired: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(goal.title)
-                .font(.system(size: 17, weight: .regular, design: .serif))
-                .strikethrough(retired, color: t.faint)
-                .foregroundStyle(retired ? t.faint : t.ink)
+            HStack(spacing: 7) {
+                Image(systemName: goal.goalType.icon)
+                    .font(.system(size: 11))
+                    .foregroundStyle(retired ? t.faint : t.muted)
+                Text(goal.title)
+                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .strikethrough(retired, color: t.faint)
+                    .foregroundStyle(retired ? t.faint : t.ink)
+            }
 
             if goal.hasTarget {
                 Text("\(MetricFormat.number(goal.currentValue)) / \(MetricFormat.value(goal.targetValue, unit: goal.unit))")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(t.muted)
+            } else if goal.isHabitual {
+                Text(AdherenceFormat.compact(for: goal))
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(t.muted)
             } else if !goal.subtitle.isEmpty {
@@ -271,6 +280,8 @@ struct GoalListView: View {
             if !retired {
                 if goal.hasTarget {
                     TargetProgressBar(goal: goal, maxWidth: 200, showCaption: false)
+                } else if goal.isHabitual {
+                    AdherenceBar(goal: goal, maxWidth: 200, showCaption: false)
                 } else {
                     let progress = min(1.0, max(0.05, 1.0 - Double(goal.neglectDays) / 14.0))
                     GeometryReader { geo in
@@ -343,5 +354,94 @@ private struct FilterChip: View {
                     Capsule().stroke(isSelected ? .clear : theme.hair, lineWidth: 0.5)
                 )
         }
+    }
+}
+
+// MARK: - F3 shared goal-type / adherence helpers
+// Defined here (file-internal, not private) so GoalQuickSheet and GoalDetailView
+// can reuse them without duplicating the markup.
+
+/// Formats the weekly adherence of a habitual goal as human-readable strings.
+enum AdherenceFormat {
+    /// Count of progress logs recorded in the current calendar week.
+    static func loggedThisWeek(for goal: Goal) -> Int {
+        let calendar = Calendar.current
+        let weekStart = calendar.dateInterval(of: .weekOfYear, for: .now)?.start
+            ?? calendar.startOfDay(for: .now)
+        return goal.progressLogs.filter { $0.date >= weekStart }.count
+    }
+
+    /// The intended weekly cadence, defaulting to once if none was set.
+    static func target(for goal: Goal) -> Int {
+        max(goal.timesPerWeek, 1)
+    }
+
+    /// e.g. "3 of 4 this week".
+    static func fraction(for goal: Goal) -> String {
+        "\(loggedThisWeek(for: goal)) of \(target(for: goal)) this week"
+    }
+
+    /// Compact form for dense rows, e.g. "3/4 this wk".
+    static func compact(for goal: Goal) -> String {
+        "\(loggedThisWeek(for: goal))/\(target(for: goal)) this wk"
+    }
+}
+
+/// A small labeled pill showing a goal's `GoalType`.
+struct GoalTypeChip: View {
+    let type: GoalType
+    let theme: ResolvedTheme
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: type.icon)
+                .font(.system(size: 9))
+            Text(type.displayName.uppercased())
+                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                .tracking(0.8)
+        }
+        .foregroundStyle(theme.muted)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(theme.surface)
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(theme.hair, lineWidth: 0.5))
+    }
+}
+
+/// A thin weekly-adherence gauge for habitual goals, mirroring TargetProgressBar's
+/// look. The fill represents the fraction of this week's cadence already met.
+struct AdherenceBar: View {
+    @Environment(ThemeManager.self) private var tm
+    let goal: Goal
+    var maxWidth: CGFloat = 200
+    var showCaption: Bool = true
+
+    var body: some View {
+        let t = tm.resolved
+        let adherence = goal.adherenceThisWeek
+        let fillColor: Color = adherence >= 1.0 ? t.ok : (adherence >= 0.5 ? t.ink : t.muted)
+
+        VStack(alignment: .leading, spacing: 5) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 1).fill(t.hair)
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(fillColor)
+                        .frame(width: max(2, geo.size.width * adherence))
+                }
+            }
+            .frame(height: 6)
+            .frame(maxWidth: maxWidth, alignment: .leading)
+
+            if showCaption {
+                Text(AdherenceFormat.fraction(for: goal))
+                    .font(.system(size: 10, design: .monospaced))
+                    .monospacedDigit()
+                    .foregroundStyle(t.muted)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Adherence \(AdherenceFormat.fraction(for: goal))")
     }
 }

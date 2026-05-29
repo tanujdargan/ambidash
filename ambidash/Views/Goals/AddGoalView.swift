@@ -11,6 +11,8 @@ struct AddGoalView: View {
     @State private var subtitle = ""
     @State private var selectedDomain: GoalDomain = .body
     @State private var selectedHorizon: GoalHorizon = .now
+    @State private var selectedType: GoalType = .habit
+    @State private var timesPerWeek = 3
     @State private var newGoal: Goal?
 
     // F2 — measurable target (collapsed by default; flow unchanged for non-numeric goals)
@@ -122,6 +124,72 @@ struct AddGoalView: View {
                             }
                         }
 
+                        // Goal type (how it's pursued + judged)
+                        VStack(alignment: .leading, spacing: 10) {
+                            SectionLabel(title: "Goal type")
+                            HStack(spacing: 6) {
+                                ForEach(GoalType.allCases) { type in
+                                    let isSelected = selectedType == type
+                                    Button {
+                                        Haptics.selection()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            selectedType = type
+                                        }
+                                    } label: {
+                                        VStack(spacing: 4) {
+                                            Image(systemName: type.icon)
+                                                .font(.system(size: 14))
+                                                .foregroundStyle(isSelected ? t.ink : t.muted)
+                                            Text(type.displayName)
+                                                .font(.system(size: 9, weight: isSelected ? .medium : .regular))
+                                                .foregroundStyle(isSelected ? t.ink : t.muted)
+                                                .lineLimit(1)
+                                                .minimumScaleFactor(0.7)
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 10)
+                                        .background(isSelected ? t.ink.opacity(0.08) : .clear)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(isSelected ? t.ink : t.hair, lineWidth: isSelected ? 1 : 0.5)
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+
+                            Text(selectedType.detail)
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(t.faint)
+                                .lineSpacing(2)
+
+                            // Times-per-week cadence for habit/recurring goals.
+                            if selectedType.isHabitual {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        SectionLabel(title: "Times per week")
+                                        Text(cadenceCaption)
+                                            .font(.system(size: 11, design: .monospaced))
+                                            .foregroundStyle(t.faint)
+                                    }
+                                    Spacer()
+                                    Stepper(
+                                        value: $timesPerWeek.animation(.easeInOut(duration: 0.15)),
+                                        in: 1...7
+                                    ) {
+                                        Text("\(timesPerWeek)")
+                                            .font(.system(size: 17, design: .monospaced))
+                                            .monospacedDigit()
+                                            .foregroundStyle(t.ink)
+                                    }
+                                    .labelsHidden()
+                                    .fixedSize()
+                                    .onChange(of: timesPerWeek) { _, _ in Haptics.selection() }
+                                }
+                            }
+                        }
+
                         // Measurable target (optional, collapsible)
                         VStack(alignment: .leading, spacing: 14) {
                             Toggle(isOn: $metricEnabled.animation(.easeInOut(duration: 0.2))) {
@@ -227,6 +295,20 @@ struct AddGoalView: View {
         }
     }
 
+    private var cadenceCaption: String {
+        if timesPerWeek >= 7 { return "every day" }
+        if timesPerWeek == 1 { return "once a week" }
+        return "\(timesPerWeek)× a week"
+    }
+
+    private func recurrence(for type: GoalType) -> GoalRecurrence {
+        switch type {
+        case .habit: return .daily
+        case .recurring: return timesPerWeek >= 7 ? .daily : .weekly
+        case .project, .milestone, .accumulation: return .none
+        }
+    }
+
     private func addGoal() {
         guard let profile else { return }
         Haptics.success()
@@ -234,6 +316,9 @@ struct AddGoalView: View {
         let goal = Goal(title: title, domain: selectedDomain, priority: priority)
         goal.subtitle = subtitle
         goal.horizon = selectedHorizon
+        goal.goalType = selectedType
+        goal.timesPerWeek = selectedType.isHabitual ? timesPerWeek : 0
+        goal.recurrence = recurrence(for: selectedType)
         goal.streak = Streak()
 
         if metricEnabled {

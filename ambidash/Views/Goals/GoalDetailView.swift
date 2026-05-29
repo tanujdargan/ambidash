@@ -36,7 +36,7 @@ struct GoalDetailView: View {
                         }
                     }
 
-                    // Pillar
+                    // Pillar + type
                     HStack(spacing: 10) {
                         Image(systemName: goal.domain.icon)
                             .font(.system(size: 14))
@@ -44,6 +44,8 @@ struct GoalDetailView: View {
                         Text(goal.domain.displayName)
                             .font(.system(size: 13))
                             .foregroundStyle(t.ink2)
+                        Spacer()
+                        GoalTypeChip(type: goal.goalType, theme: t)
                     }
 
                     HairlineRule()
@@ -51,13 +53,31 @@ struct GoalDetailView: View {
                     // Status section
                     VStack(spacing: 0) {
                         DataRowView(label: "Health", value: goal.computedStatus.label)
-                        DataRowView(label: "Days since progress", value: "\(goal.neglectDays)")
+                        if goal.isHabitual {
+                            DataRowView(label: "Adherence", value: AdherenceFormat.fraction(for: goal))
+                        } else {
+                            DataRowView(label: "Days since progress", value: "\(goal.neglectDays)")
+                        }
                         DataRowView(label: "Priority", value: "\(goal.priority)")
                         DataRowView(label: "Created", value: goal.createdAt.formatted(.dateTime.month(.abbreviated).day().year()))
 
                         if let streak = goal.streak {
                             DataRowView(label: "Current streak", value: "\(streak.currentCount)", unit: "days")
                             DataRowView(label: "Best streak", value: "\(streak.bestCount)", unit: "days")
+                        }
+                    }
+
+                    // Cadence / adherence section for habitual goals
+                    if goal.isHabitual {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(alignment: .firstTextBaseline) {
+                                SectionLabel(title: "Weekly cadence")
+                                Spacer()
+                                Text(cadenceCaption)
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundStyle(t.faint)
+                            }
+                            AdherenceBar(goal: goal, maxWidth: .infinity)
                         }
                     }
 
@@ -96,15 +116,13 @@ struct GoalDetailView: View {
 
                     // Actions
                     VStack(spacing: 10) {
-                        PrimaryButton(label: "Log progress") {
+                        PrimaryButton(label: goal.isHabitual ? "Log today" : "Log progress") {
                             if goal.hasTarget {
                                 Haptics.light()
                                 showLogProgress = true
                             } else {
                                 Haptics.success()
-                                goal.lastProgressDate = .now
-                                goal.streak?.recordActivity()
-                                try? modelContext.save()
+                                logCheckIn()
                             }
                         }
 
@@ -169,5 +187,20 @@ struct GoalDetailView: View {
         case .onTrack: return "On pace"
         case .behind: return "Behind"
         }
+    }
+
+    private var cadenceCaption: String {
+        let n = max(goal.timesPerWeek, 1)
+        if n >= 7 { return "every day" }
+        if n == 1 { return "once a week" }
+        return "\(n)× a week"
+    }
+
+    /// Records a non-measurable check-in: marks today as touched, advances the
+    /// streak (cadence-aware for habitual goals), and writes a zero-amount log so
+    /// weekly adherence reflects the touch.
+    private func logCheckIn() {
+        ProgressLogService.logCheckIn(goal: goal, source: .manual, context: modelContext)
+        try? modelContext.save()
     }
 }

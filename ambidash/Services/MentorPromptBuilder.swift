@@ -21,6 +21,34 @@ enum MentorPromptBuilder {
         return " · measurable: \(current)/\(target)\(unit) (\(percent)%, \(dir)), \(pace) (on-pace value today: \(expected)\(unit))"
     }
 
+    /// A cadence/adherence descriptor for a habitual (habit/recurring) goal, e.g.
+    /// " · habitual: 2 of 3 this week (recurring 3x/wk)". Empty for non-habitual goals.
+    private static func habitualLine(for goal: Goal) -> String {
+        guard goal.isHabitual else { return "" }
+        let logged = AdherenceFormat.loggedThisWeek(for: goal)
+        let target = AdherenceFormat.target(for: goal)
+        let kind = goal.goalType.displayName.lowercased()
+        return " · habitual: \(logged) of \(target) this week (\(kind) \(target)x/wk)"
+    }
+
+    /// How far short of this week's cadence a habitual goal is, as a fraction
+    /// (0 = met or exceeded, 1 = nothing logged). Used to surface the most
+    /// behind-cadence habitual goals first instead of treating off-days as neglect.
+    private static func adherenceShortfall(for goal: Goal) -> Double {
+        max(0, 1 - goal.adherenceThisWeek)
+    }
+
+    /// A unified attention score for ordering goals in the plan prompt. Habitual
+    /// goals are scored by their weekly adherence shortfall (off-days don't count
+    /// as neglect); other goals by raw neglect days. Scaling keeps a fully-missed
+    /// habitual week (score 7) comparable to a week of neglect for a one-off goal.
+    private static func attentionScore(for goal: Goal) -> Double {
+        if goal.isHabitual {
+            return adherenceShortfall(for: goal) * 7
+        }
+        return Double(goal.neglectDays)
+    }
+
     private static func format(_ value: Double) -> String {
         value == value.rounded() ? String(Int(value)) : String(format: "%.1f", value)
     }
@@ -36,6 +64,7 @@ enum MentorPromptBuilder {
                 context += ", \(streak.currentCount)-day streak"
             }
             context += measurableLine(for: goal)
+            context += habitualLine(for: goal)
             context += "\n"
         }
 
@@ -52,7 +81,7 @@ enum MentorPromptBuilder {
             context += "\nSTREAKS: \(streakSummary)\n"
         }
 
-        context += "\nGive ONE specific, actionable insight (2-3 sentences max). Connect data points the user wouldn't notice. For goals with a measurable target, watch the number: if a goal is BEHIND pace, call out the gap and what would close it. Be direct, not generic. No pleasantries."
+        context += "\nGive ONE specific, actionable insight (2-3 sentences max). Connect data points the user wouldn't notice. For goals with a measurable target, watch the number: if a goal is BEHIND pace, call out the gap and what would close it. For habitual goals, judge by weekly cadence (the \"X of Y this week\" figure), not days since last touch — an off-day for a 3x/week goal is not a lapse. Be direct, not generic. No pleasantries."
 
         return context
     }
@@ -73,11 +102,21 @@ enum MentorPromptBuilder {
             }
         }
 
-        context += "\nGOALS (sorted by neglect):\n"
-        let sorted = goals.filter(\.isActive).sorted { $0.neglectDays > $1.neglectDays }
+        context += "\nGOALS (most in need of attention first):\n"
+        // Rank habitual goals by how far short of this week's cadence they are
+        // (an off-day for a 3x/wk goal is NOT neglect); rank the rest by raw
+        // neglect days. Habitual goals behind cadence sort ahead of on-track ones.
+        let sorted = goals.filter(\.isActive).sorted { lhs, rhs in
+            attentionScore(for: lhs) > attentionScore(for: rhs)
+        }
         for goal in sorted {
-            context += "- [id: \(goal.id.uuidString)] \(goal.title): \(goal.neglectDays) days neglected, priority \(goal.priority)"
+            if goal.isHabitual {
+                context += "- [id: \(goal.id.uuidString)] \(goal.title): priority \(goal.priority)"
+            } else {
+                context += "- [id: \(goal.id.uuidString)] \(goal.title): \(goal.neglectDays) days neglected, priority \(goal.priority)"
+            }
             context += measurableLine(for: goal)
+            context += habitualLine(for: goal)
             context += "\n"
         }
 
@@ -89,7 +128,7 @@ enum MentorPromptBuilder {
         context += "\nRespond with a JSON array of actions. Each action: {\"title\": \"...\", \"why\": \"...\", \"duration_minutes\": N, \"time_slot\": \"HH:MM\", \"goal_id\": \"uuid-string\", \"amount\": N, \"metric\": \"unit\"}\n"
         context += "Every action MUST set goal_id to exactly one UUID from the GOALS list above. Do not invent or hallucinate goal IDs. Each action advances exactly one goal from the list.\n"
         context += "For goals with a measurable target, size the action to move the number: set \"amount\" to the increment this action should add (in the goal's unit) and \"metric\" to that unit; omit both for goals without a target.\n"
-        context += "Create \(profile?.workStylePreference?.maxActionsPerDay ?? 6) actions max. Prioritize goals that are BEHIND pace toward their target, then neglected goals. Fit into free time. Adjust intensity based on sleep quality."
+        context += "Create \(profile?.workStylePreference?.maxActionsPerDay ?? 6) actions max. Prioritize goals that are BEHIND pace toward their target, then habitual goals short of their weekly cadence, then neglected one-off goals. For habitual goals, judge by the weekly cadence shown (e.g. \"2 of 3 this week\"): a goal that has already met its cadence needs no action today, and an off-day is NOT neglect — do not push a habitual goal just because a day or two passed. Fit into free time. Adjust intensity based on sleep quality."
 
         return context
     }

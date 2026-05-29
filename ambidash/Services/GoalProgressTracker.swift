@@ -12,13 +12,27 @@ enum GoalProgressTracker {
         let score: Int
         let statusColor: GoalStatus
         if goal.hasTarget {
+            // F2 — measurable goals scored by pace toward target.
             score = Int((goal.percentComplete * 100).rounded())
             switch TargetMath.variance(goal) {
             case .ahead: statusColor = .onTrack
             case .onTrack: statusColor = .needsAttention
             case .behind: statusColor = .slipping
             }
+        } else if goal.isActive && goal.isHabitual {
+            // F3 — habitual goals scored by weekly cadence adherence, not pure
+            // days-since-last-touch, so a Mon/Wed/Fri lifter reads on-track Tuesday.
+            let adherence = goal.adherenceThisWeek
+            score = Int((adherence * 100).rounded())
+            if adherence >= 1.0 {
+                statusColor = .onTrack
+            } else if adherence >= 0.5 {
+                statusColor = .needsAttention
+            } else {
+                statusColor = .slipping
+            }
         } else {
+            // Non-habitual, non-target goals keep the neglect-based recency scoring.
             switch goal.computedStatus {
             case .onTrack: score = 90
             case .needsAttention: score = 55

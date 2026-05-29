@@ -134,6 +134,10 @@ struct GoalDeclarationView: View {
                 let goal = Goal(title: template.title, domain: domain, priority: priority)
                 goal.subtitle = template.subtitle
                 goal.horizonRaw = template.horizon.rawValue
+                // F3 — set curated type/cadence, falling back to inference.
+                goal.goalType = template.goalType ?? GoalTypeInferenceService.infer(goal)
+                goal.timesPerWeek = template.timesPerWeek
+                goal.recurrence = recurrence(for: goal.goalType, timesPerWeek: template.timesPerWeek)
                 modelContext.insert(goal)
 
                 let streak = Streak()
@@ -152,6 +156,15 @@ struct GoalDeclarationView: View {
             ErrorLogger.info("Saved \(priority - 1) goals for profile \(targetProfile.name)")
         } catch {
             ErrorLogger.log(error, context: "GoalDeclarationView.saveGoals")
+        }
+    }
+
+    /// Maps an F3 type + cadence to a recurrence rule for seeded goals.
+    private func recurrence(for type: GoalType, timesPerWeek: Int) -> GoalRecurrence {
+        switch type {
+        case .habit: return .daily
+        case .recurring: return timesPerWeek >= 7 ? .daily : .weekly
+        case .project, .milestone, .accumulation: return .none
         }
     }
 }

@@ -48,6 +48,43 @@ enum PlanGenerator {
         domainTemplates[domain] ?? []
     }
 
+    /// F3 — a goalType-aware action shaped to *how* the goal is pursued. Returns
+    /// nil for types with no specific override so the caller falls back to the
+    /// per-domain templates. Habit/recurring actions are sized to cadence.
+    static func typeTemplate(for goal: Goal) -> (String, Int, String)? {
+        switch goal.goalType {
+        case .habit:
+            return ("Show up today: \(goal.title)", 20,
+                    "Daily consistency is the whole game for this one")
+        case .recurring:
+            let perWeek = max(goal.timesPerWeek, 1)
+            let cadence = perWeek == 1 ? "this week" : "(\(perWeek)x/week)"
+            return ("Do your \(goal.title) session \(cadence)", 45,
+                    "Hit your weekly cadence — adherence beats intensity")
+        case .project:
+            return ("Take the next step on \(goal.title)", 60,
+                    "Projects move forward one concrete step at a time")
+        case .milestone:
+            return ("Advance toward: \(goal.title)", 45,
+                    "Close the gap to this checkpoint")
+        case .accumulation:
+            let unit = goal.unit.isEmpty ? "the number" : goal.unit
+            return ("Move \(unit) on \(goal.title)", 30,
+                    "Small, regular gains compound toward the target")
+        }
+    }
+
+    /// Ordered action candidates for a goal: the goalType-aware action first (if
+    /// any), then the per-domain templates as fallback. Additive refinement over
+    /// the prior domain-only selection.
+    static func candidateTemplates(for goal: Goal) -> [(String, Int, String)] {
+        let domain = domainTemplates[goal.domain] ?? []
+        if let typed = typeTemplate(for: goal) {
+            return [typed] + domain
+        }
+        return domain
+    }
+
     static func generateActions(for goals: [Goal], freeMinutes: Int, maxActions: Int) -> [ActionTemplate] {
         let active = goals.filter(\.isActive)
         guard !active.isEmpty else { return [] }
@@ -64,7 +101,8 @@ enum PlanGenerator {
         for goal in sorted {
             if result.count >= maxActions || remainingMinutes <= 0 { break }
 
-            let temps = domainTemplates[goal.domain] ?? []
+            // F3 — prefer a goalType-aware action, then fall back to per-domain templates.
+            let temps = candidateTemplates(for: goal)
             guard let t = temps.first(where: { $0.1 <= remainingMinutes && !usedKeys.contains("\(goal.title)-\($0.0)") }) else { continue }
 
             result.append(ActionTemplate(title: t.0, goalTitle: goal.title, goalID: goal.id, domain: goal.domain, durationMinutes: t.1, why: t.2))
@@ -74,7 +112,7 @@ enum PlanGenerator {
 
         if result.count < maxActions {
             for goal in sorted where result.count < maxActions && remainingMinutes > 0 {
-                let temps = domainTemplates[goal.domain] ?? []
+                let temps = candidateTemplates(for: goal)
                 for t in temps {
                     let key = "\(goal.title)-\(t.0)"
                     if !usedKeys.contains(key) && t.1 <= remainingMinutes && result.count < maxActions {
