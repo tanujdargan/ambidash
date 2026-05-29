@@ -32,13 +32,14 @@ struct MainTabView: View {
                 TabBarButton(icon: "square.and.pencil", label: "Reflect", isSelected: selectedTab == 3, theme: t) { selectedTab = 3 }
                 TabBarButton(icon: "envelope", label: "Mentor", isSelected: selectedTab == 4, theme: t) { selectedTab = 4 }
             }
-            .padding(.top, 10)
-            .padding(.bottom, 2)
+            .padding(.top, 12)
+            .padding(.bottom, 6)
             .background(
                 t.bg
                     .overlay(alignment: .top) {
                         t.hair.frame(height: 0.5)
                     }
+                    .ignoresSafeArea(edges: .bottom)
             )
         }
         .preferredColorScheme(tm.isDark ? .dark : .light)
@@ -60,18 +61,18 @@ private struct TabBarButton: View {
             Haptics.selection()
             action()
         }) {
-            VStack(spacing: 3) {
+            VStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 18))
+                    .font(.system(size: 20))
                     .foregroundStyle(isSelected ? theme.ink : theme.faint)
 
                 Text(label.uppercased())
-                    .font(.system(size: 9, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
                     .tracking(1)
                     .foregroundStyle(isSelected ? theme.ink : theme.faint)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 4)
+            .padding(.vertical, 6)
         }
         .accessibilityLabel(label)
         .accessibilityAddTraits(isSelected ? .isSelected : [])

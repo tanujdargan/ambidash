@@ -56,6 +56,13 @@ struct SettingsView: View {
                         set: { tm.isDark = $0 }
                     ))
 
+                    if tm.isDark {
+                        Toggle("OLED (pure black)", isOn: Binding(
+                            get: { tm.oled },
+                            set: { tm.oled = $0 }
+                        ))
+                    }
+
                     Picker("Typography", selection: Binding(
                         get: { tm.typography },
                         set: { tm.typography = $0 }

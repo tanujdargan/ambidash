@@ -65,8 +65,11 @@ struct ThemeSetupView: View {
                             SectionLabel(title: "Mode")
 
                             HStack(spacing: 10) {
-                                ModeButton(label: "Dark", isSelected: tm.isDark) {
-                                    withAnimation(.easeOut(duration: 0.2)) { tm.isDark = true }
+                                ModeButton(label: "Dark", isSelected: tm.isDark && !tm.oled) {
+                                    withAnimation(.easeOut(duration: 0.2)) { tm.isDark = true; tm.oled = false }
+                                }
+                                ModeButton(label: "OLED", isSelected: tm.isDark && tm.oled) {
+                                    withAnimation(.easeOut(duration: 0.2)) { tm.isDark = true; tm.oled = true }
                                 }
                                 ModeButton(label: "Light", isSelected: !tm.isDark) {
                                     withAnimation(.easeOut(duration: 0.2)) { tm.isDark = false }

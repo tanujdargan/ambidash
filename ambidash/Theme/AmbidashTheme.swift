@@ -118,6 +118,10 @@ final class ThemeManager {
     var isDark: Bool {
         didSet { UserDefaults.standard.set(isDark, forKey: "theme_dark") }
     }
+    /// Pure-black ("OLED") variant of dark mode. Only affects rendering when isDark.
+    var oled: Bool {
+        didSet { UserDefaults.standard.set(oled, forKey: "theme_oled") }
+    }
     var typography: ThemeTypography {
         didSet { UserDefaults.standard.set(typography.rawValue, forKey: "theme_typography") }
     }
@@ -128,6 +132,7 @@ final class ThemeManager {
     init() {
         self.palette = ThemePalette(rawValue: UserDefaults.standard.string(forKey: "theme_palette") ?? "") ?? .yellow
         self.isDark = UserDefaults.standard.object(forKey: "theme_dark") as? Bool ?? true
+        self.oled = UserDefaults.standard.object(forKey: "theme_oled") as? Bool ?? false
         self.typography = ThemeTypography(rawValue: UserDefaults.standard.string(forKey: "theme_typography") ?? "") ?? .technical
         self.density = ThemeDensity(rawValue: UserDefaults.standard.string(forKey: "theme_density") ?? "") ?? .detailed
     }
@@ -135,16 +140,17 @@ final class ThemeManager {
     var resolved: ResolvedTheme {
         let (bgHex, inkHex, accentHex) = palette.colors
         if isDark {
+            // OLED forces true-black backgrounds while keeping the palette's accent + ink.
             return ResolvedTheme(
-                bg: Color(hex: inkHex).shiftBrightness(by: -0.02),
-                surface: Color(hex: inkHex).shiftBrightness(by: 0.03),
-                sunken: Color(hex: inkHex).shiftBrightness(by: -0.02),
+                bg: oled ? Color(hex: 0x000000) : Color(hex: inkHex).shiftBrightness(by: -0.02),
+                surface: oled ? Color(hex: 0x0E0E0E) : Color(hex: inkHex).shiftBrightness(by: 0.03),
+                sunken: oled ? Color(hex: 0x000000) : Color(hex: inkHex).shiftBrightness(by: -0.02),
                 ink: Color(hex: bgHex),
                 ink2: Color(hex: bgHex).opacity(0.78),
                 muted: Color(hex: 0x8E8779),
                 faint: Color(hex: 0x5A5447),
-                hair: Color(hex: bgHex).opacity(0.10),
-                rule: Color(hex: bgHex).opacity(0.18),
+                hair: Color(hex: bgHex).opacity(oled ? 0.14 : 0.10),
+                rule: Color(hex: bgHex).opacity(oled ? 0.20 : 0.18),
                 accent: Color(hex: accentHex).shiftBrightness(by: 0.08),
                 accentSoft: Color(hex: accentHex).opacity(0.18),
                 danger: Color(hex: 0xD27860),
