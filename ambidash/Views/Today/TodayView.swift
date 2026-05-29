@@ -78,7 +78,7 @@ struct TodayView: View {
             }
             .sheet(isPresented: $showAddAction) {
                 if let plan = todayPlan {
-                    AddActionSheet(plan: plan, goals: profile?.goals ?? [])
+                    AddActionSheet(plan: plan, goals: (profile?.goals ?? nil) ?? [])
                 }
             }
             .sheet(item: $rescheduleTarget) { action in
@@ -126,7 +126,7 @@ struct TodayView: View {
 
     @ViewBuilder
     private func todayContent(_ plan: DailyPlan, t: ResolvedTheme) -> some View {
-        let sorted = plan.actions.sorted { $0.timeSlot < $1.timeSlot }
+        let sorted = (plan.actions ?? []).sorted { $0.timeSlot < $1.timeSlot }
         let currentAction = sorted.first { $0.statusRaw == "pending" }
 
         let allDone = sorted.allSatisfy { $0.statusRaw != "pending" }
@@ -236,8 +236,8 @@ struct TodayView: View {
 
     @ViewBuilder
     private func completionCard(plan: DailyPlan, t: ResolvedTheme) -> some View {
-        let doneCount = plan.actions.filter { $0.statusRaw == "done" }.count
-        let skippedCount = plan.actions.filter { $0.statusRaw == "skipped" }.count
+        let doneCount = (plan.actions ?? []).filter { $0.statusRaw == "done" }.count
+        let skippedCount = (plan.actions ?? []).filter { $0.statusRaw == "skipped" }.count
 
         VStack(spacing: 14) {
             Image(systemName: "checkmark.circle")
@@ -430,9 +430,9 @@ struct TodayView: View {
 
     @ViewBuilder
     private func timeAccounting(_ plan: DailyPlan, t: ResolvedTheme) -> some View {
-        let done = plan.actions.filter { $0.statusRaw == "done" }
+        let done = (plan.actions ?? []).filter { $0.statusRaw == "done" }
         let totalDoneMinutes = done.reduce(0) { $0 + $1.durationMinutes }
-        let totalPlannedMinutes = plan.actions.reduce(0) { $0 + $1.durationMinutes }
+        let totalPlannedMinutes = (plan.actions ?? []).reduce(0) { $0 + $1.durationMinutes }
         let unaccounted = max(0, 480 - totalPlannedMinutes)
 
         VStack(alignment: .leading, spacing: 10) {
@@ -539,7 +539,7 @@ struct TodayView: View {
             defer { isGenerating = false }
             guard PremiumGateService.canGeneratePlan() else { return }
 
-            let goals = profile?.goals ?? []
+            let goals = (profile?.goals ?? nil) ?? []
             let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
             let planFormat = resolvedPlanFormat
 
@@ -601,9 +601,9 @@ struct TodayView: View {
         }
         for action in actions {
             modelContext.insert(action)
-            plan.actions.append(action)
+            action.plan = plan
         }
-        plan.actionCount = plan.actions.count
+        plan.actionCount = (plan.actions ?? []).count
     }
 
     /// Builds template-backed actions (offline path), linking each to its goal's
@@ -719,15 +719,15 @@ struct TodayView: View {
             defer { isGenerating = false }
             guard PremiumGateService.canGeneratePlan() else { return }
 
-            let goals = profile?.goals ?? []
+            let goals = (profile?.goals ?? nil) ?? []
             let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
             let prior = mostRecentPriorPlan
 
             // Clear the existing actions (cascade delete) before rebuilding.
-            for action in plan.actions {
+            for action in (plan.actions ?? []) {
                 modelContext.delete(action)
             }
-            plan.actions.removeAll()
+            plan.actions = []
 
             await populate(plan, goals: goals, maxActions: maxActions)
 
@@ -753,19 +753,19 @@ struct TodayView: View {
             defer { isGenerating = false }
             guard PremiumGateService.canGeneratePlan() else { return }
 
-            let goals = profile?.goals ?? []
+            let goals = (profile?.goals ?? nil) ?? []
             let maxActions = profile?.workStylePreference?.maxActionsPerDay ?? 6
 
             // Remember how many slots the settled (done/skipped) actions consumed
             // so the fresh batch is sized to what remains.
-            let settled = plan.actions.filter { $0.statusRaw != "pending" }
+            let settled = (plan.actions ?? []).filter { $0.statusRaw != "pending" }
             let remainingSlots = max(1, maxActions - settled.count)
 
             // Drop the pending actions only.
-            for action in plan.actions where action.statusRaw == "pending" {
+            for action in (plan.actions ?? []) where action.statusRaw == "pending" {
                 modelContext.delete(action)
             }
-            plan.actions.removeAll { $0.statusRaw == "pending" }
+            plan.actions = (plan.actions ?? []).filter { $0.statusRaw != "pending" }
 
             await populate(plan, goals: goals, maxActions: remainingSlots)
 
@@ -797,7 +797,7 @@ struct TodayView: View {
 
         // Idempotency: don't duplicate the same title carried from today.
         let originDate = action.plan?.date ?? Calendar.current.startOfDay(for: .now)
-        let alreadyThere = tomorrowPlan.actions.contains {
+        let alreadyThere = (tomorrowPlan.actions ?? []).contains {
             $0.carriedOverFrom == originDate && $0.title == action.title
         }
         if !alreadyThere {
@@ -813,8 +813,8 @@ struct TodayView: View {
                 carriedOverFrom: originDate
             )
             modelContext.insert(clone)
-            tomorrowPlan.actions.append(clone)
-            tomorrowPlan.actionCount = tomorrowPlan.actions.count
+            clone.plan = tomorrowPlan
+            tomorrowPlan.actionCount = (tomorrowPlan.actions ?? []).count
         }
 
         // Retire the original on today's plan.
@@ -825,7 +825,7 @@ struct TodayView: View {
     // MARK: - Done handling (C1 milestone credit preserved)
 
     private func handleDone(_ action: PlannedAction) {
-        let goals = profile?.goals ?? []
+        let goals = (profile?.goals ?? nil) ?? []
         if let goalID = action.goalID {
             if let goal = goals.first(where: { $0.id == goalID }) {
                 // For measurable goals, move the number: record() creates a
@@ -1011,8 +1011,8 @@ private struct AddActionSheet: View {
             milestone: resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
         )
         modelContext.insert(action)
-        plan.actions.append(action)
-        plan.actionCount = plan.actions.count
+        action.plan = plan
+        plan.actionCount = (plan.actions ?? []).count
         try? modelContext.save()
         dismiss()
     }

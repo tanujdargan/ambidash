@@ -4,7 +4,7 @@ import SwiftData
 enum GoalProgressTracker {
     static func recordDaily(goal: Goal, context: ModelContext) {
         let today = Calendar.current.startOfDay(for: .now)
-        let existing = goal.progressEntries.first {
+        let existing = (goal.progressEntries ?? []).first {
             Calendar.current.isDate($0.date, inSameDayAs: today)
         }
         guard existing == nil else { return }
@@ -42,19 +42,20 @@ enum GoalProgressTracker {
             statusColor = goal.computedStatus
         }
 
-        let prior7 = goal.progressEntries
+        let prior7 = (goal.progressEntries ?? [])
             .filter { $0.date >= Calendar.current.date(byAdding: .day, value: -7, to: today)! }
             .map(\.score)
         let avg7 = prior7.isEmpty ? score : prior7.reduce(0, +) / prior7.count
         let trend = score - avg7
 
         let entry = GoalProgress(score: score, trend7d: trend, statusColor: statusColor)
-        goal.progressEntries.append(entry)
+        context.insert(entry)
+        entry.goal = goal
     }
 
     static func recentScores(for goal: Goal, days: Int = 14) -> [Int] {
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now)!
-        return goal.progressEntries
+        return (goal.progressEntries ?? [])
             .filter { $0.date >= cutoff }
             .sorted { $0.date < $1.date }
             .map(\.score)

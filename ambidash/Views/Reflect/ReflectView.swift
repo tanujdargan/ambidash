@@ -63,8 +63,8 @@ struct ReflectView: View {
 
                             // Day summary (compact)
                             if let plan = todayPlan {
-                                let doneCount = plan.actions.filter { $0.statusRaw == "done" }.count
-                                let total = plan.actions.count
+                                let doneCount = (plan.actions ?? []).filter { $0.statusRaw == "done" }.count
+                                let total = (plan.actions ?? []).count
                                 HStack(spacing: 16) {
                                     DataRowView(label: "Done", value: "\(doneCount)/\(total)")
                                     if let snap = todaySnapshot {

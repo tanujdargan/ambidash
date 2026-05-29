@@ -129,8 +129,8 @@ struct DashboardView: View {
                         // 5. Today, narrow
                         VStack(alignment: .leading, spacing: 6) {
                             SectionLabel(title: "Today, narrow")
-                            if let plan = todayPlan, !plan.actions.isEmpty {
-                                let topActions = plan.actions.sorted { $0.timeSlot < $1.timeSlot }.prefix(3)
+                            if let plan = todayPlan, !(plan.actions ?? []).isEmpty {
+                                let topActions = (plan.actions ?? []).sorted { $0.timeSlot < $1.timeSlot }.prefix(3)
                                 ForEach(Array(topActions), id: \.id) { action in
                                     DataRowView(label: action.title, value: action.timeSlot, unit: "\(action.durationMinutes)m")
                                 }

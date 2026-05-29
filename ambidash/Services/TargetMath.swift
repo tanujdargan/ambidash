@@ -56,7 +56,7 @@ enum TargetMath {
     /// Real logged resulting values within the window, oldest-to-newest.
     static func recentValues(for goal: Goal, days: Int = 14) -> [Double] {
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now)!
-        return goal.progressLogs
+        return (goal.progressLogs ?? [])
             .filter { $0.date >= cutoff }
             .sorted { $0.date < $1.date }
             .map(\.resultingValue)

@@ -222,7 +222,7 @@ struct SettingsView: View {
                 .listRowBackground(t.surface)
 
                 Section("Data") {
-                    LabeledContent("Goals", value: "\(profile?.goals.count ?? 0)")
+                    LabeledContent("Goals", value: "\(profile?.goals?.count ?? 0)")
 
                     if let profile {
                         ShareLink(

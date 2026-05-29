@@ -269,7 +269,7 @@ struct AddMilestoneView: View {
                 targetValue: target,
                 currentValue: target == nil ? nil : 0,
                 unit: trimmedUnit,
-                sortIndex: goal.milestones.count
+                sortIndex: (goal.milestones ?? []).count
             )
             modelContext.insert(milestone)
             // Wire the inverses from the child side.

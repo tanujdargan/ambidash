@@ -3,14 +3,14 @@ import SwiftData
 
 @Model
 final class DailyPlan {
-    var id: UUID
-    var date: Date
-    var formatRaw: String
-    var actionCount: Int
-    var regenerated: Bool
-    var generatedAt: Date
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var formatRaw: String = ""
+    var actionCount: Int = 0
+    var regenerated: Bool = false
+    var generatedAt: Date = Date()
 
-    @Relationship(deleteRule: .cascade) var actions: [PlannedAction]
+    @Relationship(deleteRule: .cascade) var actions: [PlannedAction]?
 
     init(date: Date = .now, format: PlanFormat = .focusBlocks) {
         self.id = UUID()
@@ -19,6 +19,5 @@ final class DailyPlan {
         self.actionCount = 0
         self.regenerated = false
         self.generatedAt = .now
-        self.actions = []
     }
 }

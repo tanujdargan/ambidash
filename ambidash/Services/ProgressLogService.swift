@@ -63,7 +63,6 @@ enum ProgressLogService {
             let log = ProgressLog(amount: 0, resultingValue: goal.currentValue, source: source)
             context.insert(log)
             log.goal = goal
-            goal.progressLogs.append(log)
             goal.streak?.recordActivity(forCadence: goal.timesPerWeek)
         } else {
             goal.streak?.recordActivity()
@@ -83,7 +82,6 @@ enum ProgressLogService {
         let log = ProgressLog(amount: amount, resultingValue: newValue, note: note, source: source)
         context.insert(log)
         log.goal = goal
-        goal.progressLogs.append(log)
         goal.currentValue = newValue
         goal.lastProgressDate = .now
         goal.streak?.recordActivity()

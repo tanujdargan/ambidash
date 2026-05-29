@@ -3,16 +3,16 @@ import SwiftData
 
 @Model
 final class Goal {
-    var id: UUID
-    var title: String
-    var domainRaw: String
-    var priority: Int
-    var statusRaw: String
-    var createdAt: Date
-    var lastProgressDate: Date
-    var isActive: Bool
-    var horizonRaw: String
-    var subtitle: String
+    var id: UUID = UUID()
+    var title: String = ""
+    var domainRaw: String = ""
+    var priority: Int = 0
+    var statusRaw: String = GoalStatus.onTrack.rawValue
+    var createdAt: Date = Date()
+    var lastProgressDate: Date = Date()
+    var isActive: Bool = false
+    var horizonRaw: String = GoalHorizon.now.rawValue
+    var subtitle: String = ""
 
     // F2 — measurable target layer (all optional/defaulted; additive migration)
     var metricEnabled: Bool = false
@@ -29,12 +29,12 @@ final class Goal {
 
     var profile: UserProfile?
     @Relationship(deleteRule: .cascade) var domainAssessment: DomainAssessment?
-    @Relationship(deleteRule: .cascade) var progressEntries: [GoalProgress]
+    @Relationship(deleteRule: .cascade) var progressEntries: [GoalProgress]?
     @Relationship(deleteRule: .cascade) var streak: Streak?
-    @Relationship(deleteRule: .cascade) var progressLogs: [ProgressLog] = []
+    @Relationship(deleteRule: .cascade) var progressLogs: [ProgressLog]?
     // C1 — decomposition chain: the goal's Milestone tree (year → quarter →
     // month → week). Cascade so deleting a goal removes its checkpoints.
-    @Relationship(deleteRule: .cascade, inverse: \Milestone.goal) var milestones: [Milestone] = []
+    @Relationship(deleteRule: .cascade, inverse: \Milestone.goal) var milestones: [Milestone]?
 
     init(title: String, domain: GoalDomain, priority: Int) {
         self.id = UUID()
@@ -47,7 +47,6 @@ final class Goal {
         self.isActive = true
         self.horizonRaw = GoalHorizon.now.rawValue
         self.subtitle = ""
-        self.progressEntries = []
     }
 
     var domain: GoalDomain {
@@ -129,7 +128,7 @@ final class Goal {
         let calendar = Calendar.current
         let weekStart = calendar.dateInterval(of: .weekOfYear, for: .now)?.start
             ?? calendar.startOfDay(for: .now)
-        let logsThisWeek = progressLogs.filter { $0.date >= weekStart }.count
+        let logsThisWeek = (progressLogs ?? []).filter { $0.date >= weekStart }.count
         let target = max(timesPerWeek, 1)
         return min(max(Double(logsThisWeek) / Double(target), 0), 1)
     }

@@ -11,19 +11,19 @@ import SwiftData
 /// scalar field is optional or defaulted (additive migration).
 @Model
 final class Milestone {
-    var id: UUID
-    var title: String
+    var id: UUID = UUID()
+    var title: String = ""
     var detail: String = ""
 
     /// Which cadence band this node sits in (see `MilestonePeriod`).
-    var periodRaw: String
+    var periodRaw: String = MilestonePeriod.month.rawValue
 
     /// Status string backing the shared `GoalStatus` enum, reused so the roadmap
     /// renders with the same StatusDot vocabulary as goals.
-    var statusRaw: String
+    var statusRaw: String = GoalStatus.onTrack.rawValue
 
-    var startDate: Date
-    var endDate: Date
+    var startDate: Date = Date()
+    var endDate: Date = Date()
 
     // Optional measurable key-result for this checkpoint. nil for non-measurable
     // checkpoints (a deliverable rather than a climbing number).
@@ -32,7 +32,7 @@ final class Milestone {
     var unit: String = ""
 
     var sortIndex: Int = 0
-    var createdAt: Date
+    var createdAt: Date = Date()
     var completedAt: Date? = nil
 
     // Relationships — ALL optional or defaulted-empty for CloudKit.
@@ -40,9 +40,9 @@ final class Milestone {
     /// Self-reference up the year → quarter → month → week chain.
     var parentMilestone: Milestone?
     @Relationship(deleteRule: .cascade, inverse: \Milestone.parentMilestone)
-    var childMilestones: [Milestone] = []
+    var childMilestones: [Milestone]?
     @Relationship(inverse: \PlannedAction.milestone)
-    var actions: [PlannedAction] = []
+    var actions: [PlannedAction]?
 
     init(
         title: String,

@@ -27,7 +27,7 @@ enum DataExportService {
             ]
         }
 
-        export["goals"] = profile.goals.map { goal -> [String: Any] in
+        export["goals"] = (profile.goals ?? []).map { goal -> [String: Any] in
             [
                 "title": goal.title,
                 "subtitle": goal.subtitle,
@@ -51,8 +51,8 @@ enum DataExportService {
             [
                 "date": ISO8601DateFormatter().string(from: plan.date),
                 "action_count": plan.actionCount,
-                "done": plan.actions.filter { $0.statusRaw == "done" }.count,
-                "skipped": plan.actions.filter { $0.statusRaw == "skipped" }.count,
+                "done": (plan.actions ?? []).filter { $0.statusRaw == "done" }.count,
+                "skipped": (plan.actions ?? []).filter { $0.statusRaw == "skipped" }.count,
             ]
         }
         export["recent_plans"] = Array(recentPlans)

@@ -3,18 +3,18 @@ import SwiftData
 
 @Model
 final class CoreAssessment {
-    var id: UUID
-    var cognitiveStyle: String
-    var peakEnergyTime: String
-    var overwhelmResponse: String
-    var adhdScore: Int
-    var anxietyScore: Int
-    var sleepQualitySelfRating: Int
-    var lifeSatisfaction: [String: Int]
-    var topValues: [String]
-    var biggestBlocker: String
-    var accountabilityPreference: String
-    var assessedAt: Date
+    var id: UUID = UUID()
+    var cognitiveStyle: String = ""
+    var peakEnergyTime: String = ""
+    var overwhelmResponse: String = ""
+    var adhdScore: Int = 0
+    var anxietyScore: Int = 0
+    var sleepQualitySelfRating: Int = 0
+    var lifeSatisfaction: [String: Int] = [:]
+    var topValues: [String] = []
+    var biggestBlocker: String = ""
+    var accountabilityPreference: String = ""
+    var assessedAt: Date = Date()
 
     var profile: UserProfile?
 

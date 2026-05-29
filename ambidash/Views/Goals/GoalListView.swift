@@ -394,7 +394,7 @@ enum AdherenceFormat {
         let calendar = Calendar.current
         let weekStart = calendar.dateInterval(of: .weekOfYear, for: .now)?.start
             ?? calendar.startOfDay(for: .now)
-        return goal.progressLogs.filter { $0.date >= weekStart }.count
+        return (goal.progressLogs ?? []).filter { $0.date >= weekStart }.count
     }
 
     /// The intended weekly cadence, defaulting to once if none was set.

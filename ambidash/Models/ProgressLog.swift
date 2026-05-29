@@ -3,12 +3,12 @@ import SwiftData
 
 @Model
 final class ProgressLog {
-    var id: UUID
-    var date: Date
-    var amount: Double
-    var resultingValue: Double
-    var note: String
-    var sourceRaw: String
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var amount: Double = 0
+    var resultingValue: Double = 0
+    var note: String = ""
+    var sourceRaw: String = ProgressLogSource.manual.rawValue
 
     var goal: Goal?
 

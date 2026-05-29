@@ -109,7 +109,7 @@ import SwiftData
 
 @Test func syncServiceSkipsWhenNotAuthenticated() async {
     // SyncService should gracefully skip when not authenticated
-    await SyncService.fullSync(context: ModelContext(try! ModelContainer(for: UserProfile.self, Goal.self, Streak.self, GoalProgress.self, DomainAssessment.self)), profile: nil)
+    await SyncService.fullSync(context: ModelContext(try! ModelContainer(for: UserProfile.self, Goal.self, Streak.self, GoalProgress.self, DomainAssessment.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))), profile: nil)
     // No crash = pass
 }
 

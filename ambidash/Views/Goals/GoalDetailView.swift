@@ -189,7 +189,7 @@ struct GoalDetailView: View {
     /// The next 1–2 upcoming (not-yet-completed) checkpoints by end date, used for
     /// the compact preview beneath the Roadmap link.
     private var upcomingMilestones: [Milestone] {
-        goal.milestones
+        (goal.milestones ?? [])
             .filter { !$0.isCompleted }
             .sorted { $0.endDate < $1.endDate }
             .prefix(2)
@@ -205,9 +205,9 @@ struct GoalDetailView: View {
                 HStack(spacing: 10) {
                     VStack(alignment: .leading, spacing: 2) {
                         SectionLabel(title: "Roadmap")
-                        Text(goal.milestones.isEmpty
+                        Text((goal.milestones ?? []).isEmpty
                             ? "Break this goal into a checkpoint chain"
-                            : "\(goal.milestones.count) checkpoint\(goal.milestones.count == 1 ? "" : "s")")
+                            : "\((goal.milestones ?? []).count) checkpoint\((goal.milestones ?? []).count == 1 ? "" : "s")")
                             .font(.system(size: 12, design: .monospaced))
                             .foregroundStyle(t.muted)
                     }

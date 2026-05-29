@@ -3,11 +3,11 @@ import SwiftData
 
 @Model
 final class WorkStylePreference {
-    var id: UUID
-    var planFormat: String
-    var streaksEnabled: Bool
-    var notificationIntensity: String
-    var maxActionsPerDay: Int
+    var id: UUID = UUID()
+    var planFormat: String = ""
+    var streaksEnabled: Bool = false
+    var notificationIntensity: String = ""
+    var maxActionsPerDay: Int = 0
 
     var profile: UserProfile?
 

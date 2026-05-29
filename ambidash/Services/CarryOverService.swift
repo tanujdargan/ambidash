@@ -20,7 +20,7 @@ enum CarryOverService {
     /// or explicitly `skipped`. (`done` actions are left behind.) Status strings
     /// match the codebase's `PlannedAction.statusRaw` vocabulary.
     static func unfinishedActions(from priorPlan: DailyPlan) -> [PlannedAction] {
-        priorPlan.actions.filter { $0.statusRaw == "pending" || $0.statusRaw == "skipped" }
+        (priorPlan.actions ?? []).filter { $0.statusRaw == "pending" || $0.statusRaw == "skipped" }
     }
 
     /// Clones each unfinished action from `priorPlan` into `todayPlan`, preserving
@@ -39,7 +39,7 @@ enum CarryOverService {
         // idempotency guard. `carriedOverFrom` is the marker; title disambiguates
         // distinct unfinished items that share the same source date.
         let alreadyCarriedTitles = Set(
-            todayPlan.actions
+            (todayPlan.actions ?? [])
                 .filter { $0.carriedOverFrom == priorDate }
                 .map(\.title)
         )
@@ -59,8 +59,8 @@ enum CarryOverService {
                 carriedOverFrom: priorDate
             )
             context.insert(clone)
-            todayPlan.actions.append(clone)
-            todayPlan.actionCount = todayPlan.actions.count
+            clone.plan = todayPlan
+            todayPlan.actionCount = (todayPlan.actions ?? []).count
         }
     }
 }

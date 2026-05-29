@@ -250,7 +250,7 @@ struct MentorView: View {
         isSendingReply = true
         Haptics.light()
 
-        let goals = profile?.goals ?? []
+        let goals = (profile?.goals ?? nil) ?? []
         let snap = snapshot
 
         Task {

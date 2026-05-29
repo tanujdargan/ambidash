@@ -3,10 +3,10 @@ import SwiftData
 
 @Model
 final class Streak {
-    var id: UUID
-    var currentCount: Int
-    var bestCount: Int
-    var lastActiveDate: Date
+    var id: UUID = UUID()
+    var currentCount: Int = 0
+    var bestCount: Int = 0
+    var lastActiveDate: Date = Date()
 
     // F3 — cadence-aware grace (optional/defaulted; additive migration).
     // Number of permitted "off" gaps remaining before a habitual streak resets.

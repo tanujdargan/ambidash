@@ -8,7 +8,7 @@ struct OnboardingCompleteView: View {
     @Query private var profiles: [UserProfile]
 
     private var profile: UserProfile? { profiles.first }
-    private var goalCount: Int { profile?.goals.count ?? 0 }
+    private var goalCount: Int { profile?.goals?.count ?? 0 }
 
     var body: some View {
         let t = tm.resolved

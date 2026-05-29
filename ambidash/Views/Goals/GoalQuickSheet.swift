@@ -12,7 +12,7 @@ struct GoalQuickSheet: View {
     /// The next upcoming (not-yet-completed) checkpoint by end date, for the
     /// compact preview on the Roadmap row.
     private var nextMilestone: Milestone? {
-        goal.milestones
+        (goal.milestones ?? [])
             .filter { !$0.isCompleted }
             .min { $0.endDate < $1.endDate }
     }
@@ -107,7 +107,7 @@ struct GoalQuickSheet: View {
                                 .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(t.faint)
                         } else {
-                            Text(goal.milestones.isEmpty ? "Map this goal" : "\(goal.milestones.count) checkpoints")
+                            Text((goal.milestones ?? []).isEmpty ? "Map this goal" : "\((goal.milestones ?? []).count) checkpoints")
                                 .font(.system(size: 11, design: .monospaced))
                                 .foregroundStyle(t.muted)
                         }

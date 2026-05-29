@@ -13,7 +13,7 @@ struct QuarterlyReviewView: View {
     @Query private var profiles: [UserProfile]
 
     private var profile: UserProfile? { profiles.first }
-    private var goals: [Goal] { profile?.goals.filter(\.isActive) ?? [] }
+    private var goals: [Goal] { profile?.goals?.filter(\.isActive) ?? [] }
 
     /// Label for the quarter containing `now`, e.g. "Q2 2026".
     private var currentQuarterLabel: String {
@@ -177,7 +177,7 @@ struct QuarterlyReviewView: View {
         // this guard, repeated taps pile up identical next-quarter nodes because
         // currentMilestone (which feeds `previous`) only ever returns the
         // window-containing-now node, never the future one we just created.
-        if goal.milestones.contains(where: { $0.period == .quarter && $0.startDate == window.start }) {
+        if (goal.milestones ?? []).contains(where: { $0.period == .quarter && $0.startDate == window.start }) {
             return
         }
 
@@ -190,7 +190,7 @@ struct QuarterlyReviewView: View {
             targetValue: previous?.targetValue,
             currentValue: previous?.targetValue == nil ? nil : 0,
             unit: previous?.unit ?? goal.unit,
-            sortIndex: goal.milestones.count
+            sortIndex: (goal.milestones ?? []).count
         )
         modelContext.insert(milestone)
         milestone.goal = goal

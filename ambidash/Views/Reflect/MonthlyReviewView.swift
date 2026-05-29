@@ -33,7 +33,7 @@ struct MonthlyReviewView: View {
     }
 
     private var skipAnalysis: SkipAnalysisService.AnalysisResult {
-        SkipAnalysisService.analyze(plans: monthPlans, goals: profile?.goals ?? [])
+        SkipAnalysisService.analyze(plans: monthPlans, goals: (profile?.goals ?? nil) ?? [])
     }
 
     var body: some View {
@@ -89,7 +89,7 @@ struct MonthlyReviewView: View {
     @ViewBuilder
     private var planThisMonthSection: some View {
         let t = tm.resolved
-        let goals = profile?.goals.filter(\.isActive) ?? []
+        let goals = profile?.goals?.filter(\.isActive) ?? []
 
         CardView {
             VStack(alignment: .leading, spacing: 14) {
@@ -200,7 +200,7 @@ struct MonthlyReviewView: View {
     @ViewBuilder
     private var overviewSection: some View {
         let t = tm.resolved
-        let totalActions = monthPlans.flatMap(\.actions)
+        let totalActions = monthPlans.flatMap { $0.actions ?? [] }
         let doneCount = totalActions.filter { $0.statusRaw == "done" }.count
         let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
 
@@ -290,7 +290,7 @@ struct MonthlyReviewView: View {
             VStack(alignment: .leading, spacing: 8) {
                 SectionHeader(title: "Goal Trajectory")
 
-                let goals = profile?.goals.filter(\.isActive) ?? []
+                let goals = profile?.goals?.filter(\.isActive) ?? []
                 ForEach(goals) { goal in
                     HStack {
                         Image(systemName: goal.domain.icon)

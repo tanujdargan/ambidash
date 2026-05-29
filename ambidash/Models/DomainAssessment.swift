@@ -3,10 +3,10 @@ import SwiftData
 
 @Model
 final class DomainAssessment {
-    var id: UUID
-    var domainRaw: String
-    var answers: [String: String]
-    var assessedAt: Date
+    var id: UUID = UUID()
+    var domainRaw: String = ""
+    var answers: [String: String] = [:]
+    var assessedAt: Date = Date()
 
     var goal: Goal?
 

@@ -81,10 +81,10 @@ struct HonestMirrorView: View {
         isLoading = true
         defer { isLoading = false }
 
-        let doneCount = plan?.actions.filter { $0.statusRaw == "done" }.count ?? 0
-        let skippedCount = plan?.actions.filter { $0.statusRaw == "skipped" }.count ?? 0
-        let totalCount = plan?.actions.count ?? 0
-        let skippedTitles = plan?.actions.filter { $0.statusRaw == "skipped" }.map(\.title).joined(separator: ", ") ?? ""
+        let doneCount = (plan?.actions ?? []).filter { $0.statusRaw == "done" }.count
+        let skippedCount = (plan?.actions ?? []).filter { $0.statusRaw == "skipped" }.count
+        let totalCount = (plan?.actions ?? []).count
+        let skippedTitles = (plan?.actions ?? []).filter { $0.statusRaw == "skipped" }.map(\.title).joined(separator: ", ")
 
         let prompt = """
         You are the "Honest Mirror" mentor in ambidash. Your job is to reflect reality without sugar-coating.

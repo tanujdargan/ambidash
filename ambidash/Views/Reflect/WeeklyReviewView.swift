@@ -61,7 +61,7 @@ struct WeeklyReviewView: View {
 
                 // Mentor note
                 MentorNote(
-                    text: "You finished what you started on \(weekPlans.filter { plan in plan.actions.allSatisfy { $0.statusRaw == "done" } }.count) of \(weekPlans.count) days. Patterns are more honest than intentions.",
+                    text: "You finished what you started on \(weekPlans.filter { plan in (plan.actions ?? []).allSatisfy { $0.statusRaw == "done" } }.count) of \(weekPlans.count) days. Patterns are more honest than intentions.",
                     signature: "M."
                 )
             }
@@ -84,7 +84,7 @@ struct WeeklyReviewView: View {
     /// editor to maintain. Not premium-gated — committing the week is core.
     @ViewBuilder
     private func planThisWeekSection(_ t: ResolvedTheme) -> some View {
-        let goals = profile?.goals.filter(\.isActive) ?? []
+        let goals = profile?.goals?.filter(\.isActive) ?? []
 
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
@@ -198,7 +198,7 @@ struct WeeklyReviewView: View {
 
     @ViewBuilder
     private func actionChart(_ t: ResolvedTheme) -> some View {
-        let totalActions = weekPlans.flatMap(\.actions)
+        let totalActions = weekPlans.flatMap { $0.actions ?? [] }
         let doneCount = totalActions.filter { $0.statusRaw == "done" }.count
         let skippedCount = totalActions.filter { $0.statusRaw == "skipped" }.count
         let pendingCount = totalActions.count - doneCount - skippedCount
@@ -330,7 +330,7 @@ struct WeeklyReviewView: View {
 
     @ViewBuilder
     private func goalHealthSection(_ t: ResolvedTheme) -> some View {
-        let goals = profile?.goals.filter(\.isActive) ?? []
+        let goals = profile?.goals?.filter(\.isActive) ?? []
 
         VStack(alignment: .leading, spacing: 8) {
             SectionLabel(title: "Goal health")

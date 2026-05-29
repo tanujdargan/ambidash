@@ -41,7 +41,7 @@ enum CompositeHistoryCalculator {
         // Pre-sort each goal's entries once (ascending by day) so the
         // carry-forward lookup per day is a simple scan.
         let entriesByGoal: [(goal: Goal, entries: [(day: Date, score: Int)])] = activeGoals.map { goal in
-            let sorted = goal.progressEntries
+            let sorted = (goal.progressEntries ?? [])
                 .map { (day: calendar.startOfDay(for: $0.date), score: $0.score) }
                 .sorted { $0.day < $1.day }
             return (goal, sorted)

@@ -47,14 +47,14 @@ enum SeedService {
                 } else if template.horizon == .soon {
                     goal.lastProgressDate = Calendar.current.date(byAdding: .day, value: -Int.random(in: 2...7), to: .now)!
                 }
-                profile.goals.append(goal)
+                goal.profile = profile
                 priority += 1
             }
         }
 
         context.insert(profile)
         try? context.save()
-        ErrorLogger.info("Seeded profile with \(profile.goals.count) goals")
+        ErrorLogger.info("Seeded profile with \(profile.goals?.count ?? 0) goals")
     }
 
     /// Maps an F3 type + cadence to a recurrence rule for seeded goals.

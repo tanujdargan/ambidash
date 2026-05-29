@@ -3,18 +3,18 @@ import SwiftData
 
 @Model
 final class IntegrationSnapshot {
-    var id: UUID
-    var date: Date
-    var sleepHours: Double
-    var sleepScore: Int
-    var steps: Int
-    var workoutCount: Int
-    var screenTimeHours: Double
-    var screenCategories: [String: Double]
-    var pickups: Int
-    var calendarFreeMinutes: Int
-    var notionPagesEditedToday: Int
-    var obsidianNotesModifiedToday: Int
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var sleepHours: Double = 0
+    var sleepScore: Int = 0
+    var steps: Int = 0
+    var workoutCount: Int = 0
+    var screenTimeHours: Double = 0
+    var screenCategories: [String: Double] = [:]
+    var pickups: Int = 0
+    var calendarFreeMinutes: Int = 0
+    var notionPagesEditedToday: Int = 0
+    var obsidianNotesModifiedToday: Int = 0
 
     init(date: Date = .now) {
         self.id = UUID()

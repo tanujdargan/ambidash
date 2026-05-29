@@ -25,7 +25,7 @@ struct GoalRoadmapView: View {
     /// Milestones ordered for display: coarse bands first, then by start date,
     /// then by sortIndex — the natural top-to-bottom reading of the chain.
     private var orderedMilestones: [Milestone] {
-        goal.milestones.sorted { a, b in
+        (goal.milestones ?? []).sorted { a, b in
             if a.period != b.period {
                 return periodRank(a.period) < periodRank(b.period)
             }
@@ -45,7 +45,7 @@ struct GoalRoadmapView: View {
 
                     HairlineRule()
 
-                    if goal.milestones.isEmpty {
+                    if (goal.milestones ?? []).isEmpty {
                         emptyState(t)
                     } else {
                         chainTimeline(t)
@@ -277,7 +277,7 @@ struct GoalRoadmapView: View {
 
     private func finishDecompose() {
         // Refresh status across the freshly created chain.
-        for milestone in goal.milestones {
+        for milestone in (goal.milestones ?? []) {
             MilestoneProgressService.refreshStatus(of: milestone)
         }
         try? modelContext.save()

@@ -312,7 +312,7 @@ struct AddGoalView: View {
     private func addGoal() {
         guard let profile else { return }
         Haptics.success()
-        let priority = (profile.goals.count) + 1
+        let priority = (profile.goals?.count ?? 0) + 1
         let goal = Goal(title: title, domain: selectedDomain, priority: priority)
         goal.subtitle = subtitle
         goal.horizon = selectedHorizon
@@ -331,7 +331,8 @@ struct AddGoalView: View {
             goal.unit = unitText.trimmingCharacters(in: .whitespaces)
             goal.direction = selectedDirection
         }
-        profile.goals.append(goal)
+        modelContext.insert(goal)
+        goal.profile = profile
         try? modelContext.save()
 
         let questions = DomainAssessmentQuestions.questions(for: selectedDomain)

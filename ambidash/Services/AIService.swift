@@ -176,7 +176,7 @@ enum AIService {
             var goalEntry = goalContext(goal, includeID: true)
             goalEntry["horizon"] = horizon.rawValue
             goalEntry["subtitle"] = goal.subtitle
-            let existing: [[String: Any]] = goal.milestones
+            let existing: [[String: Any]] = (goal.milestones ?? [])
                 .sorted { $0.startDate < $1.startDate }
                 .map { [
                     "title": $0.title,
@@ -194,7 +194,7 @@ enum AIService {
         let prompt = MentorPromptBuilder.decomposePrompt(
             goal: goal,
             horizon: horizon,
-            existingMilestones: goal.milestones
+            existingMilestones: goal.milestones ?? []
         )
         return try await callAPI(prompt: prompt)
     }

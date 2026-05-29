@@ -24,7 +24,7 @@ enum SkipAnalysisService {
     }
 
     static func analyze(plans: [DailyPlan], goals: [Goal]) -> AnalysisResult {
-        let allActions = plans.flatMap(\.actions)
+        let allActions = plans.flatMap { $0.actions ?? [] }
         guard !allActions.isEmpty else {
             return AnalysisResult(patterns: [], overallSkipRate: 0, mostSkippedDomain: nil, recommendation: "Not enough data yet.", reasonCounts: [], topReason: nil)
         }

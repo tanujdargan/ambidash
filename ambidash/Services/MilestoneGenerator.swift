@@ -156,7 +156,7 @@ enum MilestoneGenerator {
     /// several exist (shouldn't normally), the one with the latest start wins.
     static func currentMilestone(for goal: Goal, period: MilestonePeriod) -> Milestone? {
         let now = Date.now
-        return goal.milestones
+        return (goal.milestones ?? [])
             .filter { $0.period == period && $0.startDate <= now && now <= $0.endDate }
             .max { $0.startDate < $1.startDate }
     }

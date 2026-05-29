@@ -3,12 +3,12 @@ import SwiftData
 
 @Model
 final class PlannedAction {
-    var id: UUID
-    var title: String
-    var whyReasoning: String
-    var timeSlot: String
-    var durationMinutes: Int
-    var statusRaw: String
+    var id: UUID = UUID()
+    var title: String = ""
+    var whyReasoning: String = ""
+    var timeSlot: String = ""
+    var durationMinutes: Int = 0
+    var statusRaw: String = "pending"
     var completedAt: Date?
     var skipReason: String?
     var goalID: UUID?

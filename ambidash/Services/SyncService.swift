@@ -13,11 +13,11 @@ enum SyncService {
         // Push local → cloud
         if let profile {
             await syncProfileToCloud(profile: profile)
-            await syncGoalsToCloud(goals: profile.goals)
+            await syncGoalsToCloud(goals: profile.goals ?? [])
         }
 
         // Pull cloud → local
-        await pullGoalsFromCloud(context: context, localGoals: profile?.goals ?? [])
+        await pullGoalsFromCloud(context: context, localGoals: (profile?.goals ?? nil) ?? [])
 
         ErrorLogger.info("Sync completed")
     }

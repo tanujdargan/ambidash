@@ -52,7 +52,7 @@ struct MorningBriefView: View {
                                 .lineSpacing(4)
                                 .foregroundStyle(t.ink)
 
-                            if let goals = profile?.goals.filter(\.isActive).prefix(3) {
+                            if let goals = profile?.goals?.filter(\.isActive).prefix(3) {
                                 VStack(spacing: 6) {
                                     ForEach(Array(goals), id: \.id) { goal in
                                         let isSelected = selectedAnswer == goal.title

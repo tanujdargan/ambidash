@@ -3,11 +3,11 @@ import SwiftData
 
 @Model
 final class GoalProgress {
-    var id: UUID
-    var date: Date
-    var score: Int
-    var trend7d: Int
-    var statusColorRaw: String
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var score: Int = 0
+    var trend7d: Int = 0
+    var statusColorRaw: String = GoalStatus.onTrack.rawValue
 
     var goal: Goal?
 
