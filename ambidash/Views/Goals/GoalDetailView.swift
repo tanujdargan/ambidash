@@ -5,6 +5,7 @@ struct GoalDetailView: View {
     @Environment(ThemeManager.self) private var tm
     @Environment(\.modelContext) private var modelContext
     @Bindable var goal: Goal
+    @State private var showLogProgress = false
 
     var body: some View {
         let t = tm.resolved
@@ -60,22 +61,51 @@ struct GoalDetailView: View {
                         }
                     }
 
+                    // Measurable target section
+                    if goal.hasTarget {
+                        let unitLabel = goal.unit.isEmpty ? nil : goal.unit
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(alignment: .firstTextBaseline) {
+                                SectionLabel(title: "Measurable target")
+                                Spacer()
+                                VariancePill(variance: TargetMath.variance(goal))
+                            }
+                            TargetProgressBar(goal: goal, maxWidth: .infinity)
+                        }
+
+                        VStack(spacing: 0) {
+                            DataRowView(label: "Baseline", value: MetricFormat.number(goal.baselineValue), unit: unitLabel)
+                            DataRowView(label: "Current", value: MetricFormat.number(goal.currentValue), unit: unitLabel)
+                            DataRowView(label: "Target", value: MetricFormat.number(goal.targetValue), unit: unitLabel)
+                            DataRowView(label: "On pace, need", value: MetricFormat.number(TargetMath.expectedValue(goal)), unit: unitLabel)
+                            DataRowView(label: "Complete", value: "\(Int((goal.percentComplete * 100).rounded()))", unit: "%")
+                            DataRowView(label: "Pace", value: varianceLabel(TargetMath.variance(goal)))
+                        }
+                    }
+
                     // Progress trend
-                    let scores = GoalProgressTracker.recentScores(for: goal, days: 14)
-                    if scores.count > 1 {
+                    let trendValues: [Double] = goal.hasTarget
+                        ? TargetMath.recentValues(for: goal, days: 14)
+                        : GoalProgressTracker.recentScores(for: goal, days: 14).map { Double($0) }
+                    if trendValues.count > 1 {
                         VStack(alignment: .leading, spacing: 8) {
-                            SectionLabel(title: "14-day trend")
-                            SparklineView(values: scores.map { Double($0) }, width: 280, height: 40)
+                            SectionLabel(title: goal.hasTarget ? "14-day logged values" : "14-day trend")
+                            SparklineView(values: trendValues, width: 280, height: 40)
                         }
                     }
 
                     // Actions
                     VStack(spacing: 10) {
                         PrimaryButton(label: "Log progress") {
-                            Haptics.success()
-                            goal.lastProgressDate = .now
-                            goal.streak?.recordActivity()
-                            try? modelContext.save()
+                            if goal.hasTarget {
+                                Haptics.light()
+                                showLogProgress = true
+                            } else {
+                                Haptics.success()
+                                goal.lastProgressDate = .now
+                                goal.streak?.recordActivity()
+                                try? modelContext.save()
+                            }
                         }
 
                         HStack(spacing: 10) {
@@ -128,5 +158,16 @@ struct GoalDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showLogProgress) {
+            LogProgressSheet(goal: goal)
+        }
+    }
+
+    private func varianceLabel(_ variance: TargetVariance) -> String {
+        switch variance {
+        case .ahead: return "Ahead"
+        case .onTrack: return "On pace"
+        case .behind: return "Behind"
+        }
     }
 }

@@ -13,6 +13,13 @@ struct AddGoalView: View {
     @State private var selectedHorizon: GoalHorizon = .now
     @State private var newGoal: Goal?
 
+    // F2 — measurable target (collapsed by default; flow unchanged for non-numeric goals)
+    @State private var metricEnabled = false
+    @State private var baselineText = ""
+    @State private var targetText = ""
+    @State private var unitText = ""
+    @State private var selectedDirection: MetricDirection = .increase
+
     private var profile: UserProfile? { profiles.first }
 
     var body: some View {
@@ -114,6 +121,85 @@ struct AddGoalView: View {
                                 }
                             }
                         }
+
+                        // Measurable target (optional, collapsible)
+                        VStack(alignment: .leading, spacing: 14) {
+                            Toggle(isOn: $metricEnabled.animation(.easeInOut(duration: 0.2))) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    SectionLabel(title: "Measurable target")
+                                    Text("Watch a number move toward a goal")
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .foregroundStyle(t.faint)
+                                }
+                            }
+                            .tint(t.accent)
+                            .onChange(of: metricEnabled) { _, _ in Haptics.selection() }
+
+                            if metricEnabled {
+                                // Baseline + target
+                                HStack(spacing: 14) {
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        SectionLabel(title: "Baseline")
+                                        TextField("0", text: $baselineText)
+                                            .keyboardType(.decimalPad)
+                                            .font(.system(size: 16, design: .monospaced))
+                                            .monospacedDigit()
+                                            .foregroundStyle(t.ink)
+                                        t.rule.frame(height: 1)
+                                    }
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        SectionLabel(title: "Target")
+                                        TextField("0", text: $targetText)
+                                            .keyboardType(.decimalPad)
+                                            .font(.system(size: 16, design: .monospaced))
+                                            .monospacedDigit()
+                                            .foregroundStyle(t.ink)
+                                        t.rule.frame(height: 1)
+                                    }
+                                }
+
+                                // Unit
+                                VStack(alignment: .leading, spacing: 6) {
+                                    SectionLabel(title: "Unit (optional)")
+                                    TextField("e.g. lbs · pages · $", text: $unitText)
+                                        .font(.system(size: 14, design: .monospaced))
+                                        .foregroundStyle(t.ink2)
+                                    t.rule.frame(height: 1)
+                                }
+
+                                // Direction picker (mirrors the horizon dot-button row)
+                                VStack(alignment: .leading, spacing: 10) {
+                                    SectionLabel(title: "Direction")
+                                    HStack(spacing: 8) {
+                                        ForEach(MetricDirection.allCases) { direction in
+                                            let isSelected = selectedDirection == direction
+                                            Button {
+                                                Haptics.selection()
+                                                selectedDirection = direction
+                                            } label: {
+                                                VStack(spacing: 4) {
+                                                    Image(systemName: direction.icon)
+                                                        .font(.system(size: 13))
+                                                        .foregroundStyle(isSelected ? t.ink : t.muted)
+                                                    Text(direction.displayName)
+                                                        .font(.system(size: 11, weight: isSelected ? .medium : .regular))
+                                                        .foregroundStyle(isSelected ? t.ink : t.muted)
+                                                }
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 10)
+                                                .background(isSelected ? t.ink.opacity(0.08) : .clear)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .stroke(isSelected ? t.ink : t.hair, lineWidth: isSelected ? 1 : 0.5)
+                                                )
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     .padding(.horizontal, 22)
                     .padding(.top, 16)
@@ -149,6 +235,17 @@ struct AddGoalView: View {
         goal.subtitle = subtitle
         goal.horizon = selectedHorizon
         goal.streak = Streak()
+
+        if metricEnabled {
+            let baseline = Double(baselineText.trimmingCharacters(in: .whitespaces)) ?? 0
+            let target = Double(targetText.trimmingCharacters(in: .whitespaces)) ?? 0
+            goal.metricEnabled = true
+            goal.baselineValue = baseline
+            goal.targetValue = target
+            goal.currentValue = baseline
+            goal.unit = unitText.trimmingCharacters(in: .whitespaces)
+            goal.direction = selectedDirection
+        }
         profile.goals.append(goal)
         try? modelContext.save()
 

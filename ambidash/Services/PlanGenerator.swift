@@ -5,6 +5,7 @@ enum PlanGenerator {
     struct ActionTemplate {
         let title: String
         let goalTitle: String
+        let goalID: UUID
         let domain: GoalDomain
         let durationMinutes: Int
         let why: String
@@ -66,7 +67,7 @@ enum PlanGenerator {
             let temps = domainTemplates[goal.domain] ?? []
             guard let t = temps.first(where: { $0.1 <= remainingMinutes && !usedKeys.contains("\(goal.title)-\($0.0)") }) else { continue }
 
-            result.append(ActionTemplate(title: t.0, goalTitle: goal.title, domain: goal.domain, durationMinutes: t.1, why: t.2))
+            result.append(ActionTemplate(title: t.0, goalTitle: goal.title, goalID: goal.id, domain: goal.domain, durationMinutes: t.1, why: t.2))
             remainingMinutes -= t.1
             usedKeys.insert("\(goal.title)-\(t.0)")
         }
@@ -77,7 +78,7 @@ enum PlanGenerator {
                 for t in temps {
                     let key = "\(goal.title)-\(t.0)"
                     if !usedKeys.contains(key) && t.1 <= remainingMinutes && result.count < maxActions {
-                        result.append(ActionTemplate(title: t.0, goalTitle: goal.title, domain: goal.domain, durationMinutes: t.1, why: t.2))
+                        result.append(ActionTemplate(title: t.0, goalTitle: goal.title, goalID: goal.id, domain: goal.domain, durationMinutes: t.1, why: t.2))
                         remainingMinutes -= t.1
                         usedKeys.insert(key)
                         break

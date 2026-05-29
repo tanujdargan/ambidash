@@ -400,7 +400,7 @@ struct TodayView: View {
             plan.actionCount = templates.count
             let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
             for (i, tmpl) in templates.enumerated() {
-                let action = PlannedAction(title: tmpl.title, why: tmpl.why, timeSlot: i < timeSlots.count ? timeSlots[i] : "", duration: tmpl.durationMinutes)
+                let action = PlannedAction(title: tmpl.title, why: tmpl.why, timeSlot: i < timeSlots.count ? timeSlots[i] : "", duration: tmpl.durationMinutes, goalID: tmpl.goalID, goalTitleSnapshot: tmpl.goalTitle)
                 plan.actions.append(action)
             }
             modelContext.insert(plan)
@@ -417,12 +417,35 @@ struct TodayView: View {
             guard let data = jsonText.data(using: .utf8),
                   let actions = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return nil }
             let plan = DailyPlan(date: .now, format: format)
+            let goalIDs = Set(goals.map { $0.id })
             for dict in actions.prefix(maxActions) {
+                var resolvedGoalID: UUID? = nil
+                if let goalIDStr = dict["goal_id"] as? String,
+                   let parsed = UUID(uuidString: goalIDStr),
+                   goalIDs.contains(parsed) {
+                    resolvedGoalID = parsed
+                }
+                let resolvedGoal = resolvedGoalID.flatMap { gid in
+                    goals.first { $0.id == gid }
+                }
+                // Capture the measurable increment only when the goal has a
+                // target; the model is instructed to omit "amount" otherwise.
+                var loggedAmount: Double? = nil
+                if let goal = resolvedGoal, goal.hasTarget {
+                    if let amount = dict["amount"] as? Double {
+                        loggedAmount = amount
+                    } else if let amount = dict["amount"] as? Int {
+                        loggedAmount = Double(amount)
+                    }
+                }
                 let action = PlannedAction(
                     title: dict["title"] as? String ?? "",
                     why: dict["why"] as? String ?? "",
                     timeSlot: dict["time_slot"] as? String ?? "",
-                    duration: dict["duration_minutes"] as? Int ?? 30
+                    duration: dict["duration_minutes"] as? Int ?? 30,
+                    goalID: resolvedGoalID,
+                    goalTitleSnapshot: resolvedGoal?.title,
+                    loggedAmount: loggedAmount
                 )
                 plan.actions.append(action)
             }
@@ -433,12 +456,32 @@ struct TodayView: View {
 
     private func handleDone(_ action: PlannedAction) {
         let goals = profile?.goals ?? []
-        for goal in goals {
-            let temps = PlanGenerator.templates(for: goal.domain)
-            if temps.contains(where: { $0.0 == action.title }) {
-                goal.lastProgressDate = .now
-                goal.streak?.recordActivity()
-                break
+        if let goalID = action.goalID {
+            if let goal = goals.first(where: { $0.id == goalID }) {
+                // For measurable goals, move the number: record() creates a
+                // ProgressLog, updates currentValue, bumps lastProgressDate and
+                // the streak, and fires regression/pace logic.
+                if goal.hasTarget, let amount = action.loggedAmount, amount != 0 {
+                    ProgressLogService.record(
+                        goal: goal,
+                        amount: amount,
+                        source: .action,
+                        note: action.title,
+                        context: modelContext
+                    )
+                } else {
+                    goal.lastProgressDate = .now
+                    goal.streak?.recordActivity()
+                }
+            }
+        } else {
+            for goal in goals {
+                let temps = PlanGenerator.templates(for: goal.domain)
+                if temps.contains(where: { $0.0 == action.title }) {
+                    goal.lastProgressDate = .now
+                    goal.streak?.recordActivity()
+                    break
+                }
             }
         }
         try? modelContext.save()

@@ -14,10 +14,19 @@ final class Goal {
     var horizonRaw: String
     var subtitle: String
 
+    // F2 — measurable target layer (all optional/defaulted; additive migration)
+    var metricEnabled: Bool = false
+    var unit: String = ""
+    var baselineValue: Double = 0
+    var targetValue: Double = 0
+    var currentValue: Double = 0
+    var directionRaw: String = MetricDirection.increase.rawValue
+
     var profile: UserProfile?
     @Relationship(deleteRule: .cascade) var domainAssessment: DomainAssessment?
     @Relationship(deleteRule: .cascade) var progressEntries: [GoalProgress]
     @Relationship(deleteRule: .cascade) var streak: Streak?
+    @Relationship(deleteRule: .cascade) var progressLogs: [ProgressLog] = []
 
     init(title: String, domain: GoalDomain, priority: Int) {
         self.id = UUID()
@@ -57,5 +66,27 @@ final class Goal {
         if days <= 3 { return .onTrack }
         if days <= 7 { return .needsAttention }
         return .slipping
+    }
+
+    // F2 — measurable target accessors
+    var direction: MetricDirection {
+        get { MetricDirection(rawValue: directionRaw) ?? .increase }
+        set { directionRaw = newValue.rawValue }
+    }
+
+    var hasTarget: Bool {
+        metricEnabled && targetValue != baselineValue
+    }
+
+    var percentComplete: Double {
+        guard metricEnabled, targetValue != baselineValue else { return 0 }
+        let fraction: Double
+        switch direction {
+        case .increase:
+            fraction = (currentValue - baselineValue) / (targetValue - baselineValue)
+        case .decrease:
+            fraction = (baselineValue - currentValue) / (baselineValue - targetValue)
+        }
+        return min(max(fraction, 0), 1)
     }
 }

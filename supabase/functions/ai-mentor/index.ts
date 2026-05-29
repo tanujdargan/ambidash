@@ -5,14 +5,44 @@ const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 const MAX_TOKENS = 1024;
 
+interface MentorGoal {
+  id: string;
+  title: string;
+  domain: string;
+  neglect_days: number;
+  streak: number;
+  // F2 — measurable target layer (present only when the goal has a target)
+  target_value?: number;
+  current_value?: number;
+  baseline_value?: number;
+  unit?: string;
+  direction?: string;
+  percent_complete?: number;
+  variance_state?: string; // "ahead" | "on_pace" | "behind"
+  expected_value?: number;
+}
+
 interface MentorRequest {
   action: "insight" | "plan" | "mirror";
   context: {
-    goals?: Array<{ title: string; domain: string; neglect_days: number; streak: number }>;
+    goals?: Array<MentorGoal>;
     snapshot?: { sleep_hours: number; steps: number; screen_time_hours: number };
     profile?: { name: string; age: number; peak_energy: string; cognitive_style: string };
     reflection?: { mood: string; blockers: string[]; text: string };
   };
+}
+
+/// Renders the F2 measurable/variance descriptor for a goal, or "" if no target.
+function measurableLine(g: MentorGoal): string {
+  if (g.target_value === undefined || g.current_value === undefined) return "";
+  const unit = g.unit ? ` ${g.unit}` : "";
+  const pct = g.percent_complete ?? 0;
+  const dir = g.direction === "decrease" ? "decreasing" : "increasing";
+  let pace = "on pace";
+  if (g.variance_state === "behind") pace = "BEHIND pace";
+  else if (g.variance_state === "ahead") pace = "ahead of pace";
+  const expected = g.expected_value !== undefined ? `, on-pace value today: ${g.expected_value}${unit}` : "";
+  return ` · measurable: ${g.current_value}/${g.target_value}${unit} (${pct}%, ${dir}), ${pace}${expected}`;
 }
 
 Deno.serve(async (req) => {
@@ -96,25 +126,27 @@ function buildPrompt(body: MentorRequest): string {
     if (context.goals?.length) {
       prompt += "GOALS:\n";
       for (const g of context.goals) {
-        prompt += `- ${g.title} (${g.domain}): ${g.neglect_days} days since progress, ${g.streak}d streak\n`;
+        prompt += `- ${g.title} (${g.domain}): ${g.neglect_days} days since progress, ${g.streak}d streak${measurableLine(g)}\n`;
       }
     }
     if (context.snapshot) {
       prompt += `\nTODAY: Sleep ${context.snapshot.sleep_hours}h, ${context.snapshot.steps} steps, ${context.snapshot.screen_time_hours}h screen\n`;
     }
-    prompt += "\nGive ONE specific, actionable insight (2-3 sentences). Connect data points. Be direct.";
+    prompt += "\nGive ONE specific, actionable insight (2-3 sentences). Connect data points. For goals with a measurable target, watch the number: if a goal is BEHIND pace, name the gap and what would close it. Be direct.";
   } else if (action === "plan") {
-    prompt = "Generate a daily action plan as a JSON array. Each item: {title, why, duration_minutes, time_slot}.\n\n";
+    prompt = "Generate a daily action plan as a JSON array. Each item: {title, why, duration_minutes, time_slot, goal_id, amount, metric}.\n";
+    prompt += "Every action MUST set goal_id to exactly one id from the GOALS list. Do not invent ids.\n";
+    prompt += "For goals with a measurable target, size the action to move the number: set \"amount\" to the increment this action should add (in the goal's unit) and \"metric\" to that unit; omit both for goals without a target.\n\n";
     if (context.profile) {
       prompt += `USER: ${context.profile.name}, age ${context.profile.age}, peak energy: ${context.profile.peak_energy}\n`;
     }
     if (context.goals?.length) {
       prompt += "GOALS (by neglect):\n";
       for (const g of context.goals.sort((a, b) => b.neglect_days - a.neglect_days)) {
-        prompt += `- ${g.title}: ${g.neglect_days}d neglected\n`;
+        prompt += `- [id: ${g.id}] ${g.title}: ${g.neglect_days}d neglected${measurableLine(g)}\n`;
       }
     }
-    prompt += "\nCreate 4-6 actions. Prioritize neglected goals. Respond with ONLY the JSON array.";
+    prompt += "\nCreate 4-6 actions. Prioritize goals that are BEHIND pace toward their target, then neglected goals. Respond with ONLY the JSON array.";
   } else if (action === "mirror") {
     prompt = "You are the Honest Mirror mentor. Reflect reality without sugar-coating.\n\n";
     if (context.reflection) {

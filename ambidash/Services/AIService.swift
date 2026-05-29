@@ -30,14 +30,40 @@ enum AIService {
         case apiError(String)
     }
 
+    /// Per-goal context entry including the F2 measurable-target keys when the
+    /// goal has a target. Non-target goals get only the base keys.
+    private static func goalContext(_ goal: Goal, includeID: Bool) -> [String: Any] {
+        var entry: [String: Any] = [
+            "title": goal.title, "domain": goal.domainRaw,
+            "neglect_days": goal.neglectDays, "streak": goal.streak?.currentCount ?? 0
+        ]
+        if includeID {
+            entry["id"] = goal.id.uuidString
+        }
+        if goal.hasTarget {
+            let variance: String
+            switch TargetMath.variance(goal) {
+            case .ahead: variance = "ahead"
+            case .onTrack: variance = "on_pace"
+            case .behind: variance = "behind"
+            }
+            entry["target_value"] = goal.targetValue
+            entry["current_value"] = goal.currentValue
+            entry["baseline_value"] = goal.baselineValue
+            entry["unit"] = goal.unit
+            entry["direction"] = goal.directionRaw
+            entry["percent_complete"] = Int((goal.percentComplete * 100).rounded())
+            entry["variance_state"] = variance
+            entry["expected_value"] = TargetMath.expectedValue(goal)
+        }
+        return entry
+    }
+
     static func generateInsight(goals: [Goal], snapshot: IntegrationSnapshot?, streakSummary: String) async throws -> String {
         // Try edge function first (API key stays server-side)
         if SupabaseService.shared.isAuthenticated {
             let context: [String: Any] = [
-                "goals": goals.map { [
-                    "title": $0.title, "domain": $0.domainRaw,
-                    "neglect_days": $0.neglectDays, "streak": $0.streak?.currentCount ?? 0
-                ] },
+                "goals": goals.map { goalContext($0, includeID: false) },
                 "snapshot": snapshot.map { [
                     "sleep_hours": $0.sleepHours, "steps": $0.steps,
                     "screen_time_hours": $0.screenTimeHours
@@ -56,10 +82,7 @@ enum AIService {
         // Try edge function first
         if SupabaseService.shared.isAuthenticated {
             let context: [String: Any] = [
-                "goals": goals.map { [
-                    "title": $0.title, "domain": $0.domainRaw,
-                    "neglect_days": $0.neglectDays, "streak": $0.streak?.currentCount ?? 0
-                ] },
+                "goals": goals.map { goalContext($0, includeID: true) },
                 "profile": profile.map { [
                     "name": $0.name, "age": $0.age,
                     "peak_energy": $0.coreAssessment?.peakEnergyTime ?? "",

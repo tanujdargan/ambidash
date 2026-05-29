@@ -29,19 +29,31 @@ enum SkipAnalysisService {
 
         var domainSkips: [GoalDomain: (total: Int, skipped: Int, timeSlots: [String])] = [:]
 
+        let goalMap: [UUID: Goal] = goals.reduce(into: [:]) { $0[$1.id] = $1 }
+
         for action in allActions {
-            for goal in goals {
-                let temps = PlanGenerator.templates(for: goal.domain)
-                if temps.contains(where: { $0.0 == action.title }) {
-                    var entry = domainSkips[goal.domain] ?? (total: 0, skipped: 0, timeSlots: [])
-                    entry.total += 1
-                    if action.statusRaw == "skipped" {
-                        entry.skipped += 1
-                        entry.timeSlots.append(action.timeSlot)
+            // Resolve to a goal by lineage (goalID) first; fall back to title-match.
+            var resolvedDomain: GoalDomain? = nil
+            if let goalID = action.goalID, let goal = goalMap[goalID] {
+                resolvedDomain = goal.domain
+            } else {
+                for goal in goals {
+                    let temps = PlanGenerator.templates(for: goal.domain)
+                    if temps.contains(where: { $0.0 == action.title }) {
+                        resolvedDomain = goal.domain
+                        break
                     }
-                    domainSkips[goal.domain] = entry
-                    break
                 }
+            }
+
+            if let domain = resolvedDomain {
+                var entry = domainSkips[domain] ?? (total: 0, skipped: 0, timeSlots: [])
+                entry.total += 1
+                if action.statusRaw == "skipped" {
+                    entry.skipped += 1
+                    entry.timeSlots.append(action.timeSlot)
+                }
+                domainSkips[domain] = entry
             }
         }
 

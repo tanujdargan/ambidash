@@ -10,11 +10,22 @@ enum GoalProgressTracker {
         guard existing == nil else { return }
 
         let score: Int
-        switch goal.computedStatus {
-        case .onTrack: score = 90
-        case .needsAttention: score = 55
-        case .slipping: score = 25
-        case .paused: score = 0
+        let statusColor: GoalStatus
+        if goal.hasTarget {
+            score = Int((goal.percentComplete * 100).rounded())
+            switch TargetMath.variance(goal) {
+            case .ahead: statusColor = .onTrack
+            case .onTrack: statusColor = .needsAttention
+            case .behind: statusColor = .slipping
+            }
+        } else {
+            switch goal.computedStatus {
+            case .onTrack: score = 90
+            case .needsAttention: score = 55
+            case .slipping: score = 25
+            case .paused: score = 0
+            }
+            statusColor = goal.computedStatus
         }
 
         let prior7 = goal.progressEntries
@@ -23,7 +34,7 @@ enum GoalProgressTracker {
         let avg7 = prior7.isEmpty ? score : prior7.reduce(0, +) / prior7.count
         let trend = score - avg7
 
-        let entry = GoalProgress(score: score, trend7d: trend, statusColor: goal.computedStatus)
+        let entry = GoalProgress(score: score, trend7d: trend, statusColor: statusColor)
         goal.progressEntries.append(entry)
     }
 

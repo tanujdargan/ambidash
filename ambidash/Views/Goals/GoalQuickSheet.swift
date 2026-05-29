@@ -6,6 +6,7 @@ struct GoalQuickSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Bindable var goal: Goal
+    @State private var showLogProgress = false
 
     var body: some View {
         let t = tm.resolved
@@ -49,19 +50,38 @@ struct GoalQuickSheet: View {
                 if let streak = goal.streak, streak.currentCount > 0 {
                     DataRowView(label: "Streak", value: "\(streak.currentCount)", unit: "days")
                 }
+                if goal.hasTarget {
+                    DataRowView(
+                        label: "Progress",
+                        value: "\(MetricFormat.number(goal.currentValue)) / \(MetricFormat.number(goal.targetValue))",
+                        unit: goal.unit.isEmpty ? nil : goal.unit
+                    )
+                }
             }
             .padding(.horizontal, 22)
             .padding(.top, 16)
             .fadeSlideIn(delay: 0.1)
 
+            if goal.hasTarget {
+                TargetProgressBar(goal: goal, maxWidth: .infinity)
+                    .padding(.horizontal, 22)
+                    .padding(.top, 12)
+                    .fadeSlideIn(delay: 0.15)
+            }
+
             // Actions
             VStack(spacing: 10) {
                 PrimaryButton(label: "Log progress") {
-                    Haptics.success()
-                    goal.lastProgressDate = .now
-                    goal.streak?.recordActivity()
-                    try? modelContext.save()
-                    dismiss()
+                    if goal.hasTarget {
+                        Haptics.light()
+                        showLogProgress = true
+                    } else {
+                        Haptics.success()
+                        goal.lastProgressDate = .now
+                        goal.streak?.recordActivity()
+                        try? modelContext.save()
+                        dismiss()
+                    }
                 }
 
                 HStack(spacing: 10) {
@@ -96,5 +116,8 @@ struct GoalQuickSheet: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
+        .sheet(isPresented: $showLogProgress) {
+            LogProgressSheet(goal: goal)
+        }
     }
 }

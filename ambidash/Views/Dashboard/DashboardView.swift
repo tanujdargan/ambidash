@@ -11,6 +11,7 @@ struct DashboardView: View {
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query(filter: #Predicate<Goal> { $0.isActive }, sort: \Goal.priority) private var activeGoals: [Goal]
     @State private var showSettings = false
+    @State private var showLifeMap = false
 
     private var profile: UserProfile? { profiles.first }
     private var todaySnapshot: IntegrationSnapshot? { snapshots.first }
@@ -43,7 +44,7 @@ struct DashboardView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
                         // 1. Header (date + serif subtitle + settings gear)
-                        HStack(alignment: .top) {
+                        HStack(alignment: .top, spacing: 12) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)).uppercased())
                                     .font(.system(size: 10, weight: .medium, design: .monospaced))
@@ -56,6 +57,12 @@ struct DashboardView: View {
                                     .foregroundStyle(t.ink)
                             }
                             Spacer()
+                            Button { showLifeMap = true } label: {
+                                Image(systemName: "tablecells")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(t.muted)
+                            }
+                            .accessibilityLabel("Life map")
                             Button { showSettings = true } label: {
                                 Image(systemName: "gearshape")
                                     .font(.system(size: 16))
@@ -124,6 +131,11 @@ struct DashboardView: View {
                 }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .fullScreenCover(isPresented: $showLifeMap) {
+                LifeMapView()
+                    .environment(tm)
+                    .environment(\.modelContext, modelContext)
+            }
             .task {
                 SeedService.seedIfNeeded(context: modelContext)
                 await manager.requestAllPermissions()

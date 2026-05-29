@@ -343,6 +343,115 @@ struct SparklineView: View {
     }
 }
 
+// MARK: - Metric Value Formatting
+
+enum MetricFormat {
+    /// Compact number: integer when whole, one decimal otherwise.
+    static func number(_ value: Double) -> String {
+        value == value.rounded()
+            ? String(Int(value))
+            : String(format: "%.1f", value)
+    }
+
+    /// Number with an optional trailing unit, e.g. "12 lbs" or "60".
+    static func value(_ value: Double, unit: String) -> String {
+        let n = number(value)
+        return unit.isEmpty ? n : "\(n) \(unit)"
+    }
+}
+
+// MARK: - Target Progress Bar (measurable goals)
+
+/// A thin track + fill at `percentComplete` width with a small vertical tick at
+/// the expected pace fraction (where the goal should be today) and a mono caption
+/// like "12 / 20 lbs · 60%". Mirrors GoalListView.goalRow's 2pt bar styling.
+struct TargetProgressBar: View {
+    @Environment(ThemeManager.self) private var tm
+    let goal: Goal
+    var maxWidth: CGFloat = 200
+    var showCaption: Bool = true
+
+    var body: some View {
+        let t = tm.resolved
+        let percent = goal.percentComplete
+        let pace = TargetMath.expectedPaceFraction(goal)
+        let variance = TargetMath.variance(goal)
+        let fillColor: Color = {
+            switch variance {
+            case .ahead: return t.ok
+            case .onTrack: return t.ink
+            case .behind: return t.danger
+            }
+        }()
+
+        VStack(alignment: .leading, spacing: 5) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 1).fill(t.hair)
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(fillColor)
+                        .frame(width: max(2, geo.size.width * percent))
+                    // Pace tick: where the goal should be today.
+                    Rectangle()
+                        .fill(t.muted)
+                        .frame(width: 1.5, height: 6)
+                        .offset(x: geo.size.width * pace - 0.75, y: 0)
+                }
+            }
+            .frame(height: 6)
+            .frame(maxWidth: maxWidth, alignment: .leading)
+
+            if showCaption {
+                Text(captionText)
+                    .font(.system(size: 10, design: .monospaced))
+                    .monospacedDigit()
+                    .foregroundStyle(t.muted)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(MetricFormat.value(goal.currentValue, unit: goal.unit)) of \(MetricFormat.value(goal.targetValue, unit: goal.unit)), \(Int((percent * 100).rounded())) percent")
+    }
+
+    private var captionText: String {
+        let cur = MetricFormat.number(goal.currentValue)
+        let tgt = MetricFormat.number(goal.targetValue)
+        let unitPart = goal.unit.isEmpty ? "" : " \(goal.unit)"
+        let pct = Int((goal.percentComplete * 100).rounded())
+        return "\(cur) / \(tgt)\(unitPart) · \(pct)%"
+    }
+}
+
+// MARK: - Variance Pill
+
+/// A small pill describing pace state, colored via theme danger/muted/ok.
+struct VariancePill: View {
+    @Environment(ThemeManager.self) private var tm
+    let variance: TargetVariance
+
+    var body: some View {
+        let t = tm.resolved
+        let color: Color
+        let label: String
+        switch variance {
+        case .ahead:
+            color = t.ok; label = "Ahead of pace"
+        case .onTrack:
+            color = t.muted; label = "On pace"
+        case .behind:
+            color = t.danger; label = "Behind pace"
+        }
+        return Text(label.uppercased())
+            .font(.system(size: 9, weight: .medium, design: .monospaced))
+            .tracking(1.2)
+            .foregroundStyle(color)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(color.opacity(0.1))
+            .clipShape(Capsule())
+            .overlay(Capsule().stroke(color.opacity(0.3), lineWidth: 0.5))
+    }
+}
+
 // MARK: - Status Dot (kept for compatibility)
 
 struct StatusDot: View {
