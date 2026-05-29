@@ -4,7 +4,6 @@ import AuthenticationServices
 struct AuthView: View {
     @Environment(ThemeManager.self) private var tm
     @State private var supabase = SupabaseService.shared
-    @State private var showOnboarding = false
 
     var body: some View {
         let t = tm.resolved
@@ -62,12 +61,6 @@ struct AuthView: View {
                     .padding(.bottom, 32)
                     .fadeSlideIn(delay: 0.5)
             }
-        }
-        .onChange(of: supabase.isAuthenticated) { _, isAuth in
-            if isAuth { showOnboarding = true }
-        }
-        .fullScreenCover(isPresented: $showOnboarding) {
-            ThemeSetupView()
         }
     }
 
