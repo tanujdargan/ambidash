@@ -6,6 +6,16 @@ struct GoalQuickSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Bindable var goal: Goal
+    @State private var showLogProgress = false
+    @State private var showRoadmap = false
+
+    /// The next upcoming (not-yet-completed) checkpoint by end date, for the
+    /// compact preview on the Roadmap row.
+    private var nextMilestone: Milestone? {
+        goal.milestones
+            .filter { !$0.isCompleted }
+            .min { $0.endDate < $1.endDate }
+    }
 
     var body: some View {
         let t = tm.resolved
@@ -26,6 +36,7 @@ struct GoalQuickSheet: View {
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
                         .tracking(1.2)
                         .foregroundStyle(t.muted)
+                    GoalTypeChip(type: goal.goalType, theme: t)
                 }
 
                 Text(goal.title)
@@ -45,23 +56,84 @@ struct GoalQuickSheet: View {
             // Stats
             VStack(spacing: 0) {
                 DataRowView(label: "Health", value: goal.computedStatus.label)
-                DataRowView(label: "Neglect", value: "\(goal.neglectDays)", unit: "days")
+                if goal.isHabitual {
+                    DataRowView(label: "Adherence", value: AdherenceFormat.fraction(for: goal))
+                } else {
+                    DataRowView(label: "Neglect", value: "\(goal.neglectDays)", unit: "days")
+                }
                 if let streak = goal.streak, streak.currentCount > 0 {
                     DataRowView(label: "Streak", value: "\(streak.currentCount)", unit: "days")
+                }
+                if goal.hasTarget {
+                    DataRowView(
+                        label: "Progress",
+                        value: "\(MetricFormat.number(goal.currentValue)) / \(MetricFormat.number(goal.targetValue))",
+                        unit: goal.unit.isEmpty ? nil : goal.unit
+                    )
                 }
             }
             .padding(.horizontal, 22)
             .padding(.top, 16)
             .fadeSlideIn(delay: 0.1)
 
+            if goal.hasTarget {
+                TargetProgressBar(goal: goal, maxWidth: .infinity)
+                    .padding(.horizontal, 22)
+                    .padding(.top, 12)
+                    .fadeSlideIn(delay: 0.15)
+            } else if goal.isHabitual {
+                AdherenceBar(goal: goal, maxWidth: .infinity)
+                    .padding(.horizontal, 22)
+                    .padding(.top, 12)
+                    .fadeSlideIn(delay: 0.15)
+            }
+
+            // Roadmap entry + next-checkpoint preview
+            VStack(alignment: .leading, spacing: 10) {
+                Button {
+                    Haptics.selection()
+                    showRoadmap = true
+                } label: {
+                    HStack(spacing: 8) {
+                        SectionLabel(title: "Roadmap")
+                        Spacer()
+                        if let next = nextMilestone {
+                            StatusDot(status: next.status)
+                            Text(next.title)
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(t.muted)
+                                .lineLimit(1)
+                            Text(next.endDate.formatted(.dateTime.month(.abbreviated).day()))
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundStyle(t.faint)
+                        } else {
+                            Text(goal.milestones.isEmpty ? "Map this goal" : "\(goal.milestones.count) checkpoints")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundStyle(t.muted)
+                        }
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(t.faint)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 18)
+            .fadeSlideIn(delay: 0.18)
+
             // Actions
             VStack(spacing: 10) {
-                PrimaryButton(label: "Log progress") {
-                    Haptics.success()
-                    goal.lastProgressDate = .now
-                    goal.streak?.recordActivity()
-                    try? modelContext.save()
-                    dismiss()
+                PrimaryButton(label: logButtonLabel) {
+                    if goal.hasTarget {
+                        Haptics.light()
+                        showLogProgress = true
+                    } else {
+                        Haptics.success()
+                        logCheckIn()
+                        dismiss()
+                    }
                 }
 
                 HStack(spacing: 10) {
@@ -96,5 +168,25 @@ struct GoalQuickSheet: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
+        .sheet(isPresented: $showLogProgress) {
+            LogProgressSheet(goal: goal)
+        }
+        .sheet(isPresented: $showRoadmap) {
+            NavigationStack {
+                GoalRoadmapView(goal: goal)
+            }
+        }
+    }
+
+    private var logButtonLabel: String {
+        goal.isHabitual ? "Log today" : "Log progress"
+    }
+
+    /// Records a non-measurable check-in: marks today as touched, advances the
+    /// streak (cadence-aware for habitual goals), and writes a zero-amount log so
+    /// weekly adherence reflects the touch.
+    private func logCheckIn() {
+        ProgressLogService.logCheckIn(goal: goal, source: .manual, context: modelContext)
+        try? modelContext.save()
     }
 }

@@ -11,6 +11,7 @@ struct DashboardView: View {
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query(filter: #Predicate<Goal> { $0.isActive }, sort: \Goal.priority) private var activeGoals: [Goal]
     @State private var showSettings = false
+    @State private var showLifeMap = false
 
     private var profile: UserProfile? { profiles.first }
     private var todaySnapshot: IntegrationSnapshot? { snapshots.first }
@@ -34,6 +35,16 @@ struct DashboardView: View {
         plans.first { Calendar.current.isDateInToday($0.date) }
     }
 
+    /// Real 14-day composite history aggregated from persisted GoalProgress,
+    /// terminating at the live composite. Replaces the former hardcoded mock.
+    private var compositeHistory: [Double] {
+        CompositeHistoryCalculator.dailyComposite(
+            from: goals,
+            days: 14,
+            todayComposite: compositeScore
+        )
+    }
+
     var body: some View {
         let t = tm.resolved
         NavigationStack {
@@ -43,7 +54,7 @@ struct DashboardView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
                         // 1. Header (date + serif subtitle + settings gear)
-                        HStack(alignment: .top) {
+                        HStack(alignment: .top, spacing: 12) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(Date.now.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)).uppercased())
                                     .font(.system(size: 10, weight: .medium, design: .monospaced))
@@ -56,6 +67,12 @@ struct DashboardView: View {
                                     .foregroundStyle(t.ink)
                             }
                             Spacer()
+                            Button { showLifeMap = true } label: {
+                                Image(systemName: "tablecells")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(t.muted)
+                            }
+                            .accessibilityLabel("Life map")
                             Button { showSettings = true } label: {
                                 Image(systemName: "gearshape")
                                     .font(.system(size: 16))
@@ -80,7 +97,7 @@ struct DashboardView: View {
                                 }
                             }
                             Spacer()
-                            SparklineView(values: [44, 47, 41, 52, 55, 51, 54, 58, 53, 56, 54, Double(compositeScore)], width: 120, height: 48)
+                            SparklineView(values: compositeHistory, width: 120, height: 48)
                         }
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("Composite score: \(compositeScore) out of 100")
@@ -98,6 +115,12 @@ struct DashboardView: View {
                                 .staggeredAppear(index: index)
                             }
                         }
+
+                        // 3b. Per-pillar goal overview — the actual goals behind
+                        // the abstract gauge scores, grouped by pillar with a
+                        // count + status breakdown and tappable chips that drill
+                        // into GoalDetailView.
+                        pillarOverviewSection(t)
 
                         // 4. Mentor surfaced
                         InsightCardView(goals: goals, snapshot: todaySnapshot)
@@ -124,6 +147,11 @@ struct DashboardView: View {
                 }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .fullScreenCover(isPresented: $showLifeMap) {
+                LifeMapView()
+                    .environment(tm)
+                    .environment(\.modelContext, modelContext)
+            }
             .task {
                 SeedService.seedIfNeeded(context: modelContext)
                 await manager.requestAllPermissions()
@@ -132,6 +160,11 @@ struct DashboardView: View {
                     await NotificationService.requestPermission()
                     NotificationService.scheduleDailyReminder()
                     NotificationService.scheduleMorningPlan()
+                    // Review-ritual reminders (idempotent: each removes its pending
+                    // request by stable identifier before re-adding), safe per appear.
+                    StreakService.scheduleWeeklyReviewReminder()
+                    StreakService.scheduleMonthlyReviewReminder()
+                    StreakService.scheduleQuarterlyReviewReminder()
                 }
                 StreakService.scheduleWarnings(for: goals)
                 StreakService.scheduleDriftNudges(for: goals)
@@ -162,6 +195,81 @@ struct DashboardView: View {
             }
         }
         .preferredColorScheme(tm.isDark ? .dark : .light)
+    }
+
+    /// Pillars that currently have at least one active goal, in canonical order.
+    private var populatedDomains: [GoalDomain] {
+        GoalDomain.allCases.filter { domain in
+            goals.contains { $0.domain == domain }
+        }
+    }
+
+    /// Per-pillar overview: for each populated pillar, a header row (icon +
+    /// name + goal count + on-track/attention/slipping breakdown) above a
+    /// horizontal strip of the actual goals as tappable chips. Makes the goals
+    /// behind each ArcGauge score visible side-by-side across pillars.
+    @ViewBuilder
+    private func pillarOverviewSection(_ t: ResolvedTheme) -> some View {
+        if !populatedDomains.isEmpty {
+            VStack(alignment: .leading, spacing: 16) {
+                SectionLabel(title: "Goals by pillar")
+                    .padding(.horizontal, 0)
+
+                ForEach(Array(populatedDomains.enumerated()), id: \.element) { index, domain in
+                    let domainGoals = goals.filter { $0.domain == domain }
+                        .sorted { $0.priority < $1.priority }
+                    VStack(alignment: .leading, spacing: 8) {
+                        pillarHeader(domain, goals: domainGoals, t: t)
+                        // GoalStripView already pads ±22; cancel the section's
+                        // horizontal padding so the strip can scroll edge-to-edge.
+                        GoalStripView(goals: domainGoals)
+                            .padding(.horizontal, -22)
+                    }
+                    .staggeredAppear(index: index)
+                }
+            }
+            .fadeSlideIn(delay: 0.08)
+        }
+    }
+
+    @ViewBuilder
+    private func pillarHeader(_ domain: GoalDomain, goals: [Goal], t: ResolvedTheme) -> some View {
+        let onTrack = goals.filter { $0.computedStatus == .onTrack }.count
+        let attention = goals.filter { $0.computedStatus == .needsAttention }.count
+        let slipping = goals.filter { $0.computedStatus == .slipping }.count
+
+        HStack(spacing: 8) {
+            Image(systemName: domain.icon)
+                .font(.system(size: 12))
+                .foregroundStyle(t.muted)
+            Text(domain.dimension.displayName)
+                .font(.system(size: 13, weight: .medium, design: .serif))
+                .foregroundStyle(t.ink)
+            Text("\(goals.count)")
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(t.faint)
+            Spacer()
+            HStack(spacing: 8) {
+                if onTrack > 0 { statusCount(.onTrack, count: onTrack, t: t) }
+                if attention > 0 { statusCount(.needsAttention, count: attention, t: t) }
+                if slipping > 0 { statusCount(.slipping, count: slipping, t: t) }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(domain.dimension.displayName): \(goals.count) goals, \(onTrack) on track, \(attention) need attention, \(slipping) slipping")
+    }
+
+    @ViewBuilder
+    private func statusCount(_ status: GoalStatus, count: Int, t: ResolvedTheme) -> some View {
+        HStack(spacing: 3) {
+            StatusDot(status: status)
+                .scaleEffect(0.7)
+                .frame(width: 6, height: 6)
+            Text("\(count)")
+                .font(.system(size: 10, design: .monospaced))
+                .monospacedDigit()
+                .foregroundStyle(t.muted)
+        }
     }
 
     private func updateWidgetData() {

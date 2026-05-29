@@ -7,8 +7,12 @@ struct GoalListView: View {
     @Query(sort: \Goal.priority) private var allGoals: [Goal]
     @State private var showAddGoal = false
     @State private var selectedGoal: Goal?
+    @State private var detailGoal: Goal?
     @State private var searchText = ""
     @State private var filterPillar: GoalDomain?
+
+    private enum GoalViewMode: Hashable { case list, board }
+    @State private var viewMode: GoalViewMode = .list
 
     private var profile: UserProfile? { profiles.first }
     private var goals: [Goal] { allGoals }
@@ -53,33 +57,38 @@ struct GoalListView: View {
             .sheet(item: $selectedGoal) { goal in
                 GoalQuickSheet(goal: goal)
             }
+            // Drill-in to the full GoalDetailView (per-goal 14-day sparkline +
+            // roadmap). Triggered by the trailing chevron affordance on each row,
+            // distinct from the quick-glance sheet opened by tapping the row body.
+            .navigationDestination(item: $detailGoal) { goal in
+                GoalDetailView(goal: goal)
+            }
         }
     }
 
     @ViewBuilder
     private func goalContent(_ t: ResolvedTheme) -> some View {
-        let active = filteredGoals.filter(\.isActive)
-        let retired = filteredGoals.filter { !$0.isActive }
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            VStack(alignment: .leading, spacing: 4) {
+                Text("YOUR GOALS")
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .tracking(1.6)
+                    .foregroundStyle(t.muted)
 
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                // Header
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("YOUR GOALS")
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .tracking(1.6)
-                        .foregroundStyle(t.muted)
+                Text("As you've named them.")
+                    .font(.system(size: 28, weight: .regular, design: .serif))
+                    .tracking(-0.3)
+                    .foregroundStyle(t.ink)
+            }
+            .padding(.horizontal, 22)
+            .padding(.top, 6)
+            .padding(.bottom, 8)
+            .fadeSlideIn(delay: 0)
 
-                    Text("As you've named them.")
-                        .font(.system(size: 28, weight: .regular, design: .serif))
-                        .tracking(-0.3)
-                        .foregroundStyle(t.ink)
-                }
-                .padding(.horizontal, 22)
-                .padding(.top, 6)
-                .padding(.bottom, 8)
-                .fadeSlideIn(delay: 0)
-
+            // Search + pillar filters only apply to the list; the board runs its
+            // own @Query and ignores them, so hide these controls in board mode.
+            if viewMode == .list {
                 // Search
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
@@ -113,7 +122,51 @@ struct GoalListView: View {
                     .padding(.horizontal, 22)
                 }
                 .padding(.bottom, 6)
+            }
 
+            // View mode toggle
+            HStack(spacing: 4) {
+                ForEach([GoalViewMode.list, .board], id: \.self) { mode in
+                    let isSelected = viewMode == mode
+                    Button {
+                        Haptics.selection()
+                        viewMode = mode
+                    } label: {
+                        Image(systemName: mode == .list ? "list.bullet" : "square.grid.2x2")
+                            .font(.system(size: 11))
+                            .foregroundStyle(isSelected ? t.bg : t.muted)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(isSelected ? t.ink : .clear)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule().stroke(isSelected ? .clear : t.hair, lineWidth: 0.5)
+                            )
+                    }
+                    .accessibilityLabel(mode == .list ? "List view" : "Board view")
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 22)
+            .padding(.bottom, 8)
+
+            // Content
+            if viewMode == .board {
+                LifeMapView(embedded: true)
+            } else {
+                listContent(t)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func listContent(_ t: ResolvedTheme) -> some View {
+        let active = filteredGoals.filter(\.isActive)
+        let retired = filteredGoals.filter { !$0.isActive }
+
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
                 // Grouped by horizon
                 ForEach(GoalHorizon.allCases, id: \.self) { horizon in
                     let horizonGoals = active.filter { $0.horizon == horizon }
@@ -138,13 +191,7 @@ struct GoalListView: View {
 
                         VStack(spacing: 0) {
                             ForEach(retired) { goal in
-                                Button {
-                                    Haptics.selection()
-                                    selectedGoal = goal
-                                } label: {
-                                    goalRow(goal, dotColor: t.faint, t: t, retired: true)
-                                }
-                                .buttonStyle(.plain)
+                                goalRowEntry(goal, dotColor: t.faint, t: t, retired: true)
                             }
                         }
                         .padding(.horizontal, 22)
@@ -185,30 +232,67 @@ struct GoalListView: View {
 
             VStack(spacing: 0) {
                 ForEach(Array(goals.enumerated()), id: \.element.id) { index, goal in
-                    Button {
-                        Haptics.selection()
-                        selectedGoal = goal
-                    } label: {
-                        goalRow(goal, dotColor: horizon.dotColor, t: t)
-                    }
-                    .buttonStyle(.plain)
-                    .scaleOnPress()
-                    .staggeredAppear(index: index)
+                    goalRowEntry(goal, dotColor: horizon.dotColor, t: t)
+                        .staggeredAppear(index: index)
                 }
             }
             .padding(.horizontal, 22)
         }
     }
 
+    /// One list entry: the row body taps to the quick-glance sheet, while a
+    /// trailing chevron drills into the full GoalDetailView (sparkline + roadmap).
+    @ViewBuilder
+    private func goalRowEntry(_ goal: Goal, dotColor: Color, t: ResolvedTheme, retired: Bool = false) -> some View {
+        HStack(spacing: 4) {
+            Button {
+                Haptics.selection()
+                selectedGoal = goal
+            } label: {
+                goalRow(goal, dotColor: dotColor, t: t, retired: retired)
+            }
+            .buttonStyle(.plain)
+            .scaleOnPress()
+
+            Button {
+                Haptics.selection()
+                detailGoal = goal
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(t.faint)
+                    .padding(.leading, 4)
+                    .padding(.vertical, 14)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Open details for \(goal.title)")
+        }
+        .overlay(alignment: .bottom) { t.hair.frame(height: 0.5) }
+    }
+
     @ViewBuilder
     private func goalRow(_ goal: Goal, dotColor: Color, t: ResolvedTheme, retired: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(goal.title)
-                .font(.system(size: 17, weight: .regular, design: .serif))
-                .strikethrough(retired, color: t.faint)
-                .foregroundStyle(retired ? t.faint : t.ink)
+            HStack(spacing: 7) {
+                Image(systemName: goal.goalType.icon)
+                    .font(.system(size: 11))
+                    .foregroundStyle(retired ? t.faint : t.muted)
+                Text(goal.title)
+                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .strikethrough(retired, color: t.faint)
+                    .foregroundStyle(retired ? t.faint : t.ink)
+            }
 
-            if !goal.subtitle.isEmpty {
+            if goal.hasTarget {
+                Text("\(MetricFormat.number(goal.currentValue)) / \(MetricFormat.value(goal.targetValue, unit: goal.unit))")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(t.muted)
+            } else if goal.isHabitual {
+                Text(AdherenceFormat.compact(for: goal))
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(t.muted)
+            } else if !goal.subtitle.isEmpty {
                 Text(goal.subtitle)
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(t.muted)
@@ -219,20 +303,27 @@ struct GoalListView: View {
             }
 
             if !retired {
-                let progress = min(1.0, max(0.05, 1.0 - Double(goal.neglectDays) / 14.0))
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 1).fill(t.hair)
-                        RoundedRectangle(cornerRadius: 1).fill(t.ink).frame(width: geo.size.width * progress)
+                if goal.hasTarget {
+                    TargetProgressBar(goal: goal, maxWidth: 200, showCaption: false)
+                } else if goal.isHabitual {
+                    AdherenceBar(goal: goal, maxWidth: 200, showCaption: false)
+                } else {
+                    let progress = min(1.0, max(0.05, 1.0 - Double(goal.neglectDays) / 14.0))
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 1).fill(t.hair)
+                            RoundedRectangle(cornerRadius: 1).fill(t.ink).frame(width: geo.size.width * progress)
+                        }
                     }
+                    .frame(height: 2)
+                    .frame(maxWidth: 200, alignment: .leading)
                 }
-                .frame(height: 2)
-                .frame(maxWidth: 200, alignment: .leading)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(retired ? 0.45 : 1)
         .padding(.vertical, 14)
-        .overlay(alignment: .bottom) { t.hair.frame(height: 0.5) }
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder
@@ -289,5 +380,94 @@ private struct FilterChip: View {
                     Capsule().stroke(isSelected ? .clear : theme.hair, lineWidth: 0.5)
                 )
         }
+    }
+}
+
+// MARK: - F3 shared goal-type / adherence helpers
+// Defined here (file-internal, not private) so GoalQuickSheet and GoalDetailView
+// can reuse them without duplicating the markup.
+
+/// Formats the weekly adherence of a habitual goal as human-readable strings.
+enum AdherenceFormat {
+    /// Count of progress logs recorded in the current calendar week.
+    static func loggedThisWeek(for goal: Goal) -> Int {
+        let calendar = Calendar.current
+        let weekStart = calendar.dateInterval(of: .weekOfYear, for: .now)?.start
+            ?? calendar.startOfDay(for: .now)
+        return goal.progressLogs.filter { $0.date >= weekStart }.count
+    }
+
+    /// The intended weekly cadence, defaulting to once if none was set.
+    static func target(for goal: Goal) -> Int {
+        max(goal.timesPerWeek, 1)
+    }
+
+    /// e.g. "3 of 4 this week".
+    static func fraction(for goal: Goal) -> String {
+        "\(loggedThisWeek(for: goal)) of \(target(for: goal)) this week"
+    }
+
+    /// Compact form for dense rows, e.g. "3/4 this wk".
+    static func compact(for goal: Goal) -> String {
+        "\(loggedThisWeek(for: goal))/\(target(for: goal)) this wk"
+    }
+}
+
+/// A small labeled pill showing a goal's `GoalType`.
+struct GoalTypeChip: View {
+    let type: GoalType
+    let theme: ResolvedTheme
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: type.icon)
+                .font(.system(size: 9))
+            Text(type.displayName.uppercased())
+                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                .tracking(0.8)
+        }
+        .foregroundStyle(theme.muted)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(theme.surface)
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(theme.hair, lineWidth: 0.5))
+    }
+}
+
+/// A thin weekly-adherence gauge for habitual goals, mirroring TargetProgressBar's
+/// look. The fill represents the fraction of this week's cadence already met.
+struct AdherenceBar: View {
+    @Environment(ThemeManager.self) private var tm
+    let goal: Goal
+    var maxWidth: CGFloat = 200
+    var showCaption: Bool = true
+
+    var body: some View {
+        let t = tm.resolved
+        let adherence = goal.adherenceThisWeek
+        let fillColor: Color = adherence >= 1.0 ? t.ok : (adherence >= 0.5 ? t.ink : t.muted)
+
+        VStack(alignment: .leading, spacing: 5) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 1).fill(t.hair)
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(fillColor)
+                        .frame(width: max(2, geo.size.width * adherence))
+                }
+            }
+            .frame(height: 6)
+            .frame(maxWidth: maxWidth, alignment: .leading)
+
+            if showCaption {
+                Text(AdherenceFormat.fraction(for: goal))
+                    .font(.system(size: 10, design: .monospaced))
+                    .monospacedDigit()
+                    .foregroundStyle(t.muted)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Adherence \(AdherenceFormat.fraction(for: goal))")
     }
 }

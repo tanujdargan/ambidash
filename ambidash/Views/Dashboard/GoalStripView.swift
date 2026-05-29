@@ -1,5 +1,9 @@
 import SwiftUI
 
+/// A horizontally scrolling strip of horizon-colored goal chips. Each chip
+/// drills into `GoalDetailView` (so the per-goal 14-day sparkline + roadmap it
+/// hosts is reachable from the dashboard). Must be rendered inside a
+/// `NavigationStack` for the push to resolve.
 struct GoalStripView: View {
     let goals: [Goal]
 
@@ -7,7 +11,13 @@ struct GoalStripView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(goals) { goal in
-                    GoalChip(goal: goal)
+                    NavigationLink {
+                        GoalDetailView(goal: goal)
+                    } label: {
+                        GoalChip(goal: goal)
+                    }
+                    .buttonStyle(.plain)
+                    .scaleOnPress()
                 }
             }
             .padding(.horizontal, 22)
@@ -30,6 +40,9 @@ private struct GoalChip: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(t.ink)
                     .lineLimit(1)
+                StatusDot(status: goal.computedStatus)
+                    .scaleEffect(0.6)
+                    .frame(width: 5, height: 5)
             }
 
             Text(goal.subtitle.isEmpty ? GoalHealthService.summaryText(for: goal) : goal.subtitle)
@@ -37,6 +50,7 @@ private struct GoalChip: View {
                 .foregroundStyle(t.muted)
                 .lineLimit(1)
         }
+        .frame(width: 150, alignment: .leading)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(t.surface)
@@ -45,5 +59,6 @@ private struct GoalChip: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(t.hair, lineWidth: 0.5)
         )
+        .contentShape(RoundedRectangle(cornerRadius: 10))
     }
 }

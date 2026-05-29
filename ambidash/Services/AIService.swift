@@ -30,14 +30,40 @@ enum AIService {
         case apiError(String)
     }
 
+    /// Per-goal context entry including the F2 measurable-target keys when the
+    /// goal has a target. Non-target goals get only the base keys.
+    private static func goalContext(_ goal: Goal, includeID: Bool) -> [String: Any] {
+        var entry: [String: Any] = [
+            "title": goal.title, "domain": goal.domainRaw,
+            "neglect_days": goal.neglectDays, "streak": goal.streak?.currentCount ?? 0
+        ]
+        if includeID {
+            entry["id"] = goal.id.uuidString
+        }
+        if goal.hasTarget {
+            let variance: String
+            switch TargetMath.variance(goal) {
+            case .ahead: variance = "ahead"
+            case .onTrack: variance = "on_pace"
+            case .behind: variance = "behind"
+            }
+            entry["target_value"] = goal.targetValue
+            entry["current_value"] = goal.currentValue
+            entry["baseline_value"] = goal.baselineValue
+            entry["unit"] = goal.unit
+            entry["direction"] = goal.directionRaw
+            entry["percent_complete"] = Int((goal.percentComplete * 100).rounded())
+            entry["variance_state"] = variance
+            entry["expected_value"] = TargetMath.expectedValue(goal)
+        }
+        return entry
+    }
+
     static func generateInsight(goals: [Goal], snapshot: IntegrationSnapshot?, streakSummary: String) async throws -> String {
         // Try edge function first (API key stays server-side)
         if SupabaseService.shared.isAuthenticated {
             let context: [String: Any] = [
-                "goals": goals.map { [
-                    "title": $0.title, "domain": $0.domainRaw,
-                    "neglect_days": $0.neglectDays, "streak": $0.streak?.currentCount ?? 0
-                ] },
+                "goals": goals.map { goalContext($0, includeID: false) },
                 "snapshot": snapshot.map { [
                     "sleep_hours": $0.sleepHours, "steps": $0.steps,
                     "screen_time_hours": $0.screenTimeHours
@@ -52,26 +78,124 @@ enum AIService {
         return try await callAPI(prompt: prompt)
     }
 
-    static func generatePlanJSON(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?) async throws -> String {
+    /// A2 / #8 — recent action history folded into the planner context so the AI
+    /// adapts to what actually happened: what got done, what got skipped (and the
+    /// captured reason), the user's latest reflection, and an explicit
+    /// "postponing / focusing on" intent (from MorningBriefView). All optional so
+    /// callers that don't have the signal pass nil and behaviour is unchanged.
+    struct PlanContext {
+        var recentDone: [PlannedAction] = []
+        var recentSkipped: [PlannedAction] = []
+        var latestReflection: Reflection? = nil
+        /// The goal title the user said they're postponing this week, or "neither".
+        var postponingIntent: String? = nil
+        /// Free-text focus intent, if captured.
+        var focusIntent: String? = nil
+    }
+
+    static func generatePlanJSON(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?, planContext: PlanContext = PlanContext()) async throws -> String {
         // Try edge function first
         if SupabaseService.shared.isAuthenticated {
-            let context: [String: Any] = [
-                "goals": goals.map { [
-                    "title": $0.title, "domain": $0.domainRaw,
-                    "neglect_days": $0.neglectDays, "streak": $0.streak?.currentCount ?? 0
-                ] },
+            var context: [String: Any] = [
+                "goals": goals.map { goalContext($0, includeID: true) },
                 "profile": profile.map { [
                     "name": $0.name, "age": $0.age,
                     "peak_energy": $0.coreAssessment?.peakEnergyTime ?? "",
                     "cognitive_style": $0.coreAssessment?.cognitiveStyle ?? ""
                 ] } as Any,
             ]
+            // A2 / #8 — adaptive history + user intent (write-only; kept in lockstep
+            // with the edge function 'plan' branch and MentorPromptBuilder.planPrompt).
+            context["recent_done_actions"] = planContext.recentDone.map { actionHistory($0) }
+            context["recent_skipped_actions"] = planContext.recentSkipped.map { actionHistory($0) }
+            if let reflection = planContext.latestReflection {
+                context["latest_reflection"] = [
+                    "mood": reflection.mood,
+                    "blockers": reflection.blockers,
+                    "text": reflection.freeformText,
+                ]
+            }
+            if let postponing = planContext.postponingIntent, !postponing.isEmpty {
+                context["postponed_goal_title"] = postponing
+            }
+            if let focus = planContext.focusIntent, !focus.isEmpty {
+                context["focus_intent"] = focus
+            }
             if let result = await SupabaseService.shared.callMentor(action: "plan", context: context) {
                 return result
             }
         }
         // Fallback to direct API
-        let prompt = MentorPromptBuilder.planPrompt(goals: goals, snapshot: snapshot, profile: profile)
+        let prompt = MentorPromptBuilder.planPrompt(goals: goals, snapshot: snapshot, profile: profile, planContext: planContext)
+        return try await callAPI(prompt: prompt)
+    }
+
+    /// A2 / #8 — compact history entry for a settled action passed to the planner,
+    /// including the captured skip reason so the AI can avoid re-pushing what the
+    /// user keeps deferring for the same reason.
+    private static func actionHistory(_ action: PlannedAction) -> [String: Any] {
+        var entry: [String: Any] = [
+            "title": action.title,
+            "status": action.statusRaw,
+        ]
+        if let goalID = action.goalID { entry["goal_id"] = goalID.uuidString }
+        if let reason = action.skipReason, !reason.isEmpty { entry["skip_reason"] = reason }
+        return entry
+    }
+
+    /// A2 / #8 — two-way mentor reply. Sends the user's written reply plus light
+    /// goal context and asks the mentor to respond in 2-3 sentences. Reuses the
+    /// 'insight' edge action (which logs role=mentor) so no new server branch is
+    /// needed; falls back to the direct API with a tailored reply prompt.
+    static func generateMentorReply(userMessage: String, goals: [Goal], snapshot: IntegrationSnapshot?) async throws -> String {
+        if SupabaseService.shared.isAuthenticated {
+            let context: [String: Any] = [
+                "goals": goals.map { goalContext($0, includeID: false) },
+                "snapshot": snapshot.map { [
+                    "sleep_hours": $0.sleepHours, "steps": $0.steps,
+                    "screen_time_hours": $0.screenTimeHours
+                ] } as Any,
+                "user_message": userMessage,
+            ]
+            if let result = await SupabaseService.shared.callMentor(action: "insight", context: context) {
+                return result
+            }
+        }
+        let prompt = MentorPromptBuilder.replyPrompt(userMessage: userMessage, goals: goals, snapshot: snapshot)
+        return try await callAPI(prompt: prompt)
+    }
+
+    /// C1 — decompose ONE goal into a checkpoint chain. Returns the raw JSON
+    /// array text (caller parses + materializes via MilestoneGenerator). Follows
+    /// generatePlanJSON's dual-path: edge function first, direct Anthropic API
+    /// fallback. Offline-skeleton fallback (MilestoneGenerator.defaultChain) is
+    /// the view's responsibility when this throws.
+    static func decomposeGoalJSON(goal: Goal, horizon: GoalHorizon) async throws -> String {
+        // Try edge function first (API key stays server-side).
+        if SupabaseService.shared.isAuthenticated {
+            var goalEntry = goalContext(goal, includeID: true)
+            goalEntry["horizon"] = horizon.rawValue
+            goalEntry["subtitle"] = goal.subtitle
+            let existing: [[String: Any]] = goal.milestones
+                .sorted { $0.startDate < $1.startDate }
+                .map { [
+                    "title": $0.title,
+                    "period": $0.periodRaw,
+                ] }
+            let context: [String: Any] = [
+                "goal": goalEntry,
+                "milestones": existing,
+            ]
+            if let result = await SupabaseService.shared.callMentor(action: "decompose", context: context) {
+                return result
+            }
+        }
+        // Fallback to direct API.
+        let prompt = MentorPromptBuilder.decomposePrompt(
+            goal: goal,
+            horizon: horizon,
+            existingMilestones: goal.milestones
+        )
         return try await callAPI(prompt: prompt)
     }
 

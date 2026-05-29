@@ -31,7 +31,7 @@ struct PaywallView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         FeatureRow(icon: "brain.head.profile", text: "Unlimited AI-powered daily plans")
                         FeatureRow(icon: "lightbulb.fill", text: "Real-time pattern insights")
-                        FeatureRow(icon: "bell.badge.fill", text: "Smart guilt nudge notifications")
+                        FeatureRow(icon: "bell.badge.fill", text: "Gentle, progress-forward nudges & review reminders")
                         FeatureRow(icon: "chart.line.uptrend.xyaxis", text: "Monthly deep dive analytics")
                         FeatureRow(icon: "arrow.triangle.2.circlepath", text: "Mid-day plan re-generation")
                         FeatureRow(icon: "person.fill.questionmark", text: "AI-powered honest mirror reflections")

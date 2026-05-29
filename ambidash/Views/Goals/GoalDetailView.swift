@@ -5,6 +5,7 @@ struct GoalDetailView: View {
     @Environment(ThemeManager.self) private var tm
     @Environment(\.modelContext) private var modelContext
     @Bindable var goal: Goal
+    @State private var showLogProgress = false
 
     var body: some View {
         let t = tm.resolved
@@ -35,7 +36,7 @@ struct GoalDetailView: View {
                         }
                     }
 
-                    // Pillar
+                    // Pillar + type
                     HStack(spacing: 10) {
                         Image(systemName: goal.domain.icon)
                             .font(.system(size: 14))
@@ -43,6 +44,8 @@ struct GoalDetailView: View {
                         Text(goal.domain.displayName)
                             .font(.system(size: 13))
                             .foregroundStyle(t.ink2)
+                        Spacer()
+                        GoalTypeChip(type: goal.goalType, theme: t)
                     }
 
                     HairlineRule()
@@ -50,7 +53,11 @@ struct GoalDetailView: View {
                     // Status section
                     VStack(spacing: 0) {
                         DataRowView(label: "Health", value: goal.computedStatus.label)
-                        DataRowView(label: "Days since progress", value: "\(goal.neglectDays)")
+                        if goal.isHabitual {
+                            DataRowView(label: "Adherence", value: AdherenceFormat.fraction(for: goal))
+                        } else {
+                            DataRowView(label: "Days since progress", value: "\(goal.neglectDays)")
+                        }
                         DataRowView(label: "Priority", value: "\(goal.priority)")
                         DataRowView(label: "Created", value: goal.createdAt.formatted(.dateTime.month(.abbreviated).day().year()))
 
@@ -60,22 +67,66 @@ struct GoalDetailView: View {
                         }
                     }
 
+                    // Roadmap: link to the milestone tree + next-checkpoint preview.
+                    roadmapSection(t)
+
+                    // Cadence / adherence section for habitual goals
+                    if goal.isHabitual {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(alignment: .firstTextBaseline) {
+                                SectionLabel(title: "Weekly cadence")
+                                Spacer()
+                                Text(cadenceCaption)
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundStyle(t.faint)
+                            }
+                            AdherenceBar(goal: goal, maxWidth: .infinity)
+                        }
+                    }
+
+                    // Measurable target section
+                    if goal.hasTarget {
+                        let unitLabel = goal.unit.isEmpty ? nil : goal.unit
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(alignment: .firstTextBaseline) {
+                                SectionLabel(title: "Measurable target")
+                                Spacer()
+                                VariancePill(variance: TargetMath.variance(goal))
+                            }
+                            TargetProgressBar(goal: goal, maxWidth: .infinity)
+                        }
+
+                        VStack(spacing: 0) {
+                            DataRowView(label: "Baseline", value: MetricFormat.number(goal.baselineValue), unit: unitLabel)
+                            DataRowView(label: "Current", value: MetricFormat.number(goal.currentValue), unit: unitLabel)
+                            DataRowView(label: "Target", value: MetricFormat.number(goal.targetValue), unit: unitLabel)
+                            DataRowView(label: "On pace, need", value: MetricFormat.number(TargetMath.expectedValue(goal)), unit: unitLabel)
+                            DataRowView(label: "Complete", value: "\(Int((goal.percentComplete * 100).rounded()))", unit: "%")
+                            DataRowView(label: "Pace", value: varianceLabel(TargetMath.variance(goal)))
+                        }
+                    }
+
                     // Progress trend
-                    let scores = GoalProgressTracker.recentScores(for: goal, days: 14)
-                    if scores.count > 1 {
+                    let trendValues: [Double] = goal.hasTarget
+                        ? TargetMath.recentValues(for: goal, days: 14)
+                        : GoalProgressTracker.recentScores(for: goal, days: 14).map { Double($0) }
+                    if trendValues.count > 1 {
                         VStack(alignment: .leading, spacing: 8) {
-                            SectionLabel(title: "14-day trend")
-                            SparklineView(values: scores.map { Double($0) }, width: 280, height: 40)
+                            SectionLabel(title: goal.hasTarget ? "14-day logged values" : "14-day trend")
+                            SparklineView(values: trendValues, width: 280, height: 40)
                         }
                     }
 
                     // Actions
                     VStack(spacing: 10) {
-                        PrimaryButton(label: "Log progress") {
-                            Haptics.success()
-                            goal.lastProgressDate = .now
-                            goal.streak?.recordActivity()
-                            try? modelContext.save()
+                        PrimaryButton(label: goal.isHabitual ? "Log today" : "Log progress") {
+                            if goal.hasTarget {
+                                Haptics.light()
+                                showLogProgress = true
+                            } else {
+                                Haptics.success()
+                                logCheckIn()
+                            }
                         }
 
                         HStack(spacing: 10) {
@@ -128,5 +179,90 @@ struct GoalDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showLogProgress) {
+            LogProgressSheet(goal: goal)
+        }
+    }
+
+    // MARK: - Roadmap
+
+    /// The next 1–2 upcoming (not-yet-completed) checkpoints by end date, used for
+    /// the compact preview beneath the Roadmap link.
+    private var upcomingMilestones: [Milestone] {
+        goal.milestones
+            .filter { !$0.isCompleted }
+            .sorted { $0.endDate < $1.endDate }
+            .prefix(2)
+            .map { $0 }
+    }
+
+    @ViewBuilder
+    private func roadmapSection(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            NavigationLink {
+                GoalRoadmapView(goal: goal)
+            } label: {
+                HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        SectionLabel(title: "Roadmap")
+                        Text(goal.milestones.isEmpty
+                            ? "Break this goal into a checkpoint chain"
+                            : "\(goal.milestones.count) checkpoint\(goal.milestones.count == 1 ? "" : "s")")
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(t.muted)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(t.faint)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            // Compact preview of the next 1–2 checkpoints.
+            if !upcomingMilestones.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(upcomingMilestones) { milestone in
+                        HStack(spacing: 8) {
+                            StatusDot(status: milestone.status)
+                            Text(milestone.title)
+                                .font(.system(size: 13, weight: .regular, design: .serif))
+                                .foregroundStyle(t.ink2)
+                                .lineLimit(1)
+                            Spacer()
+                            Text(milestone.endDate.formatted(.dateTime.month(.abbreviated).day()))
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundStyle(t.faint)
+                        }
+                        .padding(.vertical, 8)
+                        .overlay(alignment: .bottom) { HairlineRule() }
+                    }
+                }
+            }
+        }
+    }
+
+    private func varianceLabel(_ variance: TargetVariance) -> String {
+        switch variance {
+        case .ahead: return "Ahead"
+        case .onTrack: return "On pace"
+        case .behind: return "Behind"
+        }
+    }
+
+    private var cadenceCaption: String {
+        let n = max(goal.timesPerWeek, 1)
+        if n >= 7 { return "every day" }
+        if n == 1 { return "once a week" }
+        return "\(n)× a week"
+    }
+
+    /// Records a non-measurable check-in: marks today as touched, advances the
+    /// streak (cadence-aware for habitual goals), and writes a zero-amount log so
+    /// weekly adherence reflects the touch.
+    private func logCheckIn() {
+        ProgressLogService.logCheckIn(goal: goal, source: .manual, context: modelContext)
+        try? modelContext.save()
     }
 }

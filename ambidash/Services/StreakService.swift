@@ -39,8 +39,14 @@ enum StreakService {
         }
 
         for goal in atRisk {
-            if let count = goal.streak?.currentCount {
-                NotificationService.scheduleStreakWarning(goalTitle: goal.title, streakCount: count)
+            if let streak = goal.streak {
+                // Pass the remaining grace days so the nudge can frame freezes as a
+                // safety net, keeping the reminder supportive rather than punitive.
+                NotificationService.scheduleStreakWarning(
+                    goalTitle: goal.title,
+                    streakCount: streak.currentCount,
+                    freezesRemaining: streak.freezesRemaining
+                )
             }
         }
     }
@@ -48,6 +54,26 @@ enum StreakService {
     static func scheduleDriftNudges(for goals: [Goal]) {
         for goal in goals where goal.isActive && goal.neglectDays >= 5 {
             NotificationService.scheduleGoalDriftNudge(goalTitle: goal.title, neglectDays: goal.neglectDays)
+        }
+    }
+
+    // MARK: - Longer-cadence review ritual reminders (#14)
+
+    /// Schedules the recurring weekly review reminder (defaults to Monday at 10:00).
+    static func scheduleWeeklyReviewReminder(day: Int = 2, hour: Int = 10, minute: Int = 0) {
+        NotificationService.scheduleWeeklyReview(day: day, hour: hour, minute: minute)
+    }
+
+    /// Schedules the recurring monthly review reminder (defaults to the 1st at 10:00).
+    static func scheduleMonthlyReviewReminder(day: Int = 1, hour: Int = 10, minute: Int = 0) {
+        NotificationService.scheduleMonthlyReview(day: day, hour: hour, minute: minute)
+    }
+
+    /// Schedules quarterly review reminders for all four quarters. Anchors to the 1st of
+    /// Jan/Apr/Jul/Oct by default so each quarter gets its own recurring reminder.
+    static func scheduleQuarterlyReviewReminder(day: Int = 1, hour: Int = 10, minute: Int = 0) {
+        for month in [1, 4, 7, 10] {
+            NotificationService.scheduleQuarterlyReview(month: month, day: day, hour: hour, minute: minute)
         }
     }
 }

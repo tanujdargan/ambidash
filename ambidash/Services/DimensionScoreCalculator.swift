@@ -31,10 +31,17 @@ enum DimensionScoreCalculator {
 
     private static func goalScore(_ goal: Goal) -> Int {
         let days = goal.neglectDays
-        if days <= 1 { return 90 }
-        if days <= 3 { return 75 }
-        if days <= 5 { return 55 }
-        if days <= 7 { return 40 }
-        return max(10, 30 - (days - 7) * 3)
+        let neglectScore: Int
+        if days <= 1 { neglectScore = 90 }
+        else if days <= 3 { neglectScore = 75 }
+        else if days <= 5 { neglectScore = 55 }
+        else if days <= 7 { neglectScore = 40 }
+        else { neglectScore = max(10, 30 - (days - 7) * 3) }
+
+        guard goal.hasTarget else { return neglectScore }
+
+        // Blend the recency/neglect band with measurable attainment.
+        let attainment = Int((goal.percentComplete * 100).rounded())
+        return (neglectScore + attainment) / 2
     }
 }

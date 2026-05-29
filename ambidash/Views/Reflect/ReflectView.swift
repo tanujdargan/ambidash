@@ -33,6 +33,7 @@ struct ReflectView: View {
                     Text("Daily").tag(0)
                     Text("Weekly").tag(1)
                     Text("Monthly").tag(2)
+                    Text("Quarterly").tag(3)
                 }
                 .pickerStyle(.segmented)
                 .tint(t.accent)
@@ -119,6 +120,8 @@ struct ReflectView: View {
                     WeeklyReviewView()
                 } else if selectedTab == 2 {
                     MonthlyReviewView()
+                } else if selectedTab == 3 {
+                    QuarterlyReviewView()
                 }
             }
             .background(t.bg)
