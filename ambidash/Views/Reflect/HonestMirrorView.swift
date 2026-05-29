@@ -95,7 +95,7 @@ struct HonestMirrorView: View {
         - Actions skipped: \(skippedCount) (\(skippedTitles))
         - Blockers reported: \(blockers.joined(separator: ", "))
 
-        Give brutally honest feedback in 2-3 sentences. If they said "decent" but skipped half their actions, call that out. If they crushed it, acknowledge it briefly. Use loss framing — what did skipping cost them? Be direct. No pleasantries.
+        Give honest feedback in 2-3 sentences. Reflect reality plainly: if they said "decent" but skipped half their actions, name the gap clearly. If they crushed it, acknowledge it briefly. Where did focus slip, and what helped today? Be direct and kind — help them see what actually happened and a concrete path forward. No guilt-tripping, no empty pleasantries.
         """
 
         do {

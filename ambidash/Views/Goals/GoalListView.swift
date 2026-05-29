@@ -7,6 +7,7 @@ struct GoalListView: View {
     @Query(sort: \Goal.priority) private var allGoals: [Goal]
     @State private var showAddGoal = false
     @State private var selectedGoal: Goal?
+    @State private var detailGoal: Goal?
     @State private var searchText = ""
     @State private var filterPillar: GoalDomain?
 
@@ -55,6 +56,12 @@ struct GoalListView: View {
             }
             .sheet(item: $selectedGoal) { goal in
                 GoalQuickSheet(goal: goal)
+            }
+            // Drill-in to the full GoalDetailView (per-goal 14-day sparkline +
+            // roadmap). Triggered by the trailing chevron affordance on each row,
+            // distinct from the quick-glance sheet opened by tapping the row body.
+            .navigationDestination(item: $detailGoal) { goal in
+                GoalDetailView(goal: goal)
             }
         }
     }
@@ -184,13 +191,7 @@ struct GoalListView: View {
 
                         VStack(spacing: 0) {
                             ForEach(retired) { goal in
-                                Button {
-                                    Haptics.selection()
-                                    selectedGoal = goal
-                                } label: {
-                                    goalRow(goal, dotColor: t.faint, t: t, retired: true)
-                                }
-                                .buttonStyle(.plain)
+                                goalRowEntry(goal, dotColor: t.faint, t: t, retired: true)
                             }
                         }
                         .padding(.horizontal, 22)
@@ -231,19 +232,43 @@ struct GoalListView: View {
 
             VStack(spacing: 0) {
                 ForEach(Array(goals.enumerated()), id: \.element.id) { index, goal in
-                    Button {
-                        Haptics.selection()
-                        selectedGoal = goal
-                    } label: {
-                        goalRow(goal, dotColor: horizon.dotColor, t: t)
-                    }
-                    .buttonStyle(.plain)
-                    .scaleOnPress()
-                    .staggeredAppear(index: index)
+                    goalRowEntry(goal, dotColor: horizon.dotColor, t: t)
+                        .staggeredAppear(index: index)
                 }
             }
             .padding(.horizontal, 22)
         }
+    }
+
+    /// One list entry: the row body taps to the quick-glance sheet, while a
+    /// trailing chevron drills into the full GoalDetailView (sparkline + roadmap).
+    @ViewBuilder
+    private func goalRowEntry(_ goal: Goal, dotColor: Color, t: ResolvedTheme, retired: Bool = false) -> some View {
+        HStack(spacing: 4) {
+            Button {
+                Haptics.selection()
+                selectedGoal = goal
+            } label: {
+                goalRow(goal, dotColor: dotColor, t: t, retired: retired)
+            }
+            .buttonStyle(.plain)
+            .scaleOnPress()
+
+            Button {
+                Haptics.selection()
+                detailGoal = goal
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(t.faint)
+                    .padding(.leading, 4)
+                    .padding(.vertical, 14)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Open details for \(goal.title)")
+        }
+        .overlay(alignment: .bottom) { t.hair.frame(height: 0.5) }
     }
 
     @ViewBuilder
@@ -295,9 +320,10 @@ struct GoalListView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .opacity(retired ? 0.45 : 1)
         .padding(.vertical, 14)
-        .overlay(alignment: .bottom) { t.hair.frame(height: 0.5) }
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder

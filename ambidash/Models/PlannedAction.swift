@@ -30,7 +30,25 @@ final class PlannedAction {
     /// Optional/defaulted (additive, CloudKit-safe).
     var carriedOverFrom: Date? = nil
 
-    init(title: String, why: String = "", timeSlot: String = "", duration: Int = 30, goalID: UUID? = nil, goalTitleSnapshot: String? = nil, loggedAmount: Double? = nil, milestone: Milestone? = nil, carriedOverFrom: Date? = nil) {
+    /// A2 / #10 — the if-then implementation-intention anchor for this action,
+    /// e.g. "after breakfast" or "when I sit down at my desk". Empty when the
+    /// planner produced no cue. Defaulted (additive, CloudKit-safe).
+    var cueTrigger: String = ""
+
+    /// A2 / #10 — the quantitative target this action is sized to (reps / minutes /
+    /// pages / etc.), surfaced to the user so the action is concrete rather than
+    /// vague. nil when the goal isn't measurable/quantifiable. Distinct from
+    /// `loggedAmount`, which is the increment credited to a measurable goal's
+    /// currentValue: targetAmount/targetUnit are display-facing intent that may
+    /// also apply to habitual goals (e.g. "20 reps") where nothing is logged.
+    /// Optional/defaulted (additive, CloudKit-safe).
+    var targetAmount: Double? = nil
+
+    /// A2 / #10 — the unit for `targetAmount` (e.g. "reps", "min", "pages").
+    /// Empty when there is no quantitative target. Defaulted (CloudKit-safe).
+    var targetUnit: String = ""
+
+    init(title: String, why: String = "", timeSlot: String = "", duration: Int = 30, goalID: UUID? = nil, goalTitleSnapshot: String? = nil, loggedAmount: Double? = nil, milestone: Milestone? = nil, carriedOverFrom: Date? = nil, cueTrigger: String = "", targetAmount: Double? = nil, targetUnit: String = "") {
         self.id = UUID()
         self.title = title
         self.whyReasoning = why
@@ -44,5 +62,8 @@ final class PlannedAction {
         self.loggedAmount = loggedAmount
         self.milestone = milestone
         self.carriedOverFrom = carriedOverFrom
+        self.cueTrigger = cueTrigger
+        self.targetAmount = targetAmount
+        self.targetUnit = targetUnit
     }
 }

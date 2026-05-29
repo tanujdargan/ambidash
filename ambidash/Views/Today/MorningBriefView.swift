@@ -11,6 +11,14 @@ struct MorningBriefView: View {
 
     @State private var selectedAnswer: String?
 
+    /// #8 — the chosen "which are you postponing today?" answer, persisted so
+    /// TodayView's plan generator can fold it in as explicit intent (deprioritize
+    /// the postponed goal). Stores a goal title, "neither", or "" when unanswered.
+    @AppStorage("morningBrief.postponingIntent") private var postponingIntent: String = ""
+
+    /// Optional dismiss handler so the host can close the brief and route to Today.
+    var onOpenToday: (() -> Void)? = nil
+
     var body: some View {
         let t = tm.resolved
         ZStack {
@@ -50,6 +58,7 @@ struct MorningBriefView: View {
                                         let isSelected = selectedAnswer == goal.title
                                         Button {
                                             selectedAnswer = goal.title
+                                            postponingIntent = goal.title
                                         } label: {
                                             Text(goal.title)
                                                 .font(.system(size: 14))
@@ -68,6 +77,7 @@ struct MorningBriefView: View {
 
                                     Button {
                                         selectedAnswer = "neither"
+                                        postponingIntent = "neither"
                                     } label: {
                                         Text("Neither — explain why")
                                             .font(.system(size: 14))
@@ -113,7 +123,16 @@ struct MorningBriefView: View {
                 // Bottom
                 HStack {
                     Spacer()
-                    PillButton(label: "Open today", primary: true) {}
+                    PillButton(label: "Open today", primary: true) {
+                        // #8 — commit the postpone intent (in case nothing was
+                        // tapped this session, leave any prior value intact) and
+                        // hand control back to the host to route into Today.
+                        if let answer = selectedAnswer {
+                            postponingIntent = answer
+                        }
+                        Haptics.light()
+                        onOpenToday?()
+                    }
                 }
                 .padding(.horizontal, 22)
                 .padding(.bottom, 24)

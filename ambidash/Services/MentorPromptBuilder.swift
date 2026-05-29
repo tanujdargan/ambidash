@@ -127,7 +127,7 @@ enum MentorPromptBuilder {
         return context
     }
 
-    static func planPrompt(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?) -> String {
+    static func planPrompt(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?, planContext: AIService.PlanContext = AIService.PlanContext()) -> String {
         var context = "You are an AI mentor generating a daily action plan. Create specific, time-aware actions.\n\n"
 
         if let profile {
@@ -166,10 +166,86 @@ enum MentorPromptBuilder {
             context += "- Slept \(String(format: "%.1f", snap.sleepHours))h, \(snap.steps) steps, \(snap.calendarFreeMinutes)min free\n"
         }
 
-        context += "\nRespond with a JSON array of actions. Each action: {\"title\": \"...\", \"why\": \"...\", \"duration_minutes\": N, \"time_slot\": \"HH:MM\", \"goal_id\": \"uuid-string\", \"amount\": N, \"metric\": \"unit\"}\n"
+        // A2 / #8 — adaptive history + explicit user intent. Folding in what was
+        // actually done/skipped (with reasons), the latest reflection, and the
+        // user's postpone/focus choice lets the plan respond to reality.
+        context += adaptiveContext(planContext)
+
+        context += "\nRespond with a JSON array of actions. Each action: {\"title\": \"...\", \"why\": \"...\", \"duration_minutes\": N, \"time_slot\": \"HH:MM\", \"goal_id\": \"uuid-string\", \"amount\": N, \"metric\": \"unit\", \"cue_trigger\": \"...\", \"target_amount\": N, \"target_unit\": \"...\"}\n"
         context += "Every action MUST set goal_id to exactly one UUID from the GOALS list above. Do not invent or hallucinate goal IDs. Each action advances exactly one goal from the list.\n"
         context += "For goals with a measurable target, size the action to move the number: set \"amount\" to the increment this action should add (in the goal's unit) and \"metric\" to that unit; omit both for goals without a target.\n"
+        context += "Make every action an IF-THEN implementation intention: set \"cue_trigger\" to a concrete daily anchor (e.g. \"after breakfast\", \"when I sit down at my desk\", \"right after lunch\") and phrase the title so it reads as a cued instruction. Where the action is naturally quantifiable (reps, minutes, pages, words), set \"target_amount\" to a specific number and \"target_unit\" to its unit so the action is concrete, not vague; otherwise omit both.\n"
         context += "Create \(profile?.workStylePreference?.maxActionsPerDay ?? 6) actions max. Prioritize goals that are BEHIND pace toward their target, then habitual goals short of their weekly cadence, then neglected one-off goals. For habitual goals, judge by the weekly cadence shown (e.g. \"2 of 3 this week\"): a goal that has already met its cadence needs no action today, and an off-day is NOT neglect — do not push a habitual goal just because a day or two passed. Fit into free time. Adjust intensity based on sleep quality."
+
+        return context
+    }
+
+    /// A2 / #8 — renders the adaptive-context block: recent done/skipped actions
+    /// (with captured skip reasons), the latest reflection, and the user's
+    /// postpone/focus intent. Empty string when no signal is available, so the
+    /// prompt is unchanged for the cold-start case.
+    private static func adaptiveContext(_ ctx: AIService.PlanContext) -> String {
+        var out = ""
+
+        if !ctx.recentDone.isEmpty {
+            out += "\nRECENTLY COMPLETED (don't just repeat — build on momentum):\n"
+            for action in ctx.recentDone.prefix(8) {
+                out += "- \(action.title)\n"
+            }
+        }
+
+        if !ctx.recentSkipped.isEmpty {
+            out += "\nRECENTLY SKIPPED (adapt — don't blindly re-push what keeps getting deferred for the same reason):\n"
+            for action in ctx.recentSkipped.prefix(8) {
+                let reason = (action.skipReason?.isEmpty == false) ? " — reason: \(action.skipReason!)" : ""
+                out += "- \(action.title)\(reason)\n"
+            }
+        }
+
+        if let reflection = ctx.latestReflection {
+            var bits: [String] = []
+            if !reflection.mood.isEmpty { bits.append("mood: \(reflection.mood)") }
+            if !reflection.blockers.isEmpty { bits.append("blockers: \(reflection.blockers.joined(separator: ", "))") }
+            if !reflection.freeformText.isEmpty { bits.append("note: \(reflection.freeformText)") }
+            if !bits.isEmpty {
+                out += "\nLATEST REFLECTION (honor what they told you): \(bits.joined(separator: " · "))\n"
+            }
+        }
+
+        if let postponing = ctx.postponingIntent, !postponing.isEmpty {
+            if postponing.lowercased() == "neither" {
+                out += "\nUSER INTENT: They said they are NOT postponing any of their top goals today — keep all of them in play.\n"
+            } else {
+                out += "\nUSER INTENT: The user said they are postponing \"\(postponing)\" today — DEPRIORITIZE that goal (drop it or give it the lightest possible touch) and reallocate the freed time to their other goals.\n"
+            }
+        }
+        if let focus = ctx.focusIntent, !focus.isEmpty {
+            out += "USER FOCUS: They want to focus on \"\(focus)\" — weight the plan toward it.\n"
+        }
+
+        return out
+    }
+
+    /// A2 / #8 — two-way mentor reply prompt. Used as the direct-API fallback when
+    /// the user writes back in MentorView. Gives the mentor the user's message plus
+    /// light goal context and asks for a short, direct, non-generic reply.
+    static func replyPrompt(userMessage: String, goals: [Goal], snapshot: IntegrationSnapshot?) -> String {
+        var context = "You are M., the AI mentor inside ambidash, a life dashboard app. The user has written you a letter. Reply as their mentor — warm but direct, never generic, never a list. Connect to what their goals show.\n\n"
+
+        context += "USER'S GOALS:\n"
+        for goal in goals where goal.isActive {
+            context += "- \(goal.title) (\(goal.domain.displayName)): \(goal.computedStatus.label), \(goal.neglectDays) days since progress"
+            context += measurableLine(for: goal)
+            context += habitualLine(for: goal)
+            context += "\n"
+        }
+
+        if let snap = snapshot {
+            context += "\nTODAY'S DATA: Sleep \(String(format: "%.1f", snap.sleepHours))h, \(snap.steps) steps, \(snap.calendarFreeMinutes)min free\n"
+        }
+
+        context += "\nTHE USER WROTE:\n\"\(userMessage)\"\n"
+        context += "\nWrite back in 2-4 sentences. Respond to what they actually said. Be specific to their goals and data. No pleasantries, no bullet lists. Sign off with \"— M.\" only if it feels natural."
 
         return context
     }

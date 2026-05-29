@@ -5,9 +5,17 @@ struct MentorView: View {
     @Environment(ThemeManager.self) private var tm
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \MentorFeedback.createdAt, order: .reverse) private var letters: [MentorFeedback]
+    @Query private var profiles: [UserProfile]
+    @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
+
+    private var profile: UserProfile? { profiles.first }
+    private var snapshot: IntegrationSnapshot? { snapshots.first }
 
     @State private var replyText = ""
     @State private var isWriting = false
+    /// #8 — true while the mentor's reply is being generated, so the composer can
+    /// show a thinking state and disable double-sends.
+    @State private var isSendingReply = false
 
     var body: some View {
         let t = tm.resolved
@@ -215,15 +223,58 @@ struct MentorView: View {
                     isWriting = false
                     replyText = ""
                 }
+                .disabled(isSendingReply)
                 Spacer()
-                PillButton(label: "Send to Mentor", primary: true) {
-                    guard !replyText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                    let reply = MentorFeedback(role: "user", content: replyText, trigger: "manual_reply")
-                    modelContext.insert(reply)
-                    try? modelContext.save()
-                    replyText = ""
-                    isWriting = false
+                PillButton(label: isSendingReply ? "M. is reading…" : "Send to Mentor", primary: true) {
+                    sendReply()
                 }
+                .disabled(isSendingReply || replyText.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+    }
+
+    /// #8 — two-way mentor exchange. Persists the user's letter, then calls the AI
+    /// to generate M.'s reply and appends it as a `mentor` MentorFeedback so the
+    /// thread reads as a real back-and-forth. The user's letter is saved
+    /// immediately so it isn't lost if the AI call fails; on failure the composer
+    /// simply closes without a reply.
+    private func sendReply() {
+        let trimmed = replyText.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, !isSendingReply else { return }
+
+        let userLetter = MentorFeedback(role: "user", content: trimmed, trigger: "manual_reply")
+        modelContext.insert(userLetter)
+        try? modelContext.save()
+
+        replyText = ""
+        isSendingReply = true
+        Haptics.light()
+
+        let goals = profile?.goals ?? []
+        let snap = snapshot
+
+        Task {
+            defer {
+                isSendingReply = false
+                isWriting = false
+            }
+            // Only attempt an AI reply when AI is reachable; otherwise the user's
+            // letter still stands on its own.
+            guard AIConfig.isConfigured || SupabaseService.shared.isAuthenticated else { return }
+            do {
+                let replyContent = try await AIService.generateMentorReply(
+                    userMessage: trimmed,
+                    goals: goals,
+                    snapshot: snap
+                )
+                let cleaned = replyContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !cleaned.isEmpty else { return }
+                let mentorLetter = MentorFeedback(role: "mentor", content: cleaned, trigger: "manual_reply")
+                modelContext.insert(mentorLetter)
+                try? modelContext.save()
+                Haptics.success()
+            } catch {
+                ErrorLogger.log(error, context: "MentorView.sendReply")
             }
         }
     }

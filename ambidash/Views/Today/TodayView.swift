@@ -6,6 +6,16 @@ struct TodayView: View {
     @Environment(ThemeManager.self) private var tm
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query private var profiles: [UserProfile]
+    @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
+    @Query(sort: \Reflection.date, order: .reverse) private var reflections: [Reflection]
+
+    /// #8 — the goal the user said they're postponing today, captured in
+    /// MorningBriefView and shared via UserDefaults so it can be folded into plan
+    /// generation as explicit intent. Read-only here.
+    @AppStorage("morningBrief.postponingIntent") private var postponingIntent: String = ""
+
+    private var latestSnapshot: IntegrationSnapshot? { snapshots.first }
+    private var latestReflection: Reflection? { reflections.first }
 
     private var profile: UserProfile? { profiles.first }
     private var todayPlan: DailyPlan? {
@@ -21,6 +31,8 @@ struct TodayView: View {
     @State private var isGenerating = false
     @State private var showAddAction = false
     @State private var rescheduleTarget: PlannedAction?
+    /// #14 — the action awaiting a skip reason. Presents SkipReasonSheet.
+    @State private var skipTarget: PlannedAction?
 
     var body: some View {
         let t = tm.resolved
@@ -71,6 +83,9 @@ struct TodayView: View {
             }
             .sheet(item: $rescheduleTarget) { action in
                 RescheduleSheet(action: action)
+            }
+            .sheet(item: $skipTarget) { action in
+                SkipReasonSheet(action: action)
             }
         }
     }
@@ -179,6 +194,9 @@ struct TodayView: View {
                 .font(.system(size: 20, weight: .regular, design: .serif))
                 .foregroundStyle(t.ink)
 
+            cueTargetLine(action, t: t)
+                .padding(.top, 2)
+
             if !action.whyReasoning.isEmpty {
                 Text(action.whyReasoning)
                     .font(.system(size: 11, design: .monospaced))
@@ -195,8 +213,7 @@ struct TodayView: View {
                 }
                 PillButton(label: "Skip") {
                     Haptics.light()
-                    action.statusRaw = "skipped"
-                    try? modelContext.save()
+                    skipTarget = action
                 }
             }
             .padding(.top, 8)
@@ -298,6 +315,10 @@ struct TodayView: View {
                     }
                 }
 
+                if !isPast {
+                    cueTargetLine(action, t: t)
+                }
+
                 if !action.whyReasoning.isEmpty {
                     Text(action.whyReasoning)
                         .font(.system(size: 10, design: .monospaced))
@@ -315,6 +336,45 @@ struct TodayView: View {
         .contextMenu {
             actionContextMenu(action)
         }
+    }
+
+    /// #10 — surfaces the if-then cue ("when X") and the quantitative target
+    /// ("20 reps") as a compact tag row beneath the action title. Renders nothing
+    /// when the action carries neither (e.g. older actions, manual additions).
+    @ViewBuilder
+    private func cueTargetLine(_ action: PlannedAction, t: ResolvedTheme) -> some View {
+        let hasCue = !action.cueTrigger.isEmpty
+        let hasTarget = action.targetAmount != nil && !action.targetUnit.isEmpty
+        if hasCue || hasTarget {
+            HStack(spacing: 6) {
+                if hasCue {
+                    HStack(spacing: 3) {
+                        Image(systemName: "arrow.turn.down.right")
+                            .font(.system(size: 8, weight: .medium))
+                        Text(action.cueTrigger.uppercased())
+                            .font(.system(size: 8, weight: .medium, design: .monospaced))
+                            .tracking(0.8)
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(t.accent)
+                }
+                if hasTarget, let amount = action.targetAmount {
+                    Text("\(formatTarget(amount)) \(action.targetUnit.uppercased())")
+                        .font(.system(size: 8, weight: .medium, design: .monospaced))
+                        .tracking(0.8)
+                        .foregroundStyle(t.ink2)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(t.hair)
+                        .clipShape(Capsule())
+                }
+            }
+        }
+    }
+
+    /// Formats a target amount as an int when whole, else one decimal place.
+    private func formatTarget(_ value: Double) -> String {
+        value == value.rounded() ? String(Int(value)) : String(format: "%.1f", value)
     }
 
     /// A small "carried over" tag, marking actions resurfaced from a prior day.
@@ -344,9 +404,8 @@ struct TodayView: View {
                 Label("Mark done", systemImage: "checkmark")
             }
             Button {
-                action.statusRaw = "skipped"
-                try? modelContext.save()
                 Haptics.light()
+                skipTarget = action
             } label: {
                 Label("Skip", systemImage: "forward")
             }
@@ -502,6 +561,34 @@ struct TodayView: View {
         }
     }
 
+    /// #10 — the real calendar free-minute budget for today, sourced from the
+    /// latest IntegrationSnapshot. nil when no snapshot exists (or it reports a
+    /// non-positive budget), in which case SlotScheduler / PlanGenerator fall back
+    /// to their fixed defaults.
+    private var resolvedFreeMinutes: Int? {
+        guard let minutes = latestSnapshot?.calendarFreeMinutes, minutes > 0 else { return nil }
+        return minutes
+    }
+
+    /// #8 — assembles the adaptive plan context: the most recent settled actions
+    /// (done + skipped, with captured skip reasons), the latest reflection, and
+    /// the user's postpone/focus intent from the morning brief.
+    private func buildPlanContext() -> AIService.PlanContext {
+        // Pull settled actions from the most recent prior plan (yesterday's), so
+        // the AI sees what actually happened most recently rather than ancient
+        // history. Falls back to empty when there's no prior plan.
+        let recent = mostRecentPriorPlan?.actions ?? []
+        let done = recent.filter { $0.statusRaw == "done" }
+        let skipped = recent.filter { $0.statusRaw == "skipped" }
+        let intent = postponingIntent.trimmingCharacters(in: .whitespaces)
+        return AIService.PlanContext(
+            recentDone: done,
+            recentSkipped: skipped,
+            latestReflection: latestReflection,
+            postponingIntent: intent.isEmpty ? nil : intent
+        )
+    }
+
     /// Appends a freshly generated batch of actions (AI first, template fallback)
     /// into `plan`, sized to `maxActions`. Each action is inserted into the
     /// context and linked to its goal's current WEEK Milestone.
@@ -523,8 +610,12 @@ struct TodayView: View {
     /// current week Milestone via `ensureWeekMilestone`. Actions are NOT yet
     /// inserted — the caller inserts + attaches them to a plan.
     private func buildTemplateActions(goals: [Goal], maxActions: Int) -> [PlannedAction] {
-        let templates = PlanGenerator.generateActions(for: goals, freeMinutes: 480, maxActions: maxActions)
-        let timeSlots = ["07:00", "08:30", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]
+        // #10 — size the budget to real calendar free time when available.
+        let freeMinutes = resolvedFreeMinutes
+        let templates = PlanGenerator.generateActions(for: goals, freeMinutes: freeMinutes ?? 480, maxActions: maxActions)
+        // #10 — assign time slots from the real free-minute budget via SlotScheduler.
+        let durations = templates.map { $0.durationMinutes }
+        let timeSlots = SlotScheduler.assignSlots(count: templates.count, durations: durations, freeMinutes: freeMinutes)
         return templates.enumerated().map { (i, tmpl) in
             let resolvedGoal = goals.first { $0.id == tmpl.goalID }
             return PlannedAction(
@@ -534,7 +625,10 @@ struct TodayView: View {
                 duration: tmpl.durationMinutes,
                 goalID: tmpl.goalID,
                 goalTitleSnapshot: tmpl.goalTitle,
-                milestone: resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
+                milestone: resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) },
+                cueTrigger: tmpl.cueTrigger,
+                targetAmount: tmpl.targetAmount,
+                targetUnit: tmpl.targetUnit
             )
         }
     }
@@ -544,8 +638,11 @@ struct TodayView: View {
     /// fall back to templates. Actions are NOT yet inserted.
     private func buildAIActions(goals: [Goal], maxActions: Int) async -> [PlannedAction]? {
         do {
-            let snapshot = try? modelContext.fetch(FetchDescriptor<IntegrationSnapshot>(sortBy: [SortDescriptor(\.date, order: .reverse)])).first
-            let jsonText = try await AIService.generatePlanJSON(goals: goals, snapshot: snapshot, profile: profile)
+            let snapshot = latestSnapshot
+            // #8 — fold recent done/skipped history + latest reflection + the
+            // morning-brief postpone intent into the planner context.
+            let planContext = buildPlanContext()
+            let jsonText = try await AIService.generatePlanJSON(goals: goals, snapshot: snapshot, profile: profile, planContext: planContext)
             guard let data = jsonText.data(using: .utf8),
                   let actions = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return nil }
             let goalIDs = Set(goals.map { $0.id })
@@ -570,6 +667,16 @@ struct TodayView: View {
                         loggedAmount = Double(amount)
                     }
                 }
+                // #10 — parse the quantitative target (display-facing) and the
+                // if-then cue. target_amount may arrive as Double or Int.
+                var targetAmount: Double? = nil
+                if let v = dict["target_amount"] as? Double {
+                    targetAmount = v
+                } else if let v = dict["target_amount"] as? Int {
+                    targetAmount = Double(v)
+                }
+                let targetUnit = dict["target_unit"] as? String ?? ""
+                let cueTrigger = dict["cue_trigger"] as? String ?? ""
                 // C2 — ensure (get-or-create) the goal's current WEEK milestone
                 // BEFORE constructing the action, so its id is available to link.
                 let weekMilestone = resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
@@ -581,8 +688,20 @@ struct TodayView: View {
                     goalID: resolvedGoalID,
                     goalTitleSnapshot: resolvedGoal?.title,
                     loggedAmount: loggedAmount,
-                    milestone: weekMilestone
+                    milestone: weekMilestone,
+                    cueTrigger: cueTrigger,
+                    targetAmount: targetAmount,
+                    targetUnit: targetUnit
                 ))
+            }
+            // #10 — if the AI left time slots blank, assign them from the real
+            // free-minute budget via SlotScheduler (fixed slots when unavailable).
+            if built.contains(where: { $0.timeSlot.isEmpty }) {
+                let durations = built.map { $0.durationMinutes }
+                let slots = SlotScheduler.assignSlots(count: built.count, durations: durations, freeMinutes: resolvedFreeMinutes)
+                for (i, action) in built.enumerated() where action.timeSlot.isEmpty {
+                    action.timeSlot = i < slots.count ? slots[i] : ""
+                }
             }
             return built
         } catch { return nil }
@@ -956,5 +1075,135 @@ private struct RescheduleSheet: View {
         }
         .presentationDetents([.height(240), .medium])
         .presentationDragIndicator(.visible)
+    }
+}
+
+// MARK: - Skip Reason Sheet (#14 — capture why an action was skipped)
+
+/// A compact, non-intrusive sheet shown when the user skips an action. Offers a
+/// short menu of common reasons plus an optional free-text note, then marks the
+/// action skipped and stores the reason in `PlannedAction.skipReason` so
+/// SkipAnalysisService and the adaptive planner can learn from real reasons.
+private struct SkipReasonSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Environment(ThemeManager.self) private var tm
+
+    @Bindable var action: PlannedAction
+    @State private var selectedReason: String?
+    @State private var note = ""
+
+    /// The canonical skip-reason categories SkipAnalysisService can pattern-match.
+    /// Raw values are stable, lowercase keys; labels are the user-facing strings.
+    private static let commonReasons: [(key: String, label: String)] = [
+        ("no_time", "Not enough time"),
+        ("not_feeling_it", "Not feeling it"),
+        ("priority_shift", "Something more important came up"),
+        ("too_hard", "Felt too big / hard"),
+        ("did_differently", "Did it a different way"),
+        ("other", "Other"),
+    ]
+
+    var body: some View {
+        let t = tm.resolved
+        NavigationStack {
+            ZStack {
+                t.bg.ignoresSafeArea()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            SectionLabel(title: "Skipping")
+                            Text(action.title)
+                                .font(.system(size: 18, weight: .regular, design: .serif))
+                                .foregroundStyle(t.ink)
+                        }
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            SectionLabel(title: "What got in the way?")
+                            VStack(spacing: 6) {
+                                ForEach(Self.commonReasons, id: \.key) { reason in
+                                    reasonRow(reason, t: t)
+                                }
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            SectionLabel(title: "Note (optional)")
+                            TextField("Anything else?", text: $note, axis: .vertical)
+                                .font(.system(size: 14))
+                                .foregroundStyle(t.ink)
+                                .lineLimit(2...4)
+                            t.rule.frame(height: 1)
+                        }
+                    }
+                    .padding(.horizontal, 22)
+                    .padding(.top, 16)
+                    .padding(.bottom, 24)
+                }
+            }
+            .navigationTitle("Why skip?")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Skip") { confirmSkip() }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+    }
+
+    @ViewBuilder
+    private func reasonRow(_ reason: (key: String, label: String), t: ResolvedTheme) -> some View {
+        let isSelected = selectedReason == reason.key
+        Button {
+            Haptics.selection()
+            selectedReason = reason.key
+        } label: {
+            HStack(spacing: 8) {
+                Text(reason.label)
+                    .font(.system(size: 14))
+                    .foregroundStyle(isSelected ? t.bg : t.ink)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(t.bg)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(isSelected ? t.ink : .clear)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? .clear : t.hair, lineWidth: 0.5)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Persists the chosen reason (label + optional note) into skipReason and
+    /// marks the action skipped. A skip with no reason selected still records the
+    /// note (or nothing), so the flow is never blocking.
+    private func confirmSkip() {
+        Haptics.light()
+        let label = Self.commonReasons.first { $0.key == selectedReason }?.label
+        let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        let combined: String?
+        switch (label, trimmedNote.isEmpty) {
+        case (let l?, false): combined = "\(l) — \(trimmedNote)"
+        case (let l?, true):  combined = l
+        case (nil, false):    combined = trimmedNote
+        case (nil, true):     combined = nil
+        }
+        action.skipReason = combined
+        action.statusRaw = "skipped"
+        try? modelContext.save()
+        dismiss()
     }
 }

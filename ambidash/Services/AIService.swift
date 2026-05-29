@@ -78,10 +78,25 @@ enum AIService {
         return try await callAPI(prompt: prompt)
     }
 
-    static func generatePlanJSON(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?) async throws -> String {
+    /// A2 / #8 — recent action history folded into the planner context so the AI
+    /// adapts to what actually happened: what got done, what got skipped (and the
+    /// captured reason), the user's latest reflection, and an explicit
+    /// "postponing / focusing on" intent (from MorningBriefView). All optional so
+    /// callers that don't have the signal pass nil and behaviour is unchanged.
+    struct PlanContext {
+        var recentDone: [PlannedAction] = []
+        var recentSkipped: [PlannedAction] = []
+        var latestReflection: Reflection? = nil
+        /// The goal title the user said they're postponing this week, or "neither".
+        var postponingIntent: String? = nil
+        /// Free-text focus intent, if captured.
+        var focusIntent: String? = nil
+    }
+
+    static func generatePlanJSON(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?, planContext: PlanContext = PlanContext()) async throws -> String {
         // Try edge function first
         if SupabaseService.shared.isAuthenticated {
-            let context: [String: Any] = [
+            var context: [String: Any] = [
                 "goals": goals.map { goalContext($0, includeID: true) },
                 "profile": profile.map { [
                     "name": $0.name, "age": $0.age,
@@ -89,12 +104,64 @@ enum AIService {
                     "cognitive_style": $0.coreAssessment?.cognitiveStyle ?? ""
                 ] } as Any,
             ]
+            // A2 / #8 — adaptive history + user intent (write-only; kept in lockstep
+            // with the edge function 'plan' branch and MentorPromptBuilder.planPrompt).
+            context["recent_done_actions"] = planContext.recentDone.map { actionHistory($0) }
+            context["recent_skipped_actions"] = planContext.recentSkipped.map { actionHistory($0) }
+            if let reflection = planContext.latestReflection {
+                context["latest_reflection"] = [
+                    "mood": reflection.mood,
+                    "blockers": reflection.blockers,
+                    "text": reflection.freeformText,
+                ]
+            }
+            if let postponing = planContext.postponingIntent, !postponing.isEmpty {
+                context["postponed_goal_title"] = postponing
+            }
+            if let focus = planContext.focusIntent, !focus.isEmpty {
+                context["focus_intent"] = focus
+            }
             if let result = await SupabaseService.shared.callMentor(action: "plan", context: context) {
                 return result
             }
         }
         // Fallback to direct API
-        let prompt = MentorPromptBuilder.planPrompt(goals: goals, snapshot: snapshot, profile: profile)
+        let prompt = MentorPromptBuilder.planPrompt(goals: goals, snapshot: snapshot, profile: profile, planContext: planContext)
+        return try await callAPI(prompt: prompt)
+    }
+
+    /// A2 / #8 — compact history entry for a settled action passed to the planner,
+    /// including the captured skip reason so the AI can avoid re-pushing what the
+    /// user keeps deferring for the same reason.
+    private static func actionHistory(_ action: PlannedAction) -> [String: Any] {
+        var entry: [String: Any] = [
+            "title": action.title,
+            "status": action.statusRaw,
+        ]
+        if let goalID = action.goalID { entry["goal_id"] = goalID.uuidString }
+        if let reason = action.skipReason, !reason.isEmpty { entry["skip_reason"] = reason }
+        return entry
+    }
+
+    /// A2 / #8 — two-way mentor reply. Sends the user's written reply plus light
+    /// goal context and asks the mentor to respond in 2-3 sentences. Reuses the
+    /// 'insight' edge action (which logs role=mentor) so no new server branch is
+    /// needed; falls back to the direct API with a tailored reply prompt.
+    static func generateMentorReply(userMessage: String, goals: [Goal], snapshot: IntegrationSnapshot?) async throws -> String {
+        if SupabaseService.shared.isAuthenticated {
+            let context: [String: Any] = [
+                "goals": goals.map { goalContext($0, includeID: false) },
+                "snapshot": snapshot.map { [
+                    "sleep_hours": $0.sleepHours, "steps": $0.steps,
+                    "screen_time_hours": $0.screenTimeHours
+                ] } as Any,
+                "user_message": userMessage,
+            ]
+            if let result = await SupabaseService.shared.callMentor(action: "insight", context: context) {
+                return result
+            }
+        }
+        let prompt = MentorPromptBuilder.replyPrompt(userMessage: userMessage, goals: goals, snapshot: snapshot)
         return try await callAPI(prompt: prompt)
     }
 
