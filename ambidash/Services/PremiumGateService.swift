@@ -8,7 +8,10 @@ enum PremiumGateService {
     private static let lastResetKey = "daily_count_reset_date"
 
     static var isPremium: Bool {
-        SubscriptionService.shared.isPremium
+        // Premium removed: everything is unlocked. AI features just need a
+        // bring-your-own Anthropic API key (Settings). Every gate below short-
+        // circuits on this, so plans/insights/mirror are all unlimited.
+        true
     }
 
     static func canGeneratePlan() -> Bool {

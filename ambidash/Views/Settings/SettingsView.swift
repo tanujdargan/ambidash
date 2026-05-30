@@ -13,10 +13,8 @@ struct SettingsView: View {
     @Query private var allSnapshots: [IntegrationSnapshot]
 
     @AppStorage("onboardingComplete") private var onboardingComplete = false
-    @State private var showPaywall = false
     @State private var showDeleteConfirmation = false
     @State private var apiKey = ""
-    @State private var subscription = SubscriptionService.shared
     @State private var showNotionSetup = false
     @State private var showObsidianPicker = false
     @State private var notionToken = ""
@@ -82,23 +80,6 @@ struct SettingsView: View {
                         ForEach(ThemeDensity.allCases) { d in
                             Text(d.displayName).tag(d)
                         }
-                    }
-                }
-                .listRowBackground(t.surface)
-
-                Section("Subscription") {
-                    if subscription.isPremium {
-                        HStack {
-                            Image(systemName: "checkmark.seal.fill")
-                                .foregroundStyle(t.accent)
-                            Text("Premium Active")
-                                .foregroundStyle(t.ink)
-                        }
-                    } else {
-                        Button("Upgrade to Premium") {
-                            showPaywall = true
-                        }
-                        .foregroundStyle(t.accent)
                     }
                 }
                 .listRowBackground(t.surface)
@@ -268,9 +249,6 @@ struct SettingsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
-            }
-            .sheet(isPresented: $showPaywall) {
-                PaywallView()
             }
             .alert("Notion Token", isPresented: $showNotionSetup) {
                 TextField("Paste integration token", text: $notionToken)
