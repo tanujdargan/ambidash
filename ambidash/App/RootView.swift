@@ -21,17 +21,17 @@ struct RootView: View {
                 LaunchScreen()
                     .transition(.opacity)
                     .zIndex(1)
+                    .task {
+                        // Self-dismiss whenever the splash actually appears (the
+                        // old onAppear timer was gated on themeSetupComplete at
+                        // launch, so it never fired for a fresh user → stuck splash).
+                        try? await Task.sleep(nanoseconds: 1_200_000_000)
+                        withAnimation(.easeOut(duration: 0.4)) { showLaunch = false }
+                    }
             }
         }
         .onAppear {
             supabase.restoreSession()
-            if themeSetupComplete {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                    withAnimation(.easeOut(duration: 0.4)) {
-                        showLaunch = false
-                    }
-                }
-            }
         }
         .onChange(of: deepLinkTab) { _, newTab in
             if newTab != nil {
