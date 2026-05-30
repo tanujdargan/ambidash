@@ -1,6 +1,7 @@
 // ambidash/Views/Settings/SettingsView.swift
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -19,6 +20,8 @@ struct SettingsView: View {
     @State private var showNotionSetup = false
     @State private var showObsidianPicker = false
     @State private var notionToken = ""
+    @State private var showGoalImporter = false
+    @State private var importMessage: String?
 
     private var profile: UserProfile? { profiles.first }
 
@@ -240,6 +243,12 @@ struct SettingsView: View {
                         }
                     }
 
+                    Button {
+                        showGoalImporter = true
+                    } label: {
+                        Label("Import Goals from File", systemImage: "square.and.arrow.down")
+                    }
+
                     Button("Reset Onboarding", role: .destructive) {
                         profile?.onboardingComplete = false
                         onboardingComplete = false
@@ -277,6 +286,14 @@ struct SettingsView: View {
                     ObsidianService.shared.setVaultURL(url)
                 }
             }
+            .fileImporter(isPresented: $showGoalImporter, allowedContentTypes: [.json]) { result in
+                handleGoalImport(result)
+            }
+            .alert("Import Goals", isPresented: Binding(get: { importMessage != nil }, set: { if !$0 { importMessage = nil } })) {
+                Button("OK", role: .cancel) { importMessage = nil }
+            } message: {
+                Text(importMessage ?? "")
+            }
             .alert("Delete Everything?", isPresented: $showDeleteConfirmation) {
                 Button("Delete", role: .destructive) {
                     deleteAllData()
@@ -288,6 +305,27 @@ struct SettingsView: View {
             .onAppear {
                 apiKey = AIConfig.isConfigured ? "••••••••" : ""
             }
+        }
+    }
+
+    private func handleGoalImport(_ result: Result<URL, Error>) {
+        switch result {
+        case .success(let url):
+            let scoped = url.startAccessingSecurityScopedResource()
+            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+            guard let data = try? Data(contentsOf: url) else {
+                importMessage = "Couldn't read that file."
+                return
+            }
+            let summary = GoalImportService.importGoals(from: data, context: modelContext, profile: profile)
+            if let err = summary.error {
+                importMessage = err
+            } else {
+                let skip = summary.skipped > 0 ? " · skipped \(summary.skipped) already there/empty" : ""
+                importMessage = "Imported \(summary.imported) goal\(summary.imported == 1 ? "" : "s")\(skip)."
+            }
+        case .failure(let error):
+            importMessage = "Import failed: \(error.localizedDescription)"
         }
     }
 
