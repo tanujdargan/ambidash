@@ -99,6 +99,15 @@ struct FocusSessionComponent: View {
             if newPhase != .active { stopSound() }
             else if phase == .running, soundOn { startSound() }
         }
+        .onDisappear {
+            // When this component scrolls out of the LazyVStack or the user switches
+            // tabs, scenePhase stays `.active`, so the soundscape would otherwise keep
+            // looping unheard. Stop the audio and quiet the session timer: pause a
+            // running session so the 1s tick stops driving completion/check-in/sound
+            // work for a view that's no longer on screen.
+            stopSound()
+            if phase == .running { pause() }
+        }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Focus session")
     }

@@ -277,7 +277,7 @@ enum AlarmService {
                 continue
             }
 
-            let startDate = dayStart.addingTimeInterval(TimeInterval(startMin * 60))
+            let startDate = calendar.date(byAdding: .minute, value: startMin, to: dayStart) ?? dayStart.addingTimeInterval(TimeInterval(startMin * 60))
             // A fixed/routine anchor still carrying the `gentle` FIELD DEFAULT is one
             // the user never opted in: keep its start silent (the non-punitive default
             // floor for anchors). Goal-work keeps its chain; an explicit `alarm` (or a

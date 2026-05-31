@@ -42,6 +42,24 @@ enum DisruptionService {
         return (c.hour ?? 0) * 60 + (c.minute ?? 0)
     }
 
+    /// Minutes-from-midnight for `now` ANCHORED to the plan's own calendar day. Block
+    /// times in a plan are minutes-from-midnight WITHIN that plan's day; a bare
+    /// `nowMinutes(now)` resets to 0 at midnight, so after midnight an evening plan's
+    /// blocks (start ≫ now's wall-clock minutes) get mis-read as still-future. Anchor
+    /// instead:
+    ///   • now is ON the plan's day → its wall-clock minutes (unchanged behaviour).
+    ///   • now is a LATER calendar day → the whole plan is behind us → 1440 (end of day),
+    ///     so no block counts as remaining and nothing slipped-but-future is flagged.
+    ///   • now is BEFORE the plan's day → the whole plan is ahead → 0.
+    /// Keeps the cross-midnight disruption flow scoped to the plan's own day window.
+    static func planNowMinutes(_ now: Date, planDay: Date) -> Int {
+        let cal = Calendar.current
+        let dayStart = cal.startOfDay(for: planDay)
+        let dayCount = cal.dateComponents([.day], from: dayStart, to: cal.startOfDay(for: now)).day ?? 0
+        if dayCount == 0 { return nowMinutes(now) }
+        return dayCount > 0 ? 1440 : 0
+    }
+
     // MARK: - Trigger
 
     /// What kicked off the re-plan. Drives the default WHY phrasing and how
@@ -223,7 +241,7 @@ enum DisruptionService {
     /// untouched — a re-plan only reshapes what's still to come. Unscheduled
     /// ("anytime") goal-work counts as remaining. Settled items are excluded.
     static func remainingActions(in plan: DailyPlan, now: Date = .now) -> [PlannedAction] {
-        let nowMin = nowMinutes(now)
+        let nowMin = planNowMinutes(now, planDay: plan.date)
         return (plan.actions ?? []).filter { action in
             if isSettled(action) { return false }
             guard let start = DailyTimeline.minutes(from: action.timeSlot) else { return true } // anytime
@@ -292,7 +310,7 @@ enum DisruptionService {
             wakeOverride: learned?.realWakeMinutes,
             sleepOverride: learned?.realSleepMinutes
         )
-        let nowMin = nowMinutes(now)
+        let nowMin = planNowMinutes(now, planDay: plan.date)
 
         var occupied: [(start: Int, end: Int)] = []
         for a in anchors {
@@ -602,7 +620,7 @@ enum DisruptionService {
         if let level = recentEnergy, level <= 2 {
             return .lowEnergy(level: level)
         }
-        let nowMin = nowMinutes(now)
+        let nowMin = planNowMinutes(now, planDay: plan.date)
         let missed = (plan.actions ?? []).filter { action in
             guard !isSettled(action), action.anchorKind == .goalWork else { return false }
             guard let start = DailyTimeline.minutes(from: action.timeSlot) else { return false }

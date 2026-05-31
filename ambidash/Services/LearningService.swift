@@ -96,6 +96,21 @@ enum LearningService {
         // activity logs say nothing about when the user actually woke or went to bed.
         let health = actuals.filter { $0.source == .health }
         guard !health.isEmpty else { return (nil, nil) }
+        // A sleep sample that crosses midnight is recorded with endMinutes < startMinutes
+        // (start = bedtime the prior evening, end = this morning's wake). For those the
+        // morning WAKE is the event's END and the SLEEP/bedtime is its START — the
+        // opposite of a same-day event. Treat them specially so an overnight night isn't
+        // read as "woke at 23:00, slept at 07:00".
+        let overnight = health.filter { $0.endMinutes < $0.startMinutes }
+        if !overnight.isEmpty {
+            // Wake = the latest morning wake-up (end) across overnight samples; sleep =
+            // the earliest bedtime (start). Same-day health samples (workouts etc.) still
+            // contribute their plain start/end as a fallback floor/ceiling.
+            let sameDay = health.filter { $0.endMinutes >= $0.startMinutes }
+            let wake = (overnight.map(\.endMinutes) + sameDay.map(\.startMinutes)).max()
+            let sleep = (overnight.map(\.startMinutes) + sameDay.map(\.endMinutes)).min()
+            return (wake, sleep)
+        }
         let wake = health.map(\.startMinutes).min()
         let sleep = health.map(\.endMinutes).max()
         return (wake, sleep)

@@ -133,9 +133,10 @@ enum LiveActivityService {
             }()
             guard live, action.statusRaw == "pending" || action.statusRaw == "",
                   let startMin = DailyTimeline.minutes(from: action.timeSlot) else { return nil }
-            let start = dayStart.addingTimeInterval(TimeInterval(startMin * 60))
+            let cal = Calendar.current
+            let start = cal.date(byAdding: .minute, value: startMin, to: dayStart) ?? dayStart.addingTimeInterval(TimeInterval(startMin * 60))
             let duration = max(1, action.durationMinutes)
-            let end = start.addingTimeInterval(TimeInterval(duration * 60))
+            let end = cal.date(byAdding: .minute, value: duration, to: start) ?? start.addingTimeInterval(TimeInterval(duration * 60))
             // The accent domain is left empty here (the widget renders a neutral
             // accent) to avoid a Goal fetch on this hot plan-change path; the
             // precise per-goal domain already reaches the Lock Screen / Home

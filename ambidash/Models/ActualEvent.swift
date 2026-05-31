@@ -115,7 +115,17 @@ final class ActualEvent: Identifiable {
 
     /// Actual duration in minutes (clamped non-negative). The signal the learning
     /// layer compares against the plan's `durationMinutes`.
-    var actualDurationMinutes: Int { max(0, endMinutes - startMinutes) }
+    ///
+    /// Overnight events (a sleep block recorded as start=bedtime, end=next-morning
+    /// wake) have `endMinutes < startMinutes`. A naive `end - start` clamps that to 0
+    /// and erases the whole night. Special-case it: when the end-of-day minute is
+    /// before the start, the event crossed midnight, so add a full day (+1440) to the
+    /// end before differencing.
+    var actualDurationMinutes: Int {
+        let raw = endMinutes - startMinutes
+        if raw < 0 { return (endMinutes + 1440) - startMinutes }   // crossed midnight
+        return raw
+    }
 }
 
 // MARK: - String-keyed enums (additive / forward-compatible)

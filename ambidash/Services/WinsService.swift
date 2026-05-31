@@ -130,7 +130,7 @@ enum WinsService {
     /// Convenience: the last `days` days ending now (inclusive of today). Used by both
     /// the component preview (recent wins) and the weekly review (7-day window).
     static func recentInterval(days: Int, ending end: Date = .now, calendar: Calendar = .current) -> DateInterval {
-        let endOfToday = calendar.startOfDay(for: end).addingTimeInterval(24 * 3600)
+        let endOfToday = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: end)) ?? calendar.startOfDay(for: end).addingTimeInterval(24 * 3600)
         let start = calendar.date(byAdding: .day, value: -(max(1, days) - 1), to: calendar.startOfDay(for: end)) ?? calendar.startOfDay(for: end)
         return DateInterval(start: start, end: endOfToday)
     }
