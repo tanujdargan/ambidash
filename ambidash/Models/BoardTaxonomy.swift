@@ -34,6 +34,12 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// a low reading is information, never failure. Feeds the on-device learning /
     /// re-prioritization layer.
     case energyCheckin
+    /// Build-order #8 — gentle PATTERN check-ins. Reads the on-device LearnedProfile
+    /// (real-vs-target wake/sleep, adherence-by-hour, duration deltas) and surfaces a
+    /// persistent drift as an OFFER, never a verdict ("you've been waking ~8:30 — move
+    /// the plan, or keep your target?"). Accepting edits UserPreferences. Confidence-
+    /// gated + non-punitive; renders nothing when there's no pattern worth surfacing.
+    case patternCheckIn
     /// Fallback for raw values this build doesn't understand.
     case unknown
 }

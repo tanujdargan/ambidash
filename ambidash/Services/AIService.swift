@@ -275,6 +275,14 @@ enum AIService {
         return try await callAPI(prompt: prompt)
     }
 
+    /// A thin, general-purpose BYOK completion for callers that just need a single
+    /// short text reply (e.g. DisruptionPhrasing's one-sentence rationale) and don't
+    /// warrant a bespoke prompt builder. Reuses the single networking layer — no
+    /// second one — and inherits the same `.notConfigured` guard.
+    static func rawCompletion(prompt: String) async throws -> String {
+        try await callAPI(prompt: prompt)
+    }
+
     private static func callAPI(prompt: String) async throws -> String {
         guard AIConfig.isConfigured else { throw AIError.notConfigured }
 

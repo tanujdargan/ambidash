@@ -5,6 +5,9 @@ import SwiftData
 struct AmbidashApp: App {
     @State private var themeManager = ThemeManager()
     @State private var deepLinkTab: Int?
+    // Owns the UNUserNotificationCenterDelegate so the gentle-check-in interactive
+    // actions are live from launch (categories alone are inert without a delegate).
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     init() {
         if CommandLine.arguments.contains("--reset-state") {
@@ -25,6 +28,13 @@ struct AmbidashApp: App {
                 .onOpenURL { url in
                     if let link = DeepLink.from(url: url) {
                         deepLinkTab = link.tabIndex
+                    }
+                }
+                // A notification tap / action routes its deep link here so taps on
+                // gentle check-ins land the user on the right tab.
+                .onReceive(NotificationCenter.default.publisher(for: NotificationDelegate.deepLinkNotification)) { note in
+                    if let tab = note.userInfo?["tabIndex"] as? Int {
+                        deepLinkTab = tab
                     }
                 }
         }

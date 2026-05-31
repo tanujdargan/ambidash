@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Design principle #3 — "Make time visible & spatial, not a checklist."
 ///
@@ -20,6 +21,14 @@ struct DailyTimelineComponent: View {
 
     /// The block the user tapped — drives the detail sheet.
     @State private var selected: PlannedAction?
+
+    /// MID-DAY DISRUPTION MODE (differentiator #1) — the trigger that opens the
+    /// re-plan diff sheet, nil when closed. Set by the manual "Day changed?" button,
+    /// the health-flare path, or an accepted auto-detect offer.
+    @State private var disruptionTrigger: DisruptionService.Trigger?
+    /// Recent energy check-ins, for the low-energy auto-detect offer. Small @Query —
+    /// the same pattern EnergyCheckinComponent uses. Read-only here.
+    @Query(sort: \EnergyCheckin.date, order: .reverse) private var recentCheckins: [EnergyCheckin]
     /// A live clock that re-resolves block status (past / current / next) as the day
     /// moves. Updated once a minute; the per-second countdown is handled by the
     /// system via `Text(timerInterval:)`, so this stays cheap.
@@ -33,6 +42,12 @@ struct DailyTimelineComponent: View {
         let t = tm.resolved
         VStack(alignment: .leading, spacing: t.space.component) {
             header(t)
+
+            // MID-DAY DISRUPTION MODE — the manual "Day changed?" trigger + a soft
+            // auto-detect offer, shown only when there's a plan to reshape.
+            if boardData.todayPlan != nil && !blocks.isEmpty {
+                disruptionBar(t)
+            }
 
             if blocks.isEmpty {
                 emptyState(t)
@@ -58,11 +73,28 @@ struct DailyTimelineComponent: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
         .onReceive(minuteTick) { value in
             withAnimation(MotionPreference.animation(.ambidashSpring)) { now = value }
+            // Re-evaluate the rough-day signal each minute; fire a gentle, interactive
+            // check-in the first time a rough day is detected today.
+            maybeOfferGentleCheckin()
         }
-        .onAppear { now = .now }
+        .onAppear {
+            now = .now
+            maybeOfferGentleCheckin()
+        }
         .sheet(item: $selected) { action in
             TimelineBlockDetailSheet(action: action)
                 .environment(tm)
+        }
+        .sheet(item: $disruptionTrigger) { trigger in
+            if let plan = boardData.todayPlan {
+                DisruptionDiffSheet(
+                    plan: plan,
+                    goals: boardData.activeGoals,
+                    prefs: boardData.profile?.userPreferences,
+                    trigger: trigger
+                )
+                .environment(tm)
+            }
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Day timeline")
@@ -79,6 +111,122 @@ struct DailyTimelineComponent: View {
                 .font(.system(size: 10, design: .monospaced))
                 .monospacedDigit()
                 .foregroundStyle(t.faint)
+        }
+    }
+
+    // MARK: - Disruption trigger
+
+    /// The auto-detected trigger to softly OFFER (low energy / many missed blocks),
+    /// or nil when the day looks fine. Never acts on its own — just a gentle banner.
+    private var autoDetected: DisruptionService.Trigger? {
+        guard let plan = boardData.todayPlan else { return nil }
+        let recentEnergy = LearningService.recentEnergyLevel(checkins: recentCheckins, reference: now)
+        return DisruptionService.suggestedTrigger(plan: plan, recentEnergy: recentEnergy, now: now)
+    }
+
+    /// GENTLE CHECK-IN — when the day is auto-detected as rough (low energy or several
+    /// slipped blocks), fire the interactive `GENTLE_CHECKIN` notification ("I feel
+    /// better" / "Move my plan" / "Just one thing") ONCE per day. This is the real
+    /// trigger that makes the action-first check-in reachable; the disruption sheet is
+    /// still one tap away in-app, this just surfaces the same help when the user may
+    /// not be looking. Deduped per calendar day via UserDefaults.
+    private func maybeOfferGentleCheckin() {
+        guard autoDetected != nil else { return }
+        let dayKey = Self.gentleCheckinDayKey(for: now)
+        let lastKey = "gentleCheckin.lastDay"
+        guard UserDefaults.standard.string(forKey: lastKey) != dayKey else { return }
+        UserDefaults.standard.set(dayKey, forKey: lastKey)
+        // A short delay so it lands as a calm Notification-Center nudge, not an
+        // instant interruption. NotificationService clamps it to the waking window.
+        NotificationService.scheduleGentleCheckin(after: 60)
+    }
+
+    private static func gentleCheckinDayKey(for date: Date) -> String {
+        let c = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        return "\(c.year ?? 0)-\(c.month ?? 0)-\(c.day ?? 0)"
+    }
+
+    /// The "your day changed" affordances: a manual re-plan trigger, a humane
+    /// health-flare path, and a soft auto-detect offer when signals suggest one.
+    @ViewBuilder
+    private func disruptionBar(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                triggerChip(
+                    "My day changed",
+                    icon: "arrow.triangle.2.circlepath",
+                    t: t
+                ) { disruptionTrigger = .manual }
+
+                triggerChip(
+                    "Health first",
+                    icon: "heart.text.square",
+                    t: t
+                ) { disruptionTrigger = .healthFlare }
+            }
+
+            // Soft auto-detect OFFER — calm, dismissible by simply ignoring it. Uses
+            // the deferred token, never red. Tapping opens the same diff sheet.
+            if let auto = autoDetected {
+                Button {
+                    Haptics.light()
+                    disruptionTrigger = auto
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11))
+                        Text(autoOfferText(auto))
+                            .font(.system(size: 11))
+                            .multilineTextAlignment(.leading)
+                        Spacer(minLength: 4)
+                        Image(systemName: "chevron.right").font(.system(size: 9))
+                    }
+                    .foregroundStyle(t.deferred)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(t.sunken.opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(t.hair, lineWidth: 0.5))
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .scaleOnPress()
+                .transition(.opacity)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func triggerChip(_ label: String, icon: String, t: ResolvedTheme, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.light()
+            action()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: icon).font(.system(size: 11))
+                Text(label).font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(t.accent)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(t.accentSoft)
+            .clipShape(Capsule())
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .scaleOnPress()
+    }
+
+    private func autoOfferText(_ trigger: DisruptionService.Trigger) -> String {
+        switch trigger {
+        case .lowEnergy:
+            return "Energy's running low — want a lighter rest-of-day?"
+        case .missedBlocks(let count):
+            let qty = count >= 4 ? "Several" : "A few"
+            return "\(qty) blocks slipped — reshape what's left?"
+        default:
+            return "Want to reshape the rest of your day?"
         }
     }
 

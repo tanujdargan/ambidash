@@ -150,6 +150,11 @@ struct DashboardView: View {
                 await manager.requestAllPermissions()
                 await manager.refreshTodaySnapshot(in: modelContext)
                 if !IntegrationManager.skipPermissions {
+                    // Provisional auth (no upfront wall) + clamp every scheduler to
+                    // the user's real waking window so nothing fires while asleep.
+                    if let prefs = profile?.userPreferences {
+                        NotificationService.configureWakingWindow(wake: prefs.wakeTime, sleep: prefs.sleepTime)
+                    }
                     await NotificationService.requestPermission()
                     NotificationService.scheduleDailyReminder()
                     NotificationService.scheduleMorningPlan()

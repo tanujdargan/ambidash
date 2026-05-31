@@ -28,17 +28,26 @@ struct BlockLogSheet: View {
     /// Existing actuals for THIS block (so a re-log updates the same record).
     @Query private var existingActuals: [ActualEvent]
 
-    @State private var status: ActualCompletionStatus = .completed
+    @State private var status: ActualCompletionStatus
     @State private var energy: Int = 0            // 0 = not reported
     @State private var actualMinutes: Int
     @State private var note: String = ""
 
-    init(action: PlannedAction, onLogged: @escaping () -> Void = {}) {
+    /// W4 — when opened from the primary "Partly" affordance on Today, the sheet
+    /// pre-selects `.partial` (and a sensible half-duration) so the partial
+    /// lifecycle the save() switch already drives is reachable from the main Done
+    /// flow, not only the detail sheet's "How'd that go?". Defaults to `.completed`
+    /// to preserve every existing call site.
+    init(action: PlannedAction, initialStatus: ActualCompletionStatus = .completed, onLogged: @escaping () -> Void = {}) {
         self.action = action
         self.onLogged = onLogged
         let aid = action.id
         _existingActuals = Query(filter: #Predicate<ActualEvent> { $0.linkedActionID == aid })
-        _actualMinutes = State(initialValue: max(0, action.durationMinutes))
+        _status = State(initialValue: initialStatus)
+        // A partial open seeds half the planned duration as a gentle starting
+        // guess (still freely editable); any other status keeps the full estimate.
+        let planned = max(0, action.durationMinutes)
+        _actualMinutes = State(initialValue: initialStatus == .partial ? max(1, planned / 2) : planned)
     }
 
     var body: some View {
@@ -211,7 +220,12 @@ struct BlockLogSheet: View {
     /// re-opening edits the same record instead of starting blank.
     private func hydrateFromExisting() {
         guard let ev = existingActuals.max(by: { $0.loggedAt < $1.loggedAt }) else { return }
-        status = ev.completionStatus
+        // Don't clobber an explicit `.partial` seed (the primary "Partly"
+        // affordance) with a prior `.completed` log — keep the energy/duration/note
+        // hydration but honor the user's just-chosen status.
+        if status != .partial {
+            status = ev.completionStatus
+        }
         energy = ev.energyAtStart
         actualMinutes = ev.actualDurationMinutes
         note = ev.notes
@@ -283,6 +297,11 @@ struct BlockLogSheet: View {
             // a plain pending block with no trace.
             CarryOverService.letGo(action)
         }
+
+        // The user has logged this block (done / partly / didn't) — they've engaged
+        // with it, so silence its escalating reminder chain. A partial still rolls
+        // forward and will get a fresh chain when tomorrow's plan is generated.
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
 
         Haptics.success()
         try? modelContext.save()

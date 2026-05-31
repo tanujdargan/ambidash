@@ -33,6 +33,10 @@ struct TodayView: View {
     @State private var rescheduleTarget: PlannedAction?
     /// #14 — the action awaiting a skip reason. Presents SkipReasonSheet.
     @State private var skipTarget: PlannedAction?
+    /// W4 — the action being logged as a partial from the primary Done flow.
+    /// Presents BlockLogSheet pre-set to `.partial` so the honored-partial
+    /// lifecycle is reachable without leaving Today for the detail sheet.
+    @State private var partlyTarget: PlannedAction?
 
     var body: some View {
         let t = tm.resolved
@@ -86,6 +90,9 @@ struct TodayView: View {
             }
             .sheet(item: $skipTarget) { action in
                 SkipReasonSheet(action: action)
+            }
+            .sheet(item: $partlyTarget) { action in
+                BlockLogSheet(action: action, initialStatus: .partial)
             }
         }
     }
@@ -210,6 +217,13 @@ struct TodayView: View {
                     action.statusRaw = "done"
                     action.completedAt = .now
                     handleDone(action)
+                }
+                // W4 — honored partial straight off the primary control: opens the
+                // gentle log sheet pre-set to .partial so a half-done block keeps
+                // its lifecycle signal instead of being silently logged "completed".
+                PillButton(label: "Partly") {
+                    Haptics.light()
+                    partlyTarget = action
                 }
                 PillButton(label: "Skip") {
                     Haptics.light()
@@ -435,6 +449,12 @@ struct TodayView: View {
             }
             Button {
                 Haptics.light()
+                partlyTarget = action
+            } label: {
+                Label("Did it partly", systemImage: "circle.lefthalf.filled")
+            }
+            Button {
+                Haptics.light()
                 skipTarget = action
             } label: {
                 Label("Skip", systemImage: "forward")
@@ -590,6 +610,11 @@ struct TodayView: View {
                 CarryOverService.carryForward(into: plan, from: prior, context: modelContext)
             }
             try? modelContext.save()
+            // ACTION-FIRST NOTIFICATIONS — now that today's plan exists, schedule the
+            // escalating reminder chain (day-before → 2h → 15m → now-with-physical-
+            // step) for every future goal-work block. Idempotent per block; back-off
+            // and waking-window clamps are handled inside NotificationService.
+            NotificationService.scheduleChains(for: plan.actions ?? [], on: plan.date)
             PremiumGateService.recordPlanGeneration()
             Haptics.medium()
         }
@@ -895,6 +920,8 @@ struct TodayView: View {
 
         // Retire the original on today's plan.
         action.statusRaw = "skipped"
+        // Silence its reminder chain — it's rolling forward, not happening now.
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
         try? modelContext.save()
     }
 
@@ -953,6 +980,10 @@ struct TodayView: View {
         // even for the dominant tap-Done flow. De-dupe on linkedActionID so re-marking
         // (or a manual BlockLogSheet log) never piles up a second actual.
         recordInferredActual(for: action)
+
+        // The block is done — silence its escalating reminder chain so a completed
+        // task never pings "now: start" afterward.
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
 
         try? modelContext.save()
     }
@@ -1303,6 +1334,7 @@ private struct SkipReasonSheet: View {
         }
         action.skipReason = combined
         action.statusRaw = "skipped"
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
         try? modelContext.save()
         dismiss()
     }

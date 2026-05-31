@@ -173,6 +173,17 @@ enum ComponentRegistry {
             defaultConfig: "{}",
             isSingleton: true
         ),
+        ComponentDescriptor(
+            kind: .patternCheckIn,
+            title: "Gentle Check-in",
+            sfSymbol: "sparkles",
+            category: .insights,
+            blurb: "Notices how your days actually go and offers a kinder plan — never a verdict.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
     ]
 
     static func descriptor(for kind: ComponentKind) -> ComponentDescriptor? {
@@ -216,6 +227,11 @@ enum ComponentRegistry {
             // Owns a small @Query for today's check-ins (mutated by tapping), so it
             // is intentionally NOT fed from the static BoardData snapshot.
             EnergyCheckinComponent()
+        case .patternCheckIn:
+            // Owns small @Querys for recent actuals/check-ins to derive the gentle
+            // offer; reads prefs/goals from BoardData. Renders nothing when there's no
+            // persistent pattern worth surfacing.
+            PatternCheckInComponent(boardData: boardData)
         case .mentorCard:
             MentorComponent(boardData: boardData)
         case .identityLine:

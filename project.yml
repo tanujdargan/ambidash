@@ -51,6 +51,9 @@ targets:
           - "iCloud.com.ambidash.app"
         com.apple.developer.icloud-services:
           - "CloudKit"
+        # Self-serve capability — lets gentle now-moment block-start nudges use
+        # interruptionLevel .timeSensitive (pierces Focus, NEVER critical).
+        com.apple.developer.usernotifications.time-sensitive: true
     dependencies:
       - target: ambidash-widget
         embed: true
@@ -69,6 +72,7 @@ targets:
           - App/AmbidashApp.swift
           - App/RootView.swift
           - App/MainTabView.swift
+          - App/NotificationDelegate.swift
           - Views
           - Intents
           - Services/HealthKitService.swift
