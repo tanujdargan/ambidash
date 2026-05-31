@@ -185,7 +185,9 @@ struct DataRowView: View {
                 if let trend {
                     Text(trend)
                         .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(trend.hasPrefix("+") ? t.ok : t.danger)
+                        // Non-punitive: a downward trend is informational, not a
+                        // failure — fade it (deferred), reserve danger for real errors.
+                        .foregroundStyle(trend.hasPrefix("+") ? t.ok : t.deferred)
                 }
             }
         }
@@ -380,7 +382,8 @@ struct TargetProgressBar: View {
             switch variance {
             case .ahead: return t.ok
             case .onTrack: return t.ink
-            case .behind: return t.danger
+            // Non-punitive: behind pace fades to the deferred token, never red.
+            case .behind: return t.deferred
             }
         }()
 
@@ -438,7 +441,8 @@ struct VariancePill: View {
         case .onTrack:
             color = t.muted; label = "On pace"
         case .behind:
-            color = t.danger; label = "Behind pace"
+            // Non-punitive: "behind" is reframed as "not yet" with the deferred token.
+            color = t.deferred; label = "Not yet"
         }
         return Text(label.uppercased())
             .font(.system(size: 9, weight: .medium, design: .monospaced))
@@ -469,7 +473,8 @@ struct StatusDot: View {
         switch status {
         case .onTrack: t.ok
         case .needsAttention: t.accent
-        case .slipping: t.danger
+        // Non-punitive: a slipping goal fades (deferred), never shows red.
+        case .slipping: t.deferred
         case .paused: t.faint
         }
     }

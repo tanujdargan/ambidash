@@ -17,9 +17,29 @@ targets:
     platform: iOS
     sources:
       - path: ambidash
+        excludes:
+          # The explicit base Info.plist (used only to inject NSAlarmKitUsageDescription)
+          # must not be compiled as a source file.
+          - Info.plist
+      # Shared ActivityKit attributes type — physically lives in the widget
+      # extension folder but is compiled into the app too so the app can
+      # Activity.request(...) it. Kept plain-Codable / app-enum-free on purpose.
+      - path: ambidash-widget/PlanBlockAttributes.swift
+      # Shared AlarmKit Stop/Snooze App Intents — same discipline: compiled into the
+      # app too so AlarmService can reference them when building an AlarmConfiguration.
+      - path: ambidash-widget/BlockAlarmIntents.swift
     settings:
       base:
         GENERATE_INFOPLIST_FILE: true
+        # Explicit BASE Info.plist carrying NSAlarmKitUsageDescription (GENTLE TIMELINE
+        # ALARMS). That key is NOT in Xcode's INFOPLIST_KEY_* auto-emit allowlist, so a
+        # build-setting alone is silently dropped and AlarmKit then refuses to schedule.
+        # GENERATE_INFOPLIST_FILE still merges every INFOPLIST_KEY_* below on top of it.
+        INFOPLIST_FILE: ambidash/Info.plist
+        # Live Activities (ActivityKit) — required on the HOST APP so the Now/Next
+        # focus Live Activity can be requested. Injected into the generated
+        # Info.plist via the INFOPLIST_KEY_ build-setting prefix.
+        INFOPLIST_KEY_NSSupportsLiveActivities: true
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
         INFOPLIST_KEY_UILaunchScreen_Generation: true
@@ -35,9 +55,9 @@ targets:
         CURRENT_PROJECT_VERSION: "9"
         INFOPLIST_KEY_CFBundleDisplayName: "AmbiDash"
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.lifestyle"
-        INFOPLIST_KEY_CFBundleURLTypes:
-          - CFBundleURLSchemes:
-              - ambidash
+        # CFBundleURLTypes (the ambidash:// deep-link scheme) is declared in the
+        # explicit base ambidash/Info.plist — once that file exists, this array-valued
+        # build setting no longer merges, so it must not be duplicated here.
     entitlements:
       path: ambidash/ambidash.entitlements
       properties:
@@ -51,6 +71,9 @@ targets:
           - "iCloud.com.ambidash.app"
         com.apple.developer.icloud-services:
           - "CloudKit"
+        # Self-serve capability — lets gentle now-moment block-start nudges use
+        # interruptionLevel .timeSensitive (pierces Focus, NEVER critical).
+        com.apple.developer.usernotifications.time-sensitive: true
     dependencies:
       - target: ambidash-widget
         embed: true
@@ -69,12 +92,14 @@ targets:
           - App/AmbidashApp.swift
           - App/RootView.swift
           - App/MainTabView.swift
+          - App/NotificationDelegate.swift
           - Views
           - Intents
           - Services/HealthKitService.swift
           - Services/EventKitService.swift
           - Services/ScreenTimeService.swift
           - Services/NotificationService.swift
+          - Services/AlarmService.swift
           - Services/IntegrationManager.swift
       - path: ambidash-mac
     settings:
@@ -150,6 +175,15 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.widget
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "9"
+    # App Group so the widget's UserDefaults(suiteName: "group.com.ambidash.app")
+    # (WidgetSharedData) shares the app<->widget channel the Live Activity / tap-to-log
+    # inbox features rely on. Without it the suite store is unusable on a real device
+    # and the round-trip silently fails (simulator is more permissive and masks this).
+    entitlements:
+      path: ambidash-widget/ambidash-widget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - "group.com.ambidash.app"
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework

@@ -17,10 +17,13 @@ final class OnboardingUITests: XCTestCase {
 
     func testPaletteOptionsVisible() throws {
         XCTAssertTrue(app.staticTexts["Make it yours."].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Yellow"].exists)
-        XCTAssertTrue(app.staticTexts["Cool"].exists)
-        XCTAssertTrue(app.staticTexts["Forest"].exists)
-        XCTAssertTrue(app.staticTexts["Rose"].exists)
+        // Palette labels live inside Buttons (alongside the colour swatches), so
+        // depending on how XCUITest flattens the label they surface as either a
+        // staticText or the button's own label. Accept either.
+        XCTAssertTrue(elementExists("Yellow"))
+        XCTAssertTrue(elementExists("Cool"))
+        XCTAssertTrue(elementExists("Forest"))
+        XCTAssertTrue(elementExists("Rose"))
     }
 
     func testTypographyOptionsVisible() throws {
@@ -32,8 +35,16 @@ final class OnboardingUITests: XCTestCase {
 
     func testDensityOptionsVisible() throws {
         XCTAssertTrue(app.staticTexts["Make it yours."].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Calm"].exists)
-        XCTAssertTrue(app.staticTexts["Detailed"].exists)
+        // Density options are single-Text Buttons, so the label is absorbed into
+        // the Button's accessibility label rather than a separate staticText.
+        XCTAssertTrue(elementExists("Calm"))
+        XCTAssertTrue(elementExists("Detailed"))
+    }
+
+    /// True if a label is present anywhere on screen, whether XCUITest exposes it
+    /// as a staticText or as a Button label (single-Text buttons collapse the two).
+    private func elementExists(_ label: String) -> Bool {
+        app.staticTexts[label].exists || app.buttons[label].exists
     }
 
     func testContinueNavigatesToWelcome() throws {

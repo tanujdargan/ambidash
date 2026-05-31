@@ -181,7 +181,7 @@ struct WeeklyReviewView: View {
             switch milestone.status {
             case .onTrack: return t.ok
             case .needsAttention: return t.accent
-            case .slipping: return t.danger
+            case .slipping: return t.deferred
             case .paused: return t.ink
             }
         }()
@@ -209,7 +209,7 @@ struct WeeklyReviewView: View {
             // Bar chart data
             let data: [(String, Int, Color)] = [
                 ("Done", doneCount, t.ok),
-                ("Skipped", skippedCount, t.danger),
+                ("Skipped", skippedCount, t.deferred),
                 ("Pending", pendingCount, t.faint),
             ]
 
@@ -319,7 +319,7 @@ struct WeeklyReviewView: View {
                 Spacer()
                 Text(avg >= 7 ? "on target" : "below 7hr target")
                     .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(avg >= 7 ? t.ok : t.danger)
+                    .foregroundStyle(avg >= 7 ? t.ok : t.muted)
             }
         }
         .padding(16)

@@ -177,6 +177,9 @@ enum WidgetSnapshotWriter {
         var topGoalStatus: String
         var tasks: [WidgetTaskDTO]
         var goals: [GoalSummary]
+        /// The block running right now (the radical-focus "Now"). Optional so the
+        /// widget's additive `nowTask` decode stays in lock-step.
+        var nowTask: WidgetTaskDTO?
     }
 
     static func write(context: ModelContext) {
@@ -235,6 +238,19 @@ enum WidgetSnapshotWriter {
             )
         }
 
+        // NOW/NEXT — the block running right now: timeSlot <= now < timeSlot+duration.
+        // Computed off the same pending, time-sorted task list the widget renders so
+        // the "Now" framing matches the rest of the snapshot exactly.
+        let nowMinutes: Int = {
+            let comps = Calendar.current.dateComponents([.hour, .minute], from: .now)
+            return (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
+        }()
+        let nowTask: WidgetTaskDTO? = tasks.first { task in
+            guard let start = DailyTimeline.minutes(from: task.timeSlot) else { return false }
+            let end = start + max(0, task.durationMinutes)
+            return start <= nowMinutes && nowMinutes < end
+        }
+
         let topGoal = activeGoals.max(by: { $0.neglectDays < $1.neglectDays })
         let snapshot = Snapshot(
             generatedAt: .now,
@@ -243,7 +259,8 @@ enum WidgetSnapshotWriter {
             topGoalTitle: topGoal?.title ?? "Open AmbiDash",
             topGoalStatus: topGoal.map { GoalHealthService.summaryText(for: $0) } ?? "",
             tasks: tasks,
-            goals: goals
+            goals: goals,
+            nowTask: nowTask
         )
 
         let encoder = JSONEncoder()

@@ -253,6 +253,36 @@ enum AIService {
         return try await callAPI(prompt: prompt)
     }
 
+    /// Suggest a gentle triage for ONE captured thought (capture inbox, BYOK tier).
+    /// Returns a compact JSON object `{ "kind": "task|goal|note", "title": "…",
+    /// "durationMinutes": Int }`. The captured text is untrusted user content and is
+    /// placed in the message body, never used to build instructions. This is the
+    /// BYOK fallback BELOW on-device Foundation Models; callers degrade to the local
+    /// heuristic if it throws.
+    static func triageCaptureJSON(text: String) async throws -> String {
+        let prompt = """
+        Triage a single captured thought for a calm, non-punitive personal \
+        dashboard. Classify it as exactly one of: "task" (a small doable action), \
+        "goal" (a longer-range aspiration), or "note" (an idea with no clear \
+        action). Provide a short, kind restatement as "title". If it is a task, set \
+        "durationMinutes" to an estimate, else 0. Never invent urgency.
+
+        Respond with ONLY a JSON object and nothing else:
+        {"kind":"task|goal|note","title":"<short title>","durationMinutes":<int>}
+
+        Thought: \(text)
+        """
+        return try await callAPI(prompt: prompt)
+    }
+
+    /// A thin, general-purpose BYOK completion for callers that just need a single
+    /// short text reply (e.g. DisruptionPhrasing's one-sentence rationale) and don't
+    /// warrant a bespoke prompt builder. Reuses the single networking layer — no
+    /// second one — and inherits the same `.notConfigured` guard.
+    static func rawCompletion(prompt: String) async throws -> String {
+        try await callAPI(prompt: prompt)
+    }
+
     private static func callAPI(prompt: String) async throws -> String {
         guard AIConfig.isConfigured else { throw AIError.notConfigured }
 

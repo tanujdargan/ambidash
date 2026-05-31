@@ -12,6 +12,9 @@ struct ReflectView: View {
     @State private var q1Text = ""
     @State private var q2Text = ""
     @State private var q3Text = ""
+    /// CLOSING RITUAL — presents the gentle end-of-day flow (also reachable from the
+    /// dashboard "Close the Day" component + the evening notification).
+    @State private var showClosingRitual = false
 
     private var todayPlan: DailyPlan? {
         plans.first { Calendar.current.isDate($0.date, inSameDayAs: .now) }
@@ -60,6 +63,35 @@ struct ReflectView: View {
                                 .padding(.horizontal, 22)
                                 .padding(.top, 14)
                                 .fadeSlideIn(delay: 0.1)
+
+                            // CLOSING RITUAL — gentle one-tap entry to the calm
+                            // end-of-day wrap (celebrate today + tomorrow's one thing).
+                            Button {
+                                showClosingRitual = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "moon.stars")
+                                        .font(.system(size: 13))
+                                        .foregroundStyle(t.accent)
+                                    Text("Close the day")
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundStyle(t.ink)
+                                    Spacer(minLength: 0)
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 10, weight: .semibold))
+                                        .foregroundStyle(t.faint)
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 11)
+                                .background(t.surface)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(t.hair, lineWidth: 0.5))
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 22)
+                            .padding(.top, 18)
+                            .fadeSlideIn(delay: 0.15)
 
                             // Day summary (compact)
                             if let plan = todayPlan {
@@ -127,6 +159,10 @@ struct ReflectView: View {
             .background(t.bg)
             .navigationTitle("Reflect")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showClosingRitual) {
+                ClosingRitualSheet()
+                    .environment(tm)
+            }
             .onAppear {
                 if let r = todayReflection {
                     // Pre-populate from saved freeformText if present

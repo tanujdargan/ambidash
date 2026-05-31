@@ -79,11 +79,21 @@ enum DailyTimeline {
     /// Builds the day's fixed-anchor + routine skeleton from the user's prefs,
     /// time-ordered. Returns an empty array when no prefs are set, so the caller
     /// falls back to a goal-work-only plan.
-    static func skeleton(from prefs: UserPreferences?) -> [Entry] {
+    ///
+    /// `wakeOverride` / `sleepOverride` (minutes-from-midnight) let a caller anchor
+    /// the day to the user's LEARNED/actual wake & sleep (LearningService.inferWakeSleep)
+    /// instead of the ideal `UserPreferences` targets — so a re-plan's free gaps fit the
+    /// real day. nil keeps the preference value (identity no-op), so existing callers
+    /// are unchanged.
+    static func skeleton(
+        from prefs: UserPreferences?,
+        wakeOverride: Int? = nil,
+        sleepOverride: Int? = nil
+    ) -> [Entry] {
         guard let p = prefs else { return [] }
 
-        let wake = minutes(from: p.wakeTime) ?? (7 * 60)
-        let sleep = minutes(from: p.sleepTime) ?? (23 * 60 + 30)
+        let wake = wakeOverride ?? minutes(from: p.wakeTime) ?? (7 * 60)
+        let sleep = sleepOverride ?? minutes(from: p.sleepTime) ?? (23 * 60 + 30)
         var entries: [Entry] = []
 
         // Morning routine — anchored at wake, instruction-style. Pulls the user's

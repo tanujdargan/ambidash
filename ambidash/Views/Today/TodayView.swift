@@ -3,6 +3,7 @@ import SwiftData
 
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(ThemeManager.self) private var tm
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query private var profiles: [UserProfile]
@@ -33,6 +34,10 @@ struct TodayView: View {
     @State private var rescheduleTarget: PlannedAction?
     /// #14 — the action awaiting a skip reason. Presents SkipReasonSheet.
     @State private var skipTarget: PlannedAction?
+    /// W4 — the action being logged as a partial from the primary Done flow.
+    /// Presents BlockLogSheet pre-set to `.partial` so the honored-partial
+    /// lifecycle is reachable without leaving Today for the detail sheet.
+    @State private var partlyTarget: PlannedAction?
 
     var body: some View {
         let t = tm.resolved
@@ -87,7 +92,27 @@ struct TodayView: View {
             .sheet(item: $skipTarget) { action in
                 SkipReasonSheet(action: action)
             }
+            .sheet(item: $partlyTarget) { action in
+                BlockLogSheet(action: action, initialStatus: .partial)
+            }
         }
+        // Catch the Now/Next Live Activity up to the current block whenever Today
+        // appears or the app returns to the foreground. The countdown itself is
+        // system-ticked; this only re-anchors it at block boundaries (and ends it
+        // once the day's blocks are exhausted) without any background scheduler.
+        .onAppear { refreshLiveActivity() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { refreshLiveActivity() }
+        }
+    }
+
+    /// Re-anchor / start / end the Now/Next focus Live Activity from today's plan.
+    private func refreshLiveActivity() {
+        guard let plan = todayPlan else {
+            LiveActivityService.endAll()
+            return
+        }
+        LiveActivityService.refresh(for: plan.actions ?? [], on: plan.date)
     }
 
     // MARK: - Plan Menu (reachable controls once a plan exists)
@@ -207,9 +232,20 @@ struct TodayView: View {
             HStack(spacing: 8) {
                 PillButton(label: "Mark done", primary: true) {
                     Haptics.success()
-                    action.statusRaw = "done"
-                    action.completedAt = .now
+                    // Route through the lifecycle contract so lifecycleRaw is reset to
+                    // "done" too. A raw statusRaw="done" would leave a stale non-pending
+                    // lifecycle (e.g. .deferred on a carried-over item, .partial after a
+                    // Partly log), making CarryOverService re-carry a completed task
+                    // forever and WinsService under-count it.
+                    action.applyLifecycle(.done)
                     handleDone(action)
+                }
+                // W4 — honored partial straight off the primary control: opens the
+                // gentle log sheet pre-set to .partial so a half-done block keeps
+                // its lifecycle signal instead of being silently logged "completed".
+                PillButton(label: "Partly") {
+                    Haptics.light()
+                    partlyTarget = action
                 }
                 PillButton(label: "Skip") {
                     Haptics.light()
@@ -426,12 +462,19 @@ struct TodayView: View {
     private func actionContextMenu(_ action: PlannedAction) -> some View {
         if action.statusRaw == "pending" {
             Button {
-                action.statusRaw = "done"
-                action.completedAt = .now
+                // Route through the lifecycle contract (see "Mark done" pill above) so
+                // lifecycleRaw is reset and carry-over / wins logic sees .done.
+                action.applyLifecycle(.done)
                 handleDone(action)
                 Haptics.success()
             } label: {
                 Label("Mark done", systemImage: "checkmark")
+            }
+            Button {
+                Haptics.light()
+                partlyTarget = action
+            } label: {
+                Label("Did it partly", systemImage: "circle.lefthalf.filled")
             }
             Button {
                 Haptics.light()
@@ -590,6 +633,18 @@ struct TodayView: View {
                 CarryOverService.carryForward(into: plan, from: prior, context: modelContext)
             }
             try? modelContext.save()
+            // ACTION-FIRST NOTIFICATIONS — now that today's plan exists, schedule the
+            // escalating reminder chain (day-before → 2h → 15m → now-with-physical-
+            // step) for every future goal-work block. Idempotent per block; back-off
+            // and waking-window clamps are handled inside NotificationService.
+            NotificationService.scheduleChains(for: plan.actions ?? [], on: plan.date)
+            // GENTLE TIMELINE ALARMS — reconcile each block's opt-in start
+            // reminder/alarm (default gentle; unmissable AlarmKit/timeSensitive only
+            // where the user opted in). Idempotent alongside the chains.
+            AlarmService.reconcilePlan(for: plan.actions ?? [], on: plan.date)
+            // Start / refresh the Now/Next focus Live Activity for the freshly
+            // generated day (local-only; no-op pre-iOS 16.1 and on macOS).
+            LiveActivityService.refresh(for: plan.actions ?? [], on: plan.date)
             PremiumGateService.recordPlanGeneration()
             Haptics.medium()
         }
@@ -640,7 +695,66 @@ struct TodayView: View {
             modelContext.insert(action)
             action.plan = plan
         }
+        // CLOSING RITUAL — pin last night's chosen ONE most-important thing as a
+        // protected, top-of-day block so the day is built around it (the "keep your
+        // ONE thing" intent). No-op when none was set; when an action with the same
+        // title already exists in the plan (e.g. the user picked a piece of
+        // rolling-forward work that's already here) we don't duplicate it — but we
+        // still CONSUME the one-thing below.
+        if let oneThing = pinnedOneThing(in: actions) {
+            modelContext.insert(oneThing)
+            oneThing.plan = plan
+        }
+        // CONSUME the one-thing so it pins onto exactly ONE day's plan, not every
+        // subsequent day's protected first block. We clear it whenever the day's plan
+        // has been generated AND the one-thing is represented on it (freshly pinned OR
+        // already present as existing work) — otherwise an already-on-plan one-thing
+        // would never clear and would keep re-matching on later days. Clearing the
+        // source reflection's fields persists the consumption; the next closing ritual
+        // sets a fresh one-thing for the following day.
+        if oneThingIsConsumed(in: plan.actions ?? []), let source = latestReflection {
+            source.tomorrowOneThing = ""
+            source.tomorrowOneThingActionID = nil
+        }
         plan.actionCount = (plan.actions ?? []).count
+    }
+
+    /// CLOSING RITUAL — true when the reflection's chosen one-thing is now represented
+    /// on `actions` (by case-insensitive title match), i.e. it has been consumed by
+    /// this day's plan and the source reflection field should be cleared so it doesn't
+    /// persist into later days. False when there's no one-thing set.
+    private func oneThingIsConsumed(in actions: [PlannedAction]) -> Bool {
+        guard let raw = latestReflection?.tomorrowOneThing else { return false }
+        let title = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return false }
+        return actions.contains {
+            $0.title.trimmingCharacters(in: .whitespacesAndNewlines)
+                .caseInsensitiveCompare(title) == .orderedSame
+        }
+    }
+
+    /// CLOSING RITUAL — builds the protected "tomorrow's one thing" block from the
+    /// most recent reflection, or nil when there's nothing to pin (no one-thing set,
+    /// blank, or already represented by an existing action in `existing`).
+    private func pinnedOneThing(in existing: [PlannedAction]) -> PlannedAction? {
+        guard let raw = latestReflection?.tomorrowOneThing else { return nil }
+        let title = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return nil }
+        // Don't duplicate work already on the plan (case-insensitive title match).
+        let already = existing.contains {
+            $0.title.trimmingCharacters(in: .whitespacesAndNewlines)
+                .caseInsensitiveCompare(title) == .orderedSame
+        }
+        guard !already else { return nil }
+        guard let entry = PlanGenerator.oneThingAction(title: title) else { return nil }
+        return PlannedAction(
+            title: entry.title,
+            why: entry.why,
+            timeSlot: entry.timeSlot,
+            duration: entry.durationMinutes,
+            anchorType: entry.anchorType.rawValue,
+            scheduleCue: entry.scheduleCue
+        )
     }
 
     /// Builds the offline plan as a single woven timeline — fixed anchors + daily
@@ -652,11 +766,16 @@ struct TodayView: View {
         // PLAN REWRITE — weave anchors + routines + goal-work via PlanGenerator,
         // grounded in the user's daily-rhythm preferences (nil → goal-work only).
         let freeMinutes = resolvedFreeMinutes
+        // LEARNING ENGINE — fold the user's recent logged actuals + energy check-ins
+        // into a LearnedProfile so the offline timeline uses their real durations and
+        // active hours. Empty (no logs yet) ⇒ identical to the prior behaviour.
+        let learned = LearningService.buildProfile(from: modelContext)
         let timeline = PlanGenerator.generateTimeline(
             for: goals,
             prefs: profile?.userPreferences,
             freeMinutes: freeMinutes,
-            maxGoalActions: maxActions
+            maxGoalActions: maxActions,
+            learned: learned
         )
         return timeline.map { entry in
             let resolvedGoal = entry.goalID.flatMap { gid in goals.first { $0.id == gid } }
@@ -890,6 +1009,8 @@ struct TodayView: View {
 
         // Retire the original on today's plan.
         action.statusRaw = "skipped"
+        // Silence its reminder chain — it's rolling forward, not happening now.
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
         try? modelContext.save()
     }
 
@@ -942,7 +1063,33 @@ struct TodayView: View {
             MilestoneProgressService.contribute(amount: amount, to: milestone, context: modelContext)
         }
 
+        // LEARNING (build-order #3) — make logging mostly automatic: a Done block with
+        // a resolvable timeSlot becomes an inferred ActualEvent so the on-device
+        // LearningService has real data to adapt durations / wake-sleep / adherence,
+        // even for the dominant tap-Done flow. De-dupe on linkedActionID so re-marking
+        // (or a manual BlockLogSheet log) never piles up a second actual.
+        recordInferredActual(for: action)
+
+        // The block is done — silence its escalating reminder chain so a completed
+        // task never pings "now: start" afterward.
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
+
         try? modelContext.save()
+    }
+
+    /// Insert an `inferred` `ActualEvent` for a just-completed action, unless one is
+    /// already logged against this block (manual or inferred). Pure de-dupe by
+    /// `linkedActionID`; the surrounding `handleDone` owns the save.
+    private func recordInferredActual(for action: PlannedAction) {
+        let actionID = action.id
+        let existing = FetchDescriptor<ActualEvent>(
+            predicate: #Predicate { $0.linkedActionID == actionID }
+        )
+        let already = ((try? modelContext.fetch(existing)) ?? []).isEmpty == false
+        guard !already else { return }
+        if let ev = LearningService.inferredEvent(from: action, on: action.plan?.date ?? .now) {
+            modelContext.insert(ev)
+        }
     }
 }
 
@@ -1276,6 +1423,7 @@ private struct SkipReasonSheet: View {
         }
         action.skipReason = combined
         action.statusRaw = "skipped"
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
         try? modelContext.save()
         dismiss()
     }

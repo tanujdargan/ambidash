@@ -182,7 +182,7 @@ struct MonthlyReviewView: View {
             switch milestone.status {
             case .onTrack: return t.ok
             case .needsAttention: return t.accent
-            case .slipping: return t.danger
+            case .slipping: return t.deferred
             case .paused: return t.ink
             }
         }()
@@ -211,7 +211,7 @@ struct MonthlyReviewView: View {
                 HStack(spacing: 24) {
                     MonthStatColumn(value: "\(monthPlans.count)", label: "Plans Made", color: t.accent)
                     MonthStatColumn(value: "\(doneCount)", label: "Completed", color: t.ok)
-                    MonthStatColumn(value: "\(skippedCount)", label: "Skipped", color: t.danger)
+                    MonthStatColumn(value: "\(skippedCount)", label: "Skipped", color: t.deferred)
                     MonthStatColumn(
                         value: totalActions.isEmpty ? "—" : "\(Int(Double(doneCount) / Double(totalActions.count) * 100))%",
                         label: "Success Rate",
@@ -275,7 +275,7 @@ struct MonthlyReviewView: View {
                             Spacer()
                             Text("\(Int(pattern.skipRate * 100))% skip rate")
                                 .font(.caption)
-                                .foregroundStyle(pattern.skipRate > 0.5 ? t.danger : pattern.skipRate > 0.3 ? t.accent : t.ok)
+                                .foregroundStyle(pattern.skipRate > 0.5 ? t.deferred : pattern.skipRate > 0.3 ? t.accent : t.ok)
                         }
                     }
                 }
@@ -359,7 +359,7 @@ private struct TrendRow: View {
                 .foregroundStyle(t.ink)
             Text(improved ? "▲" : "▼")
                 .font(.caption)
-                .foregroundStyle(improved ? t.ok : t.danger)
+                .foregroundStyle(improved ? t.ok : t.muted)
         }
     }
 }

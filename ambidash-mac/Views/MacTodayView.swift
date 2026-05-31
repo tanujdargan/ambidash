@@ -135,7 +135,7 @@ struct MacTodayView: View {
             } label: {
                 Text(skipped ? "Skipped" : "Skip")
                     .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(skipped ? theme.danger : theme.muted)
+                    .foregroundStyle(skipped ? theme.deferred : theme.muted)
             }
             .buttonStyle(.plain)
         }
@@ -167,8 +167,25 @@ struct MacTodayView: View {
             action.statusRaw = "done"
             action.completedAt = .now
             action.skipReason = nil
+            recordInferredActual(for: action)
         }
         try? context.save()
+    }
+
+    /// LEARNING (build-order #3) — mirror the iOS Done path: a completed block with a
+    /// resolvable timeSlot becomes an `inferred` `ActualEvent` so the on-device
+    /// LearningService sees real data. De-dupe on `linkedActionID` so toggling done
+    /// off/on (or a manual log) never stacks a duplicate actual. Caller owns the save.
+    private func recordInferredActual(for action: PlannedAction) {
+        let actionID = action.id
+        let existing = FetchDescriptor<ActualEvent>(
+            predicate: #Predicate { $0.linkedActionID == actionID }
+        )
+        let already = ((try? context.fetch(existing)) ?? []).isEmpty == false
+        guard !already else { return }
+        if let ev = LearningService.inferredEvent(from: action, on: action.plan?.date ?? .now) {
+            context.insert(ev)
+        }
     }
 
     private func toggleSkip(_ action: PlannedAction) {
@@ -215,11 +232,15 @@ struct MacTodayView: View {
     /// Offline plan via the shared `PlanGenerator` — the same timeline engine the
     /// iOS template (non-AI) fallback path uses.
     private func buildTemplateActions() -> [PlannedAction] {
+        // LEARNING ENGINE — same as iOS: bias the offline timeline by the user's
+        // real logged durations + active hours. Empty profile ⇒ unchanged behaviour.
+        let learned = LearningService.buildProfile(from: context)
         let timeline = PlanGenerator.generateTimeline(
             for: goals,
             prefs: prefs,
             freeMinutes: nil,
-            maxGoalActions: maxActions
+            maxGoalActions: maxActions,
+            learned: learned
         )
         return timeline.map { entry in
             PlannedAction(

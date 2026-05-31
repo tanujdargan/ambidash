@@ -86,10 +86,18 @@ final class IntegrationManager {
             }
         )
 
+        // LEARNING (build-order #3) — fold the on-device LearnedProfile (real
+        // wake/sleep, adherence, energy balance from logged actuals/check-ins) into the
+        // snapshot so the AI plan path and any snapshot consumer see how the user
+        // actually lives. Empty profile ⇒ augment leaves the "no signal" sentinels.
+        let profile = LearningService.buildProfile(from: context)
+
         if let existing = try? context.fetch(descriptor).first {
             SnapshotBuilder.update(existing, with: raw)
+            SnapshotBuilder.augment(existing, with: profile)
         } else {
             let snapshot = SnapshotBuilder.build(from: raw, for: today)
+            SnapshotBuilder.augment(snapshot, with: profile)
             context.insert(snapshot)
         }
 

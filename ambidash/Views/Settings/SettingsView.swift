@@ -20,6 +20,8 @@ struct SettingsView: View {
     @State private var notionToken = ""
     @State private var showGoalImporter = false
     @State private var importMessage: String?
+    /// Presents the board-setup template picker in "customize" (replace) mode.
+    @State private var showBoardSetup = false
     /// Transient "Saved ✓" confirmation under the Save API Key button.
     @State private var apiKeySaved = false
 
@@ -133,6 +135,30 @@ struct SettingsView: View {
                     Text("Typography changes the heading & body font family. Density adjusts spacing on the main screens.")
                         .font(.caption2)
                         .foregroundStyle(t.faint)
+                }
+                .listRowBackground(t.surface)
+
+                Section("Dashboard") {
+                    Button {
+                        showBoardSetup = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "square.grid.2x2")
+                                .foregroundStyle(t.accent)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Customize dashboard")
+                                    .foregroundStyle(t.ink)
+                                Text("Pick a new layout template — Calm, Balanced, and more")
+                                    .font(.caption)
+                                    .foregroundStyle(t.muted)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(t.faint)
+                        }
+                    }
+                    .buttonStyle(.plain)
                 }
                 .listRowBackground(t.surface)
 
@@ -363,6 +389,12 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("This will permanently delete all your goals, assessments, plans, reflections, and preferences. This cannot be undone.")
+            }
+            .sheet(isPresented: $showBoardSetup) {
+                BoardSetupView(mode: .customize) { template in
+                    BoardSeeder.replaceActiveBoard(with: template, in: modelContext)
+                }
+                .environment(tm)
             }
             .onAppear {
                 apiKey = AIConfig.isConfigured ? "••••••••" : ""

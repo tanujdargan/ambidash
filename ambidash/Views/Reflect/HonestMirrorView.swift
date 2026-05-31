@@ -16,9 +16,9 @@ struct HonestMirrorView: View {
             if AIConfig.isConfigured {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("HONEST MIRROR")
+                        Text("DAILY REFLECTION")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(t.danger)
+                            .foregroundStyle(t.accent)
                             .tracking(1.2)
                         Spacer()
                         if isLoading {
@@ -44,11 +44,11 @@ struct HonestMirrorView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(t.danger.opacity(0.4), lineWidth: 1)
+                        .stroke(t.accent.opacity(0.4), lineWidth: 1)
                 )
                 .overlay(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(t.danger)
+                        .fill(t.accent)
                         .frame(width: 3)
                         .padding(.vertical, 8)
                 }
@@ -59,9 +59,9 @@ struct HonestMirrorView: View {
         } else {
             let t2 = tm.resolved
             VStack(alignment: .leading, spacing: 6) {
-                Text("HONEST MIRROR")
+                Text("DAILY REFLECTION")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(t2.danger)
+                    .foregroundStyle(t2.accent)
                     .tracking(1.2)
                 Text("Upgrade to Premium for AI-powered honest feedback on your day.")
                     .font(.subheadline)

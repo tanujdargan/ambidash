@@ -7,7 +7,7 @@ enum PlanGenerator {
         let goalTitle: String
         let goalID: UUID
         let domain: GoalDomain
-        let durationMinutes: Int
+        var durationMinutes: Int
         let why: String
         /// A2 / #10 — if-then implementation-intention anchor (e.g. "after breakfast").
         /// Empty when the template carries no cue.
@@ -212,7 +212,24 @@ enum PlanGenerator {
     /// When `prefs` is nil (no preferences set) it falls back to a goal-work-only
     /// timeline scheduled across the default waking window — i.e. the prior
     /// behaviour, but still concrete.
-    static func generateTimeline(for goals: [Goal], prefs: UserPreferences?, freeMinutes: Int?, maxGoalActions: Int) -> [TimelineAction] {
+    ///
+    /// LEARNING ENGINE (build-order #3) — when a `learned` profile is supplied, the
+    /// timeline adapts to how the user ACTUALLY lives instead of the fixed defaults:
+    /// goal-work durations are re-estimated from the user's median logged time per
+    /// goal, and goal-work is anchored to the user's REAL inferred wake/sleep when
+    /// those diverge from the `UserPreferences` targets. Every adjustment is traceable
+    /// via the profile's `explain*` helpers. The profile also carries adherence- and
+    /// energy-by-hour signals (exposed for callers/UI as placement hints), but those
+    /// are advisory only here — they never block or reorder a block. `learned == nil`
+    /// (or an empty profile) is a strict no-op — identical output to before — so day-1
+    /// users see no change.
+    static func generateTimeline(
+        for goals: [Goal],
+        prefs: UserPreferences?,
+        freeMinutes: Int?,
+        maxGoalActions: Int,
+        learned: LearnedProfile? = nil
+    ) -> [TimelineAction] {
         let skeleton = DailyTimeline.skeleton(from: prefs)
 
         // 1) Fixed + routine entries become timeline actions verbatim.
@@ -229,7 +246,24 @@ enum PlanGenerator {
 
         // 2) Goal-work slotted into the free gaps between anchors.
         let budget = freeMinutes ?? DailyTimeline.freeGaps(in: skeleton).reduce(0) { $0 + $1.minutes }
-        let goalActions = generateActions(for: goals, freeMinutes: max(budget, 30), maxActions: maxGoalActions)
+        var goalActions = generateActions(for: goals, freeMinutes: max(budget, 30), maxActions: maxGoalActions)
+
+        // LEARNING — re-estimate each goal-work duration from the user's logged
+        // median for that goal, when we have enough signal. Identity no-op without a
+        // profile. Done BEFORE slotting so the new size drives placement.
+        if let learned, !learned.isEmpty {
+            goalActions = goalActions.map { tmpl in
+                let adjusted = learned.adjustedDuration(forGoal: tmpl.goalID, default: tmpl.durationMinutes)
+                guard adjusted != tmpl.durationMinutes else { return tmpl }
+                var t = tmpl
+                t.durationMinutes = adjusted
+                return t
+            }
+        }
+
+        // Gaps stay in chronological order so the bedtime guard (which relies on the
+        // last gap being the latest in the day) holds. Adherence is applied as a
+        // per-action placement bias inside the slotting loop below, not by reordering.
         let gaps = DailyTimeline.freeGaps(in: skeleton)
 
         // Hard upper bound for goal-work: nothing may be scheduled to end past the
@@ -237,12 +271,26 @@ enum PlanGenerator {
         // the day end = sleep anchor) when gaps exist, else the prefs sleep time,
         // else a sane default. Overflow that can't fit before this is dropped
         // rather than appended sequentially past bedtime.
-        let dayEnd = gaps.last?.endMinutes
+        var dayEnd = gaps.last?.endMinutes
             ?? prefs.flatMap { DailyTimeline.minutes(from: $0.sleepTime) }
             ?? (23 * 60 + 30)
 
         var gapIndex = 0
         var cursorInGap = gaps.first?.startMinutes ?? (9 * 60)
+
+        // LEARNING — anchor goal-work to the user's REAL active hours when we have
+        // enough confidence (≥2 logged days). We only ever TIGHTEN within the
+        // existing window — never schedule goal-work before the user actually wakes,
+        // nor let it run past when they actually sleep — so the user-set anchors stay
+        // put and the bedtime guard still holds. Identity no-op without a profile.
+        if let learned, learned.wakeSleepDayCount >= 2 {
+            if let realWake = learned.realWakeMinutes {
+                cursorInGap = max(cursorInGap, realWake)
+            }
+            if let realSleep = learned.realSleepMinutes, realSleep > cursorInGap {
+                dayEnd = min(dayEnd, realSleep)
+            }
+        }
         for tmpl in goalActions {
             // Advance to a gap that can hold this action; spill into the last gap.
             while gapIndex < gaps.count,
@@ -315,5 +363,39 @@ enum PlanGenerator {
     /// Formats a target amount as an int when whole, else one decimal place.
     private static func formatAmount(_ value: Double) -> String {
         value == value.rounded() ? String(Int(value)) : String(format: "%.1f", value)
+    }
+
+    // MARK: - CLOSING RITUAL — tomorrow's ONE protected thing
+
+    /// CLOSING RITUAL — when the user named tomorrow's ONE most-important thing in
+    /// last night's closing ritual, surface it as a PROTECTED, top-of-day block that
+    /// the plan is built around (the "keep your ONE thing" intent DisruptionService
+    /// also honors). Returns a `TimelineAction` to prepend, or nil when no one-thing
+    /// was set / it's blank.
+    ///
+    /// Placement: pinned early (07:00 sort key) so it sorts to the front of the day
+    /// without colliding with the user's fixed wake/meal anchors' own slots; it reads
+    /// as the day's headline, not a clock-locked block. `anchorType` stays `.goalWork`
+    /// so existing surfaces treat it as real, carry-forward-eligible work.
+    ///
+    /// Pure: no fetch/save. The caller resolves the latest reflection's
+    /// `tomorrowOneThing` and passes it in.
+    static func oneThingAction(
+        title rawTitle: String,
+        goalID: UUID? = nil,
+        goalTitle: String? = nil
+    ) -> TimelineAction? {
+        let title = rawTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return nil }
+        return TimelineAction(
+            title: title,
+            why: "Your one most-important thing for today — chosen last night. Protect it.",
+            timeSlot: "07:00",
+            scheduleCue: "Your one thing — first",
+            durationMinutes: 45,
+            anchorType: .goalWork,
+            goalID: goalID,
+            goalTitle: goalTitle
+        )
     }
 }

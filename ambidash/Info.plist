@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  GENTLE TIMELINE ALARMS — NSAlarmKitUsageDescription must live in an explicit
+	  Info.plist: it is NOT in Xcode's INFOPLIST_KEY_* auto-emit allowlist (unlike
+	  the Health/Calendar/Reminders usage strings), so a build-setting alone is
+	  silently dropped and AlarmKit then refuses to schedule. This file is used as
+	  the BASE; GENERATE_INFOPLIST_FILE still merges every INFOPLIST_KEY_* setting
+	  on top of it, so no other key needs to move here.
+	-->
+	<key>NSAlarmKitUsageDescription</key>
+	<string>ambidash schedules an unmissable alarm only for the timeline blocks you explicitly opt in, so a key block (like waking up) can wake you even in Silent or Focus.</string>
+	<!--
+	  Custom URL scheme for in-app deep links (ambidash://today, etc.). Once an
+	  explicit base Info.plist exists, the array-valued INFOPLIST_KEY_CFBundleURLTypes
+	  build setting no longer merges, so the scheme is declared here to keep deep links
+	  (notification taps, closing-ritual, etc.) working.
+	-->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ambidash</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

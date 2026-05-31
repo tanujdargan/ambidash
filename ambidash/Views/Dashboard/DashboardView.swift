@@ -58,6 +58,26 @@ struct DashboardView: View {
         )
     }
 
+    /// The compute-once snapshot fed to every board component. Built a single time
+    /// per render from the view's @Query data + derived properties, so no
+    /// component renderer issues its own query or sees stale data.
+    private var boardData: BoardData {
+        BoardData(
+            profile: profile,
+            todaySnapshot: todaySnapshot,
+            yesterdaySnapshot: yesterdaySnapshot,
+            activeGoals: activeGoals,
+            latestGoals: latestGoals,
+            todayPlan: todayPlan,
+            dimensionScores: dimensionScores,
+            compositeScore: compositeScore,
+            streakSummary: streakSummary,
+            compositeHistory: compositeHistory,
+            lowestDimension: dimensionScores.min(by: { $0.value < $1.value })?.key,
+            isHardDay: HardModeService.isHardToday(profile?.userPreferences)
+        )
+    }
+
     var body: some View {
         let t = tm.resolved
         NavigationStack {
@@ -94,83 +114,16 @@ struct DashboardView: View {
                             .accessibilityLabel("Settings")
                         }
 
-                        // 2. Composite score + sparkline — tap for an honest
-                        // breakdown of how the composite is averaged.
-                        Button {
-                            Haptics.selection()
-                            scoreBreakdown = .composite
-                        } label: {
-                            HStack(alignment: .bottom, spacing: 16) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    SectionLabel(title: "Composite")
-                                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                        Text("\(compositeScore)")
-                                            .font(.system(size: 56, design: .monospaced))
-                                            .monospacedDigit()
-                                            .tracking(-2)
-                                            .foregroundStyle(t.ink)
-                                        Text("/100")
-                                            .font(.system(size: 14, design: .monospaced))
-                                            .foregroundStyle(t.faint)
-                                    }
-                                }
-                                Spacer()
-                                SparklineView(values: compositeHistory, width: 120, height: 48)
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .scaleOnPress()
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Composite score: \(compositeScore) out of 100. Tap for breakdown.")
-                        .fadeSlideIn(delay: 0)
-
-                        // 3. Arc gauges in 3-col grid — each taps to its
-                        // dimension's per-goal score breakdown.
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 18) {
-                            ForEach(Array(LifeDimension.allCases.enumerated()), id: \.element) { index, dim in
-                                Button {
-                                    Haptics.selection()
-                                    scoreBreakdown = .dimension(dim)
-                                } label: {
-                                    ArcGauge(
-                                        value: Double(dimensionScores[dim] ?? 50) / 100.0,
-                                        size: 86,
-                                        strokeWidth: 3.5,
-                                        label: dim.displayName
-                                    )
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                                .scaleOnPress()
-                                .staggeredAppear(index: index)
-                            }
-                        }
-
-                        // 3b. The three most-recently-active goals. The full
-                        // goals-by-pillar overview now lives under the Goals tab
-                        // (GoalListView · Pillar mode); the dashboard surfaces just
-                        // the live trio so completing actions through the day keeps
-                        // the freshest work in view.
-                        latestGoalsSection(t)
-
-                        // 4. Mentor surfaced
-                        InsightCardView(goals: goals, snapshot: todaySnapshot)
-                            .fadeSlideIn(delay: 0.1)
-
-                        // 5. Today, narrow
-                        VStack(alignment: .leading, spacing: 6) {
-                            SectionLabel(title: "Today, narrow")
-                            if let plan = todayPlan, !(plan.actions ?? []).isEmpty {
-                                let topActions = (plan.actions ?? []).sorted { $0.timeSlot < $1.timeSlot }.prefix(3)
-                                ForEach(Array(topActions), id: \.id) { action in
-                                    DataRowView(label: action.title, value: action.timeSlot, unit: "\(action.durationMinutes)m")
-                                }
-                            } else {
-                                DataRowView(label: "Free time", value: "\(todaySnapshot?.calendarFreeMinutes ?? 0)", unit: "min")
-                                DataRowView(label: "Sleep", value: String(format: "%.1f", todaySnapshot?.sleepHours ?? 0), unit: "hr")
-                                DataRowView(label: "Steps", value: "\(todaySnapshot?.steps ?? 0)")
-                            }
+                        // 2. Configurable component board. Computes shared data
+                        // ONCE (boardData) and renders the ordered components of the
+                        // hardcoded "balanced" template via ComponentRegistry,
+                        // wrapping the existing dashboard surfaces (composite score,
+                        // vitals grid, latest goals, mentor, today-narrow, identity
+                        // line). Tap-score → breakdown and tap-goal → detail are
+                        // preserved through onTapScore + the components' own
+                        // NavigationLinks (this NavigationStack hosts them).
+                        BoardView(boardData: boardData) { target in
+                            scoreBreakdown = target
                         }
                     }
                     .padding(.horizontal, 22)
@@ -198,9 +151,17 @@ struct DashboardView: View {
                 await manager.requestAllPermissions()
                 await manager.refreshTodaySnapshot(in: modelContext)
                 if !IntegrationManager.skipPermissions {
+                    // Provisional auth (no upfront wall) + clamp every scheduler to
+                    // the user's real waking window so nothing fires while asleep.
+                    if let prefs = profile?.userPreferences {
+                        NotificationService.configureWakingWindow(wake: prefs.wakeTime, sleep: prefs.sleepTime)
+                    }
                     await NotificationService.requestPermission()
                     NotificationService.scheduleDailyReminder()
                     NotificationService.scheduleMorningPlan()
+                    // CLOSING RITUAL — gentle evening invite to wrap the day and pick
+                    // tomorrow's one thing. Idempotent + clamped to waking-evening.
+                    NotificationService.scheduleClosingRitualReminder()
                     // Review-ritual reminders (idempotent: each removes its pending
                     // request by stable identifier before re-adding), safe per appear.
                     StreakService.scheduleWeeklyReviewReminder()
@@ -213,6 +174,16 @@ struct DashboardView: View {
                     if let newLevel = ScaffoldingService.shouldUpdateLevel(for: profile) {
                         profile.scaffoldLevel = newLevel.rawValue
                         try? modelContext.save()
+                    }
+                    // REST-DAY BANK — gently evaluate earned rest days once per day from
+                    // the user's best live streak. Non-punitive: this only ever ADDS to
+                    // the bank; it never penalizes. Idempotent per day via prefs stamp.
+                    if let prefs = profile.userPreferences {
+                        let earned = RestBankService.evaluateEarn(
+                            prefs,
+                            longestLiveStreak: streakSummary.longestCurrentStreak
+                        )
+                        if earned > 0 { try? modelContext.save() }
                     }
                 }
                 updateWidgetData()
@@ -238,39 +209,6 @@ struct DashboardView: View {
         .preferredColorScheme(tm.isDark ? .dark : .light)
     }
 
-    /// The three most-recently-active goals as compact tappable cards. Each card
-    /// drills into GoalDetailView via the existing navigation (the richer
-    /// tap-to-expand detail card is a later pass). The trio re-orders live as the
-    /// day progresses because `latestGoals` is fed by a recency-sorted @Query.
-    @ViewBuilder
-    private func latestGoalsSection(_ t: ResolvedTheme) -> some View {
-        if !latestGoals.isEmpty {
-            VStack(alignment: .leading, spacing: t.space.component) {
-                HStack(alignment: .firstTextBaseline) {
-                    SectionLabel(title: "Latest goals")
-                    Spacer()
-                    Text("Most recently active")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(t.faint)
-                }
-
-                VStack(spacing: 8) {
-                    ForEach(Array(latestGoals.enumerated()), id: \.element.id) { index, goal in
-                        NavigationLink {
-                            GoalDetailView(goal: goal)
-                        } label: {
-                            LatestGoalCard(goal: goal)
-                        }
-                        .buttonStyle(.plain)
-                        .scaleOnPress()
-                        .staggeredAppear(index: index)
-                    }
-                }
-            }
-            .fadeSlideIn(delay: 0.08)
-        }
-    }
-
     private func updateWidgetData() {
         let defaults = UserDefaults(suiteName: "group.com.ambidash.app")
         defaults?.set(compositeScore, forKey: "widget_composite")
@@ -278,19 +216,6 @@ struct DashboardView: View {
         if let topGoal = goals.max(by: { $0.neglectDays < $1.neglectDays }) {
             defaults?.set(topGoal.title, forKey: "widget_top_goal")
             defaults?.set(GoalHealthService.summaryText(for: topGoal), forKey: "widget_top_status")
-        }
-    }
-
-    private var identityText: String {
-        let lowestDim = dimensionScores.min(by: { $0.value < $1.value })
-        switch lowestDim?.key {
-        case .body: return "someone who treats their body as the instrument it is."
-        case .mind: return "someone whose mind is sharper than their impulses."
-        case .craft: return "someone who does the work, not just plans it."
-        case .people: return "someone whose attention belongs to the people in front of them."
-        case .wealth: return "someone whose freedom isn't borrowed."
-        case .adventure: return "someone who lives, not just optimizes."
-        case nil: return "someone who finishes what they start."
         }
     }
 
@@ -309,7 +234,7 @@ struct DashboardView: View {
 /// and a thin progress indicator that mirrors how the goal is judged (target
 /// attainment, weekly adherence, or recency). Tapping drills into the existing
 /// GoalDetailView; the richer inline detail card arrives in a later pass.
-private struct LatestGoalCard: View {
+struct LatestGoalCard: View {
     let goal: Goal
     @Environment(ThemeManager.self) private var tm
 
