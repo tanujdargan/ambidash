@@ -232,8 +232,12 @@ struct TodayView: View {
             HStack(spacing: 8) {
                 PillButton(label: "Mark done", primary: true) {
                     Haptics.success()
-                    action.statusRaw = "done"
-                    action.completedAt = .now
+                    // Route through the lifecycle contract so lifecycleRaw is reset to
+                    // "done" too. A raw statusRaw="done" would leave a stale non-pending
+                    // lifecycle (e.g. .deferred on a carried-over item, .partial after a
+                    // Partly log), making CarryOverService re-carry a completed task
+                    // forever and WinsService under-count it.
+                    action.applyLifecycle(.done)
                     handleDone(action)
                 }
                 // W4 — honored partial straight off the primary control: opens the
@@ -458,8 +462,9 @@ struct TodayView: View {
     private func actionContextMenu(_ action: PlannedAction) -> some View {
         if action.statusRaw == "pending" {
             Button {
-                action.statusRaw = "done"
-                action.completedAt = .now
+                // Route through the lifecycle contract (see "Mark done" pill above) so
+                // lifecycleRaw is reset and carry-over / wins logic sees .done.
+                action.applyLifecycle(.done)
                 handleDone(action)
                 Haptics.success()
             } label: {

@@ -79,22 +79,25 @@ enum LearningService {
     // MARK: - Real wake / sleep inference
 
     /// Infer the user's REAL wake and sleep minutes-from-midnight for a day from the
-    /// logged actuals (prefer `.health` source, then earliest start / latest end).
-    /// Returns nil for either when there isn't enough signal. The planner uses these
-    /// to anchor the day to how the user actually lives rather than the ideal
-    /// `UserPreferences` defaults.
+    /// logged actuals. Sleep/wake are ONLY inferred from `.health`-sourced events
+    /// (actual sleep/wake samples); other logged activity — a daytime study block, a
+    /// workout — is NOT the user's wake or sleep time. The planner uses these to anchor
+    /// the day to how the user actually lives rather than the ideal `UserPreferences`
+    /// defaults.
     ///
-    /// Conservative: only the day's events are considered; with no events both are
-    /// nil and the caller keeps the existing preferences (graceful no-op).
+    /// Conservative graceful no-op: with no `.health` events both are nil and the caller
+    /// keeps the existing preferences. This prevents "latest logged activity end" from
+    /// being mistaken for bedtime (which would collapse the planning window mid-afternoon
+    /// and drop goal-work) and "earliest logged start" from being mistaken for wake-up.
     static func inferWakeSleep(
         actuals: [ActualEvent]
     ) -> (wakeMinutes: Int?, sleepMinutes: Int?) {
-        guard !actuals.isEmpty else { return (nil, nil) }
-        // Prefer HealthKit-sourced sleep/wake when present (most reliable).
+        // Only HealthKit-sourced sleep/wake samples are authoritative here. Manual
+        // activity logs say nothing about when the user actually woke or went to bed.
         let health = actuals.filter { $0.source == .health }
-        let pool = health.isEmpty ? actuals : health
-        let wake = pool.map(\.startMinutes).min()
-        let sleep = pool.map(\.endMinutes).max()
+        guard !health.isEmpty else { return (nil, nil) }
+        let wake = health.map(\.startMinutes).min()
+        let sleep = health.map(\.endMinutes).max()
         return (wake, sleep)
     }
 

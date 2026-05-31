@@ -279,8 +279,12 @@ struct BlockLogSheet: View {
         switch status {
         case .completed:
             if action.statusRaw != "done" {
-                action.statusRaw = "done"
-                action.completedAt = .now
+                // Route through the lifecycle contract so lifecycleRaw is reset to "done".
+                // A raw statusRaw="done" would leave a stale non-pending lifecycle (e.g.
+                // .partial from a prior Partly log in this same sheet), making
+                // CarryOverService re-carry a completed block forever and WinsService
+                // under-count it.
+                action.applyLifecycle(.done)
                 creditGoal()
             }
         case .partial:
