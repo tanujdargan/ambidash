@@ -39,6 +39,8 @@ struct AmbidashMacApp: App {
             MentorFeedback.self,
             ProgressLog.self,
             Milestone.self,
+            Board.self,
+            BoardComponent.self,
         ])
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)

@@ -1,0 +1,78 @@
+import Foundation
+
+/// The taxonomy types shared by Board / BoardComponent / ComponentRegistry. Kept
+/// in the model layer (no SwiftUI import) so both targets compile them. All are
+/// `String`-backed so they round-trip through the additive raw-string columns and
+/// resolve with `.unknown` / sensible fallbacks.
+
+// MARK: - ComponentKind
+
+/// The identity of a board block. New surfaces are ADDITIVE cases here — because
+/// `BoardComponent.kindRaw` is a String, an older client that doesn't know a new
+/// case simply resolves it to `.unknown` and renders the `UnavailableComponentCard`.
+enum ComponentKind: String, CaseIterable, Codable, Hashable {
+    case compositeScore
+    case vitalsGrid
+    case sparklineHistory
+    case latestGoals
+    case todayNarrow
+    case mentorCard
+    case identityLine
+    case reflectionPrompt
+    case streaks
+    /// Fallback for raw values this build doesn't understand.
+    case unknown
+}
+
+// MARK: - ComponentCategory
+
+/// Grouping used by the (future) add-menu to bucket components into sections.
+enum ComponentCategory: String, CaseIterable, Codable, Hashable {
+    case overview
+    case metrics
+    case goals
+    case daily
+    case insights
+    case reflection
+
+    var title: String {
+        switch self {
+        case .overview: "Overview"
+        case .metrics: "Metrics"
+        case .goals: "Goals"
+        case .daily: "Daily"
+        case .insights: "Insights"
+        case .reflection: "Reflection"
+        }
+    }
+}
+
+// MARK: - BoardSection
+
+/// 1.5-D layout bands (ordered, not a free x/y canvas). `top` is a single-column
+/// hero band; `body` is the main flowing column; `focus` is a reserved do-now zone.
+enum BoardSection: String, CaseIterable, Codable, Hashable {
+    case top
+    case body
+    case focus
+
+    /// Render order of the bands within the board.
+    var order: Int {
+        switch self {
+        case .top: 0
+        case .body: 1
+        case .focus: 2
+        }
+    }
+}
+
+// MARK: - CardSize
+
+/// Rendered footprint of a component. `full` spans the column; the others tune
+/// vertical/inline prominence within the body band.
+enum CardSize: String, CaseIterable, Codable, Hashable {
+    case small
+    case medium
+    case large
+    case full
+}
