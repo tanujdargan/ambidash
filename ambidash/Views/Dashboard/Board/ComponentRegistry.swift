@@ -162,6 +162,17 @@ enum ComponentRegistry {
             defaultConfig: "{}",
             isSingleton: true
         ),
+        ComponentDescriptor(
+            kind: .energyCheckin,
+            title: "Energy",
+            sfSymbol: "bolt.heart",
+            category: .daily,
+            blurb: "A one-tap energy check-in — never a judgment, always optional.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
     ]
 
     static func descriptor(for kind: ComponentKind) -> ComponentDescriptor? {
@@ -201,6 +212,10 @@ enum ComponentRegistry {
             // recent inbox (mutated by quick-add/triage), so it is intentionally NOT
             // fed from the static BoardData snapshot.
             CaptureInboxComponent()
+        case .energyCheckin:
+            // Owns a small @Query for today's check-ins (mutated by tapping), so it
+            // is intentionally NOT fed from the static BoardData snapshot.
+            EnergyCheckinComponent()
         case .mentorCard:
             MentorComponent(boardData: boardData)
         case .identityLine:

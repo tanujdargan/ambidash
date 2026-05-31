@@ -652,11 +652,16 @@ struct TodayView: View {
         // PLAN REWRITE — weave anchors + routines + goal-work via PlanGenerator,
         // grounded in the user's daily-rhythm preferences (nil → goal-work only).
         let freeMinutes = resolvedFreeMinutes
+        // LEARNING ENGINE — fold the user's recent logged actuals + energy check-ins
+        // into a LearnedProfile so the offline timeline uses their real durations and
+        // active hours. Empty (no logs yet) ⇒ identical to the prior behaviour.
+        let learned = LearningService.buildProfile(from: modelContext)
         let timeline = PlanGenerator.generateTimeline(
             for: goals,
             prefs: profile?.userPreferences,
             freeMinutes: freeMinutes,
-            maxGoalActions: maxActions
+            maxGoalActions: maxActions,
+            learned: learned
         )
         return timeline.map { entry in
             let resolvedGoal = entry.goalID.flatMap { gid in goals.first { $0.id == gid } }
@@ -942,7 +947,29 @@ struct TodayView: View {
             MilestoneProgressService.contribute(amount: amount, to: milestone, context: modelContext)
         }
 
+        // LEARNING (build-order #3) — make logging mostly automatic: a Done block with
+        // a resolvable timeSlot becomes an inferred ActualEvent so the on-device
+        // LearningService has real data to adapt durations / wake-sleep / adherence,
+        // even for the dominant tap-Done flow. De-dupe on linkedActionID so re-marking
+        // (or a manual BlockLogSheet log) never piles up a second actual.
+        recordInferredActual(for: action)
+
         try? modelContext.save()
+    }
+
+    /// Insert an `inferred` `ActualEvent` for a just-completed action, unless one is
+    /// already logged against this block (manual or inferred). Pure de-dupe by
+    /// `linkedActionID`; the surrounding `handleDone` owns the save.
+    private func recordInferredActual(for action: PlannedAction) {
+        let actionID = action.id
+        let existing = FetchDescriptor<ActualEvent>(
+            predicate: #Predicate { $0.linkedActionID == actionID }
+        )
+        let already = ((try? modelContext.fetch(existing)) ?? []).isEmpty == false
+        guard !already else { return }
+        if let ev = LearningService.inferredEvent(from: action, on: action.plan?.date ?? .now) {
+            modelContext.insert(ev)
+        }
     }
 }
 

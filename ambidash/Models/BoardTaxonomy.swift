@@ -30,6 +30,10 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// (promote → goal/today task, archive, drop). Never a backlog count, never a
     /// red "unprocessed" badge.
     case captureInbox
+    /// Design principle #6 — a one-tap ENERGY / spoons check-in (1–5). Non-punitive:
+    /// a low reading is information, never failure. Feeds the on-device learning /
+    /// re-prioritization layer.
+    case energyCheckin
     /// Fallback for raw values this build doesn't understand.
     case unknown
 }

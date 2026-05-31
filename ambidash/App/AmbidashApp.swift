@@ -47,6 +47,8 @@ struct AmbidashApp: App {
             Board.self,
             BoardComponent.self,
             CaptureItem.self,
+            ActualEvent.self,
+            EnergyCheckin.self,
         ])
     }
 }

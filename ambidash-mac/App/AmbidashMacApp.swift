@@ -42,6 +42,8 @@ struct AmbidashMacApp: App {
             Board.self,
             BoardComponent.self,
             CaptureItem.self,
+            ActualEvent.self,
+            EnergyCheckin.self,
         ])
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)

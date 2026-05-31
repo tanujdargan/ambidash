@@ -42,6 +42,14 @@ final class UserPreferences {
     var energyPeak: String = "morning"   // morning | afternoon | evening
     var focusBlocksPerDay: Int = 3
 
+    // ENERGY budgeting (design principle #6). Additive/defaulted (CloudKit-safe).
+    // OFF by default so nothing changes for existing users; when on, the planner may
+    // flag (never block) days whose estimated spend exceeds the budget. Aspirational,
+    // never enforced. `dailyEnergyBudget` is in abstract "spoons" (1 unit ≈ one
+    // medium-effort block); the default is a gentle starting point, fully editable.
+    var enableEnergyBudgeting: Bool = false
+    var dailyEnergyBudget: Int = 12
+
     // Free-form context the planner should weave in.
     var aboutMe: String = ""
     var hardConstraints: String = ""

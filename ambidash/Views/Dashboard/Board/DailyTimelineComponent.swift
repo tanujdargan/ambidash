@@ -289,6 +289,8 @@ private struct TimelineBlockRow: View {
                     .lineLimit(2)
                     .strikethrough(block.action.statusRaw == "done", color: t.faint)
 
+                lifecycleBadge(t)
+
                 Spacer(minLength: 4)
 
                 whenLabel(t, status: status)
@@ -311,6 +313,40 @@ private struct TimelineBlockRow: View {
                 .stroke(borderColor(t, status: status), lineWidth: status == .current ? 1 : 0.5)
         )
         .opacity(status == .past ? 0.55 : 1)
+    }
+
+    /// ZERO-GUILT lifecycle badge — renders the non-punitive state inline:
+    /// `partial` (progress dot + %), `deferred` (forward arrow), `rest` (moon). All
+    /// use the shared soft `deferred` token, NEVER red. `pending`/`done` show nothing
+    /// here (done already strikes through the title).
+    @ViewBuilder
+    private func lifecycleBadge(_ t: ResolvedTheme) -> some View {
+        switch block.action.lifecycle {
+        case .partial:
+            let pct = Int((max(0, min(1, block.action.partialProgress)) * 100).rounded())
+            HStack(spacing: 3) {
+                Image(systemName: "circle.lefthalf.filled")
+                    .font(.system(size: 9))
+                if pct > 0 {
+                    Text("\(pct)%")
+                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+                }
+            }
+            .foregroundStyle(t.deferred)
+            .accessibilityLabel(pct > 0 ? "partly done, \(pct) percent" : "partly done")
+        case .deferred:
+            Image(systemName: "arrow.turn.down.right")
+                .font(.system(size: 9))
+                .foregroundStyle(t.deferred)
+                .accessibilityLabel("deferred, rolls forward")
+        case .rest:
+            Image(systemName: "moon.stars")
+                .font(.system(size: 9))
+                .foregroundStyle(t.deferred)
+                .accessibilityLabel("rest")
+        case .pending, .done, .abandoned:
+            EmptyView()
+        }
     }
 
     @ViewBuilder
@@ -448,7 +484,11 @@ extension EnvironmentValues {
 private struct TimelineBlockDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(ThemeManager.self) private var tm
+    @Environment(\.modelContext) private var modelContext
     let action: PlannedAction
+
+    /// Drives the "How'd that go?" logging sheet.
+    @State private var showLog = false
 
     var body: some View {
         let t = tm.resolved
@@ -504,6 +544,45 @@ private struct TimelineBlockDetailSheet: View {
                                 .foregroundStyle(statusColor(t))
                         }
 
+                        // One-tap logging entry — "How'd that go?". Calm, optional,
+                        // never a demand. Opens the gentle log sheet.
+                        Button {
+                            Haptics.light()
+                            showLog = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "square.and.pencil")
+                                    .font(.system(size: 13))
+                                Text(action.statusRaw == "done" ? "Log how it went" : "How'd that go?")
+                                    .font(.system(size: 14, weight: .medium))
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(t.faint)
+                            }
+                            .foregroundStyle(t.accent)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(t.accentSoft)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .scaleOnPress()
+
+                        // ZERO-GUILT one-tap lifecycle actions. Only meaningful before
+                        // the block is done; hidden once completed. All non-punitive.
+                        if action.lifecycle != .done {
+                            lifecycleActions(t)
+                        }
+
+                        // Gentle 3-option review, surfaced SOFTLY (no red, no badge)
+                        // only when an item has rolled forward enough to be kind.
+                        if CarryOverService.deservesGentleReview(action) {
+                            gentleReview(t)
+                        }
+
                         Spacer(minLength: 0)
                     }
                     .padding(.horizontal, 22)
@@ -520,6 +599,91 @@ private struct TimelineBlockDetailSheet: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .sheet(isPresented: $showLog) {
+            BlockLogSheet(action: action) { dismiss() }
+                .environment(tm)
+        }
+    }
+
+    /// ZERO-GUILT one-tap actions: gently defer to tomorrow, mark a first-class rest,
+    /// or let it go without judgment. No red anywhere; all soft `deferred`/accent.
+    @ViewBuilder
+    private func lifecycleActions(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(title: "Or, gently")
+            HStack(spacing: 8) {
+                softAction("Defer", "arrow.turn.down.right", t) {
+                    action.lifecycle = .deferred
+                    action.deferredFrom = Calendar.current.startOfDay(for: .now)
+                    persist()
+                }
+                softAction("Rest", "moon.stars", t) {
+                    action.lifecycle = .rest
+                    persist()
+                }
+                softAction("Let go", "archivebox", t) {
+                    CarryOverService.letGo(action)
+                    persist()
+                }
+            }
+        }
+    }
+
+    /// The soft 3-option "still want this?" review for an item that's been rolling
+    /// forward a while. An offer, never a verdict.
+    @ViewBuilder
+    private func gentleReview(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(title: "Still want this?")
+            Text("It's gently rolled forward a few days. No pressure either way.")
+                .font(.system(size: 12))
+                .foregroundStyle(t.muted)
+            HStack(spacing: 8) {
+                softAction("Keep", "checkmark", t) {
+                    CarryOverService.applyReview(.keep, to: action)
+                    persist()
+                }
+                softAction("Later", "arrow.turn.down.right", t) {
+                    CarryOverService.applyReview(.later, to: action)
+                    persist()
+                }
+                softAction("Let it go", "archivebox", t) {
+                    CarryOverService.applyReview(.letGo, to: action)
+                    persist()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func softAction(_ label: String, _ icon: String, _ t: ResolvedTheme, action perform: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.light()
+            perform()
+        } label: {
+            VStack(spacing: 5) {
+                Image(systemName: icon)
+                    .font(.system(size: 14))
+                Text(label)
+                    .font(.system(size: 11, weight: .medium))
+            }
+            .foregroundStyle(t.deferred)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(t.sunken.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 11))
+            .overlay(RoundedRectangle(cornerRadius: 11).stroke(t.hair, lineWidth: 0.5))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .scaleOnPress()
+    }
+
+    /// Save the lifecycle mutation and dismiss the sheet calmly.
+    private func persist() {
+        Haptics.success()
+        try? modelContext.save()
+        dismiss()
     }
 
     @ViewBuilder
@@ -561,19 +725,29 @@ private struct TimelineBlockDetailSheet: View {
     }
 
     private var statusLabel: String {
-        switch action.statusRaw {
-        case "done": return "Done"
-        case "skipped": return "Set aside — it can roll forward"
-        default: return "Planned"
+        // Prefer the richer non-punitive lifecycle label; for un-migrated actions a
+        // bare legacy "skipped" still reads as a soft set-aside.
+        switch action.lifecycle {
+        case .done: return "Done"
+        case .partial:
+            let pct = Int((max(0, min(1, action.partialProgress)) * 100).rounded())
+            return pct > 0 ? "In progress — \(pct)% so far" : "In progress"
+        case .deferred:
+            let reason = action.deferralReason.trimmingCharacters(in: .whitespaces)
+            return reason.isEmpty ? "Deferred — it rolls forward" : "Deferred (\(reason)) — it rolls forward"
+        case .rest: return "Rest — and that's okay"
+        case .abandoned: return "Let go — no judgment"
+        case .pending:
+            return action.statusRaw == "skipped" ? "Set aside — it can roll forward" : "Planned"
         }
     }
 
-    /// Non-punitive: a skipped block reads in the soft `deferred` token, never red.
+    /// Non-punitive: every non-done state reads in the soft `deferred` token, never red.
     private func statusColor(_ t: ResolvedTheme) -> Color {
-        switch action.statusRaw {
-        case "done": return t.ok
-        case "skipped": return t.deferred
-        default: return t.muted
+        switch action.lifecycle {
+        case .done: return t.ok
+        case .partial, .deferred, .rest, .abandoned: return t.deferred
+        case .pending: return action.statusRaw == "skipped" ? t.deferred : t.muted
         }
     }
 }
