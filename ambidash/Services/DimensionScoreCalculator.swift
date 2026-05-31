@@ -29,14 +29,20 @@ enum DimensionScoreCalculator {
         return result
     }
 
+    /// The step-function neglect band score (0–100) for a number of days since
+    /// progress: ≤1d→90, ≤3d→75, ≤5d→55, ≤7d→40, else a slow decay. Exposed so UI
+    /// (e.g. the recency progress bar) can mirror the actual scoring rather than a
+    /// linear approximation.
+    static func neglectBandScore(forDays days: Int) -> Int {
+        if days <= 1 { return 90 }
+        if days <= 3 { return 75 }
+        if days <= 5 { return 55 }
+        if days <= 7 { return 40 }
+        return max(10, 30 - (days - 7) * 3)
+    }
+
     private static func goalScore(_ goal: Goal) -> Int {
-        let days = goal.neglectDays
-        let neglectScore: Int
-        if days <= 1 { neglectScore = 90 }
-        else if days <= 3 { neglectScore = 75 }
-        else if days <= 5 { neglectScore = 55 }
-        else if days <= 7 { neglectScore = 40 }
-        else { neglectScore = max(10, 30 - (days - 7) * 3) }
+        let neglectScore = neglectBandScore(forDays: goal.neglectDays)
 
         guard goal.hasTarget else { return neglectScore }
 

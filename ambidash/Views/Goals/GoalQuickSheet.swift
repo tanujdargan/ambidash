@@ -8,6 +8,10 @@ struct GoalQuickSheet: View {
     @Bindable var goal: Goal
     @State private var showLogProgress = false
     @State private var showRoadmap = false
+    // Inline edit state for goal.details (editable anytime, persists to CloudKit).
+    @State private var editingDetails = false
+    @State private var detailsDraft = ""
+    @FocusState private var detailsFocused: Bool
 
     /// The next upcoming (not-yet-completed) checkpoint by end date, for the
     /// compact preview on the Roadmap row.
@@ -75,6 +79,12 @@ struct GoalQuickSheet: View {
             .padding(.horizontal, 22)
             .padding(.top, 16)
             .fadeSlideIn(delay: 0.1)
+
+            // How you'll do it — inline-editable goal description.
+            detailsSection(t)
+                .padding(.horizontal, 22)
+                .padding(.top, 16)
+                .fadeSlideIn(delay: 0.12)
 
             if goal.hasTarget {
                 TargetProgressBar(goal: goal, maxWidth: .infinity)
@@ -165,7 +175,8 @@ struct GoalQuickSheet: View {
             .fadeSlideIn(delay: 0.2)
         }
         .background(t.bg)
-        .presentationDetents([.medium])
+        // Allow growing to large so the details editor + keyboard have room.
+        .presentationDetents(editingDetails ? [.large] : [.medium, .large])
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(20)
         .sheet(isPresented: $showLogProgress) {
@@ -174,6 +185,66 @@ struct GoalQuickSheet: View {
         .sheet(isPresented: $showRoadmap) {
             NavigationStack {
                 GoalRoadmapView(goal: goal)
+            }
+        }
+    }
+
+    /// Compact, inline-editable rendering of `goal.details`. Mirrors
+    /// GoalDetailView's editor; Save persists to SwiftData → CloudKit.
+    @ViewBuilder
+    private func detailsSection(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionLabel(title: "How you'll do it")
+                Spacer()
+                if !editingDetails {
+                    Button {
+                        Haptics.selection()
+                        detailsDraft = goal.details
+                        editingDetails = true
+                        detailsFocused = true
+                    } label: {
+                        Image(systemName: goal.details.isEmpty ? "plus" : "pencil")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(t.muted)
+                    }
+                    .accessibilityLabel(goal.details.isEmpty ? "Add details" : "Edit details")
+                }
+            }
+
+            if editingDetails {
+                TextEditor(text: $detailsDraft)
+                    .focused($detailsFocused)
+                    .font(.system(size: 13, design: .serif))
+                    .foregroundStyle(t.ink)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 70, maxHeight: 110)
+                    .padding(8)
+                    .background(t.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(t.hair, lineWidth: 0.5))
+
+                HStack(spacing: 10) {
+                    PillButton(label: "Save", primary: true) {
+                        Haptics.success()
+                        goal.details = String(detailsDraft.trimmingCharacters(in: .whitespacesAndNewlines).prefix(500))
+                        try? modelContext.save()
+                        editingDetails = false
+                        detailsFocused = false
+                    }
+                    PillButton(label: "Cancel") {
+                        editingDetails = false
+                        detailsFocused = false
+                    }
+                    Spacer()
+                }
+            } else {
+                Text(goal.details.isEmpty ? "No details yet — tap + to describe how you'll do this." : goal.details)
+                    .font(.system(size: 13, design: .serif))
+                    .italic(!goal.details.isEmpty)
+                    .foregroundStyle(goal.details.isEmpty ? t.faint : t.ink2)
+                    .lineSpacing(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

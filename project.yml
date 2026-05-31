@@ -32,7 +32,7 @@ targets:
         INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "ambidash reads your calendar to find free time for your daily action plan and understand how you spend your time."
         INFOPLIST_KEY_NSRemindersFullAccessUsageDescription: "ambidash reads your reminders to understand what tasks are on your mind."
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "8"
+        CURRENT_PROJECT_VERSION: "9"
         INFOPLIST_KEY_CFBundleDisplayName: "AmbiDash"
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.lifestyle"
         INFOPLIST_KEY_CFBundleURLTypes:
@@ -54,6 +54,58 @@ targets:
     dependencies:
       - target: ambidash-widget
         embed: true
+
+  ambidash-mac:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      # SHARED model layer, services, theme, utilities (with #if os(iOS) guards).
+      # iOS-only views, the iOS app entry, Siri intents, and integration
+      # services that import iOS-only frameworks are excluded here; the
+      # mac-native UI lives in the ambidash-mac/ folder below.
+      - path: ambidash
+        excludes:
+          - App/AmbidashApp.swift
+          - App/RootView.swift
+          - App/MainTabView.swift
+          - Views
+          - Intents
+          - Services/HealthKitService.swift
+          - Services/EventKitService.swift
+          - Services/ScreenTimeService.swift
+          - Services/NotificationService.swift
+          - Services/IntegrationManager.swift
+      - path: ambidash-mac
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.mac
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_EMIT_LOC_STRINGS: true
+        INFOPLIST_KEY_CFBundleDisplayName: "AmbiDash"
+        INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.lifestyle"
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 AmbiDash"
+        INFOPLIST_KEY_CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - ambidash
+    entitlements:
+      path: ambidash-mac/ambidash-mac.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - "Default"
+        com.apple.security.application-groups:
+          - "group.com.ambidash.app"
+        com.apple.developer.icloud-container-identifiers:
+          - "iCloud.com.ambidash.app"
+        com.apple.developer.icloud-services:
+          - "CloudKit"
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+
   ambidashTests:
     type: bundle.unit-test
     platform: iOS
@@ -97,7 +149,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.widget
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "8"
+        CURRENT_PROJECT_VERSION: "9"
     dependencies:
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework

@@ -11,6 +11,8 @@ interface MentorGoal {
   domain: string;
   neglect_days: number;
   streak: number;
+  // PLAN REWRITE — the user's own goal detail makes goal-work concrete.
+  details?: string;
   // F2 — measurable target layer (present only when the goal has a target)
   target_value?: number;
   current_value?: number;
@@ -54,8 +56,15 @@ interface MentorRequest {
     latest_reflection?: { mood: string; blockers: string[]; text: string };
     postponed_goal_title?: string;
     focus_intent?: string;
+    // PLAN REWRITE — the user's daily-rhythm preferences (rendered text block) and
+    // the concrete fixed/routine skeleton + free gaps, so the plan is woven around
+    // the real day. Kept in lockstep with MentorPromptBuilder + DailyTimeline.
+    preferences?: string;
+    day_skeleton?: string;
     // A2 / #8 — two-way mentor reply: the user's written letter (insight action).
     user_message?: string;
+    // MENTOR REFOCUS — the today → this-week → %-closer breakdown for the reply.
+    forward_summary?: string;
   };
 }
 
@@ -212,8 +221,12 @@ function buildPrompt(body: MentorRequest): string {
     // A2 / #8 — when a user_message is present this is a two-way mentor REPLY,
     // not a cold insight. Branch the framing accordingly.
     if (context.user_message) {
-      prompt = "You are M., the AI mentor inside ambidash, a life dashboard app. The user has written you a letter. Reply as their mentor — warm but direct, never generic, never a list. Connect to what their goals show.\n\n";
-      if (context.goals?.length) {
+      // MENTOR REFOCUS — frame the reply forward: today → this week → %-closer.
+      prompt = "You are M., the AI mentor inside ambidash, a life dashboard app. The user has written you a letter. Reply as their mentor — warm but direct, never generic, never a list.\n\n";
+      prompt += "Frame your reply FORWARD, not as a status report: what they're DOING today, what they're working toward THIS WEEK, and how today's work moves them closer to the goal. Be honest/approximate about percentages (\"about\", \"roughly\").\n\n";
+      if (context.forward_summary) {
+        prompt += context.forward_summary + "\n";
+      } else if (context.goals?.length) {
         prompt += "USER'S GOALS:\n";
         for (const g of context.goals) {
           prompt += `- ${g.title} (${g.domain}): ${g.neglect_days} days since progress${measurableLine(g)}\n`;
@@ -223,7 +236,7 @@ function buildPrompt(body: MentorRequest): string {
         prompt += `\nTODAY: Sleep ${context.snapshot.sleep_hours}h, ${context.snapshot.steps} steps, ${context.snapshot.screen_time_hours}h screen\n`;
       }
       prompt += `\nTHE USER WROTE:\n"${context.user_message}"\n`;
-      prompt += "\nWrite back in 2-4 sentences. Respond to what they actually said. Be specific to their goals and data. No pleasantries, no bullet lists.";
+      prompt += "\nWrite back in 2-4 sentences. Respond to what they actually said, then anchor them: today you're doing X; this week you're working toward Y; finishing today puts you roughly N% closer to <goal>. Be specific, never generic, no bullet lists.";
     } else {
       prompt = "You are an AI mentor inside AmbiDash. Your role is to spot patterns the user wouldn't notice.\n\n";
       if (context.goals?.length) {
@@ -238,22 +251,38 @@ function buildPrompt(body: MentorRequest): string {
       prompt += "\nGive ONE specific, actionable insight (2-3 sentences). Connect data points. For goals with a measurable target, watch the number: if a goal is BEHIND pace, name the gap and what would close it. Be direct.";
     }
   } else if (action === "plan") {
-    prompt = "Generate a daily action plan as a JSON array. Each item: {title, why, duration_minutes, time_slot, goal_id, amount, metric, cue_trigger, target_amount, target_unit}.\n";
-    prompt += "Every action MUST set goal_id to exactly one id from the GOALS list. Do not invent ids.\n";
-    prompt += "For goals with a measurable target, size the action to move the number: set \"amount\" to the increment this action should add (in the goal's unit) and \"metric\" to that unit; omit both for goals without a target.\n";
-    prompt += "Make every action an IF-THEN implementation intention: set \"cue_trigger\" to a concrete daily anchor (e.g. \"after breakfast\", \"when I sit down at my desk\") and phrase the title so it reads as a cued instruction. Where the action is naturally quantifiable (reps, minutes, pages, words), set \"target_amount\" to a specific number and \"target_unit\" to its unit; otherwise omit both.\n\n";
+    // PLAN REWRITE — the plan IS the user's real day, woven from three layers:
+    // fixed anchors, daily routines, and goal-work in the free gaps. Mirrors
+    // MentorPromptBuilder.planPrompt on the client.
+    prompt = "You are building this person's real day as a concrete, time-ordered plan they can just follow.\n\n";
+    prompt += "The day has three layers, woven into ONE timeline:\n";
+    prompt += "1) FIXED ANCHORS — wake, meals, work/class blocks, sleep. Set; build around them, never move them.\n";
+    prompt += "2) DAILY ROUTINES — morning routine (skincare/oral care/no-phone), workout, cooking. Pull from their preferences.\n";
+    prompt += "3) GOAL-WORK — concrete tasks toward active goals, slotted ONLY into the free gaps.\n\n";
+    prompt += "Every line reads like a real instruction: time or relative cue + concrete action + duration. Voice:\n";
+    prompt += "  \"07:00 — No phone, make breakfast (20m)\"; \"Before 13:00 — Have lunch (30m)\"; \"After class — Gym, push day (45m)\"; \"20:00 — Cook dinner (40m)\"; \"Work block 14:00–14:50 — draft section 2 of the thesis (50m)\"\n";
+    prompt += "BANNED: \"show up today\", \"fix sleep\", \"make progress\". Every goal-work line names a SPECIFIC task.\n\n";
     if (context.profile) {
       prompt += `USER: ${context.profile.name}, age ${context.profile.age}, peak energy: ${context.profile.peak_energy}\n`;
     }
+    if (context.preferences) {
+      prompt += `\nYOUR DAY (real daily rhythm — build around these):\n${context.preferences}\n`;
+    }
+    if (context.day_skeleton) {
+      prompt += context.day_skeleton;
+    }
     if (context.goals?.length) {
-      prompt += "GOALS (by neglect):\n";
+      prompt += "\nGOALS (most neglected first):\n";
       for (const g of context.goals.sort((a, b) => b.neglect_days - a.neglect_days)) {
-        prompt += `- [id: ${g.id}] ${g.title}: ${g.neglect_days}d neglected${measurableLine(g)}\n`;
+        const detail = g.details ? ` · detail: ${g.details}` : "";
+        prompt += `- [id: ${g.id}] ${g.title}: ${g.neglect_days}d neglected${detail}${measurableLine(g)}\n`;
       }
     }
     // A2 / #8 — adaptive history + explicit user intent.
     prompt += adaptivePlanContext(context);
-    prompt += "\nCreate 4-6 actions. Prioritize goals that are BEHIND pace toward their target, then neglected goals. Respond with ONLY the JSON array.";
+    prompt += "\n\nRespond with ONLY a JSON array covering the WHOLE day, time-ordered. Each item:\n";
+    prompt += "{\"anchor_type\": \"fixed|routine|goal_work\", \"title\": \"...\", \"why\": \"...\", \"duration_minutes\": N, \"time_slot\": \"HH:MM\", \"schedule_cue\": \"...\", \"goal_id\": \"uuid\", \"amount\": N, \"metric\": \"unit\", \"cue_trigger\": \"...\", \"target_amount\": N, \"target_unit\": \"...\"}\n";
+    prompt += "RULES: Emit every fixed anchor and routine from the skeleton PLUS goal-work in the gaps, ordered by time_slot. anchor_type \"fixed\" for wake/meals/work-class/sleep, \"routine\" for morning routine/workout/cooking, \"goal_work\" for goal tasks. ALWAYS set time_slot (HH:MM, 24h); schedule_cue is the relative label (\"Before 13:00\", \"After class\", \"By 23:30\") else \"\". Titles are clean instructions WITHOUT the time prefix and NEVER abstract. ONLY goal_work sets goal_id (one UUID from GOALS; never invent); fixed/routine omit goal_id/amount/target_amount. At most 6 goal_work items, prioritizing goals BEHIND pace then neglected. If no preferences/skeleton, still produce a concrete goal_work timeline across a sensible waking day.";
   } else if (action === "decompose") {
     prompt = "You are an AI mentor inside ambidash, a life dashboard app. Break ONE long-range goal into a concrete checkpoint chain — the missing middle between the goal and a same-day action.\n\n";
     const g = context.goal;

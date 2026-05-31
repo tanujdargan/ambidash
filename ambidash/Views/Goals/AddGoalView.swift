@@ -9,6 +9,7 @@ struct AddGoalView: View {
 
     @State private var title = ""
     @State private var subtitle = ""
+    @State private var details = ""
     @State private var selectedDomain: GoalDomain = .body
     @State private var selectedHorizon: GoalHorizon = .now
     @State private var selectedType: GoalType = .habit
@@ -47,6 +48,23 @@ struct AddGoalView: View {
                             TextField("e.g. 17.8% bf now · target 14%", text: $subtitle)
                                 .font(.system(size: 14, design: .monospaced))
                                 .foregroundStyle(t.ink2)
+                            t.rule.frame(height: 1)
+                        }
+
+                        // Details — how you'll actually do it. This is the highest-
+                        // leverage concreteness signal: it feeds both the AI prompt
+                        // and the offline planner so goal-work becomes a real task
+                        // ("45 min push/pull/legs at campus gym") instead of a nag.
+                        VStack(alignment: .leading, spacing: 6) {
+                            SectionLabel(title: "Details / how you'll do it (optional)")
+                            TextField(
+                                "e.g. push/pull/legs at campus gym, 45 min",
+                                text: $details,
+                                axis: .vertical
+                            )
+                            .lineLimit(2...5)
+                            .font(.system(size: 14, design: .monospaced))
+                            .foregroundStyle(t.ink2)
                             t.rule.frame(height: 1)
                         }
 
@@ -315,6 +333,9 @@ struct AddGoalView: View {
         let priority = (profile.goals?.count ?? 0) + 1
         let goal = Goal(title: title, domain: selectedDomain, priority: priority)
         goal.subtitle = subtitle
+        // Cap details length to match every other write path (GoalDetailView /
+        // GoalQuickSheet / GoalImportService all clamp to 500 chars).
+        goal.details = String(details.trimmingCharacters(in: .whitespacesAndNewlines).prefix(500))
         goal.horizon = selectedHorizon
         goal.goalType = selectedType
         goal.timesPerWeek = selectedType.isHabitual ? timesPerWeek : 0

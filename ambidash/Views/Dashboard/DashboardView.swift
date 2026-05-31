@@ -10,8 +10,16 @@ struct DashboardView: View {
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query(filter: #Predicate<Goal> { $0.isActive }, sort: \Goal.priority) private var activeGoals: [Goal]
+    // Recency-ordered active goals for the "3 latest goals" section. Sorting on
+    // the stored `lastProgressDate` (bumped by ProgressLogService on every log,
+    // check-in, and completed PlannedAction) keeps this list reactive: completing
+    // an action during the day re-orders the trio live. createdAt is the natural
+    // fallback ordering since a goal's lastProgressDate is set at creation.
+    @Query(filter: #Predicate<Goal> { $0.isActive }, sort: \Goal.lastProgressDate, order: .reverse) private var recentlyActiveGoals: [Goal]
     @State private var showSettings = false
     @State private var showLifeMap = false
+    // Tap-a-score → honest breakdown sheet. Nil while dismissed.
+    @State private var scoreBreakdown: ScoreBreakdownTarget?
 
     private var profile: UserProfile? { profiles.first }
     private var todaySnapshot: IntegrationSnapshot? { snapshots.first }
@@ -21,6 +29,11 @@ struct DashboardView: View {
     }
 
     private var goals: [Goal] { activeGoals }
+
+    /// The three most-recently-active goals, by recency of progress activity.
+    /// Re-orders live as actions complete (the underlying @Query sorts on the
+    /// stored lastProgressDate, which ProgressLogService bumps on each touch).
+    private var latestGoals: [Goal] { Array(recentlyActiveGoals.prefix(3)) }
 
     private var dimensionScores: [LifeDimension: Int] {
         DimensionScoreCalculator.scores(from: goals, snapshot: todaySnapshot)
@@ -52,7 +65,7 @@ struct DashboardView: View {
                 t.bg.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: t.space.section) {
                         // 1. Header (date + serif subtitle + settings gear)
                         HStack(alignment: .top, spacing: 12) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -62,7 +75,7 @@ struct DashboardView: View {
                                     .foregroundStyle(t.muted)
 
                                 Text(greeting)
-                                    .font(.system(size: 28, weight: .regular, design: .serif))
+                                    .font(t.heading(28))
                                     .tracking(-0.3)
                                     .foregroundStyle(t.ink)
                             }
@@ -81,46 +94,65 @@ struct DashboardView: View {
                             .accessibilityLabel("Settings")
                         }
 
-                        // 2. Composite score + sparkline
-                        HStack(alignment: .bottom, spacing: 16) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                SectionLabel(title: "Composite")
-                                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                    Text("\(compositeScore)")
-                                        .font(.system(size: 56, design: .monospaced))
-                                        .monospacedDigit()
-                                        .tracking(-2)
-                                        .foregroundStyle(t.ink)
-                                    Text("/100")
-                                        .font(.system(size: 14, design: .monospaced))
-                                        .foregroundStyle(t.faint)
+                        // 2. Composite score + sparkline — tap for an honest
+                        // breakdown of how the composite is averaged.
+                        Button {
+                            Haptics.selection()
+                            scoreBreakdown = .composite
+                        } label: {
+                            HStack(alignment: .bottom, spacing: 16) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    SectionLabel(title: "Composite")
+                                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                        Text("\(compositeScore)")
+                                            .font(.system(size: 56, design: .monospaced))
+                                            .monospacedDigit()
+                                            .tracking(-2)
+                                            .foregroundStyle(t.ink)
+                                        Text("/100")
+                                            .font(.system(size: 14, design: .monospaced))
+                                            .foregroundStyle(t.faint)
+                                    }
                                 }
+                                Spacer()
+                                SparklineView(values: compositeHistory, width: 120, height: 48)
                             }
-                            Spacer()
-                            SparklineView(values: compositeHistory, width: 120, height: 48)
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
+                        .scaleOnPress()
                         .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Composite score: \(compositeScore) out of 100")
+                        .accessibilityLabel("Composite score: \(compositeScore) out of 100. Tap for breakdown.")
                         .fadeSlideIn(delay: 0)
 
-                        // 3. Arc gauges in 3-col grid
+                        // 3. Arc gauges in 3-col grid — each taps to its
+                        // dimension's per-goal score breakdown.
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 18) {
                             ForEach(Array(LifeDimension.allCases.enumerated()), id: \.element) { index, dim in
-                                ArcGauge(
-                                    value: Double(dimensionScores[dim] ?? 50) / 100.0,
-                                    size: 86,
-                                    strokeWidth: 3.5,
-                                    label: dim.displayName
-                                )
+                                Button {
+                                    Haptics.selection()
+                                    scoreBreakdown = .dimension(dim)
+                                } label: {
+                                    ArcGauge(
+                                        value: Double(dimensionScores[dim] ?? 50) / 100.0,
+                                        size: 86,
+                                        strokeWidth: 3.5,
+                                        label: dim.displayName
+                                    )
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .scaleOnPress()
                                 .staggeredAppear(index: index)
                             }
                         }
 
-                        // 3b. Per-pillar goal overview — the actual goals behind
-                        // the abstract gauge scores, grouped by pillar with a
-                        // count + status breakdown and tappable chips that drill
-                        // into GoalDetailView.
-                        pillarOverviewSection(t)
+                        // 3b. The three most-recently-active goals. The full
+                        // goals-by-pillar overview now lives under the Goals tab
+                        // (GoalListView · Pillar mode); the dashboard surfaces just
+                        // the live trio so completing actions through the day keeps
+                        // the freshest work in view.
+                        latestGoalsSection(t)
 
                         // 4. Mentor surfaced
                         InsightCardView(goals: goals, snapshot: todaySnapshot)
@@ -147,6 +179,16 @@ struct DashboardView: View {
                 }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .sheet(item: $scoreBreakdown) { target in
+                ScoreBreakdownCard(
+                    target: target,
+                    goals: goals,
+                    snapshot: todaySnapshot,
+                    dimensionScores: dimensionScores,
+                    compositeScore: compositeScore
+                )
+                .environment(tm)
+            }
             .fullScreenCover(isPresented: $showLifeMap) {
                 LifeMapView()
                     .environment(tm)
@@ -196,78 +238,36 @@ struct DashboardView: View {
         .preferredColorScheme(tm.isDark ? .dark : .light)
     }
 
-    /// Pillars that currently have at least one active goal, in canonical order.
-    private var populatedDomains: [GoalDomain] {
-        GoalDomain.allCases.filter { domain in
-            goals.contains { $0.domain == domain }
-        }
-    }
-
-    /// Per-pillar overview: for each populated pillar, a header row (icon +
-    /// name + goal count + on-track/attention/slipping breakdown) above a
-    /// horizontal strip of the actual goals as tappable chips. Makes the goals
-    /// behind each ArcGauge score visible side-by-side across pillars.
+    /// The three most-recently-active goals as compact tappable cards. Each card
+    /// drills into GoalDetailView via the existing navigation (the richer
+    /// tap-to-expand detail card is a later pass). The trio re-orders live as the
+    /// day progresses because `latestGoals` is fed by a recency-sorted @Query.
     @ViewBuilder
-    private func pillarOverviewSection(_ t: ResolvedTheme) -> some View {
-        if !populatedDomains.isEmpty {
-            VStack(alignment: .leading, spacing: 16) {
-                SectionLabel(title: "Goals by pillar")
-                    .padding(.horizontal, 0)
+    private func latestGoalsSection(_ t: ResolvedTheme) -> some View {
+        if !latestGoals.isEmpty {
+            VStack(alignment: .leading, spacing: t.space.component) {
+                HStack(alignment: .firstTextBaseline) {
+                    SectionLabel(title: "Latest goals")
+                    Spacer()
+                    Text("Most recently active")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(t.faint)
+                }
 
-                ForEach(Array(populatedDomains.enumerated()), id: \.element) { index, domain in
-                    let domainGoals = goals.filter { $0.domain == domain }
-                        .sorted { $0.priority < $1.priority }
-                    VStack(alignment: .leading, spacing: 8) {
-                        pillarHeader(domain, goals: domainGoals, t: t)
-                        // GoalStripView already pads ±22; cancel the section's
-                        // horizontal padding so the strip can scroll edge-to-edge.
-                        GoalStripView(goals: domainGoals)
-                            .padding(.horizontal, -22)
+                VStack(spacing: 8) {
+                    ForEach(Array(latestGoals.enumerated()), id: \.element.id) { index, goal in
+                        NavigationLink {
+                            GoalDetailView(goal: goal)
+                        } label: {
+                            LatestGoalCard(goal: goal)
+                        }
+                        .buttonStyle(.plain)
+                        .scaleOnPress()
+                        .staggeredAppear(index: index)
                     }
-                    .staggeredAppear(index: index)
                 }
             }
             .fadeSlideIn(delay: 0.08)
-        }
-    }
-
-    @ViewBuilder
-    private func pillarHeader(_ domain: GoalDomain, goals: [Goal], t: ResolvedTheme) -> some View {
-        let onTrack = goals.filter { $0.computedStatus == .onTrack }.count
-        let attention = goals.filter { $0.computedStatus == .needsAttention }.count
-        let slipping = goals.filter { $0.computedStatus == .slipping }.count
-
-        HStack(spacing: 8) {
-            Image(systemName: domain.icon)
-                .font(.system(size: 12))
-                .foregroundStyle(t.muted)
-            Text(domain.dimension.displayName)
-                .font(.system(size: 13, weight: .medium, design: .serif))
-                .foregroundStyle(t.ink)
-            Text("\(goals.count)")
-                .font(.system(size: 10, design: .monospaced))
-                .foregroundStyle(t.faint)
-            Spacer()
-            HStack(spacing: 8) {
-                if onTrack > 0 { statusCount(.onTrack, count: onTrack, t: t) }
-                if attention > 0 { statusCount(.needsAttention, count: attention, t: t) }
-                if slipping > 0 { statusCount(.slipping, count: slipping, t: t) }
-            }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(domain.dimension.displayName): \(goals.count) goals, \(onTrack) on track, \(attention) need attention, \(slipping) slipping")
-    }
-
-    @ViewBuilder
-    private func statusCount(_ status: GoalStatus, count: Int, t: ResolvedTheme) -> some View {
-        HStack(spacing: 3) {
-            StatusDot(status: status)
-                .scaleEffect(0.7)
-                .frame(width: 6, height: 6)
-            Text("\(count)")
-                .font(.system(size: 10, design: .monospaced))
-                .monospacedDigit()
-                .foregroundStyle(t.muted)
         }
     }
 
@@ -301,5 +301,88 @@ struct DashboardView: View {
         if hour < 12 { return "Good morning\(suffix)." }
         if hour < 17 { return "Steady, not striving." }
         return "Close the loop\(suffix)."
+    }
+}
+
+/// A compact, tappable card for one goal on the dashboard's "Latest goals"
+/// section: pillar icon + title + horizon/status dots, a one-line context line,
+/// and a thin progress indicator that mirrors how the goal is judged (target
+/// attainment, weekly adherence, or recency). Tapping drills into the existing
+/// GoalDetailView; the richer inline detail card arrives in a later pass.
+private struct LatestGoalCard: View {
+    let goal: Goal
+    @Environment(ThemeManager.self) private var tm
+
+    var body: some View {
+        let t = tm.resolved
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: goal.domain.icon)
+                    .font(.system(size: 12))
+                    .foregroundStyle(t.muted)
+                    .frame(width: 16)
+                Text(goal.title)
+                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    .foregroundStyle(t.ink)
+                    .lineLimit(1)
+                Spacer(minLength: 8)
+                Circle()
+                    .fill(goal.horizon.dotColor)
+                    .frame(width: 5, height: 5)
+                StatusDot(status: goal.computedStatus)
+                    .scaleEffect(0.7)
+                    .frame(width: 6, height: 6)
+            }
+
+            Text(contextLine)
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(t.muted)
+                .lineLimit(1)
+
+            progressIndicator(t)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(t.hair, lineWidth: 0.5))
+        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(goal.title), \(goal.domain.displayName), \(goal.computedStatus.label)")
+    }
+
+    /// One-line context that matches how this goal type is measured.
+    private var contextLine: String {
+        if goal.hasTarget {
+            return "\(MetricFormat.number(goal.currentValue)) / \(MetricFormat.value(goal.targetValue, unit: goal.unit))"
+        } else if goal.isHabitual {
+            return AdherenceFormat.compact(for: goal)
+        } else if !goal.subtitle.isEmpty {
+            return goal.subtitle
+        }
+        return GoalHealthService.summaryText(for: goal)
+    }
+
+    @ViewBuilder
+    private func progressIndicator(_ t: ResolvedTheme) -> some View {
+        if goal.hasTarget {
+            TargetProgressBar(goal: goal, maxWidth: .infinity, showCaption: false)
+        } else if goal.isHabitual {
+            AdherenceBar(goal: goal, maxWidth: .infinity, showCaption: false)
+        } else {
+            // Mirror the actual scoring: non-measurable goals are judged by the
+            // STEP-FUNCTION neglect band (≤1d:90, ≤3d:75, ≤5d:55, ≤7d:40, else
+            // decaying), not a linear recency ramp. Fill the bar to the band value
+            // so it matches DimensionScoreCalculator instead of misrepresenting it.
+            let progress = Double(DimensionScoreCalculator.neglectBandScore(forDays: goal.neglectDays)) / 100.0
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 1).fill(t.hair)
+                    RoundedRectangle(cornerRadius: 1).fill(t.ink).frame(width: geo.size.width * progress)
+                }
+            }
+            .frame(height: 2)
+        }
     }
 }

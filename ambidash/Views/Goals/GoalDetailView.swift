@@ -6,6 +6,11 @@ struct GoalDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var goal: Goal
     @State private var showLogProgress = false
+    // Inline edit state for goal.details (Phase 2 left details creation-only;
+    // this makes it editable anytime, persisting to SwiftData → CloudKit).
+    @State private var editingDetails = false
+    @State private var detailsDraft = ""
+    @FocusState private var detailsFocused: Bool
 
     var body: some View {
         let t = tm.resolved
@@ -35,6 +40,10 @@ struct GoalDetailView: View {
                                 .foregroundStyle(t.muted)
                         }
                     }
+
+                    // How you'll do it — the goal's clarifying description, with
+                    // an inline editor that persists changes to SwiftData.
+                    detailsSection(t)
 
                     // Pillar + type
                     HStack(spacing: 10) {
@@ -181,6 +190,69 @@ struct GoalDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showLogProgress) {
             LogProgressSheet(goal: goal)
+        }
+    }
+
+    // MARK: - Details (how you'll do it)
+
+    /// Shows `goal.details` like a workout description, with an inline edit
+    /// affordance. Editing swaps to a fixed-height TextEditor with Save/Cancel so
+    /// the keyboard stays contained; Save writes through to SwiftData → CloudKit.
+    @ViewBuilder
+    private func detailsSection(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionLabel(title: "How you'll do it")
+                Spacer()
+                if !editingDetails {
+                    Button {
+                        Haptics.selection()
+                        detailsDraft = goal.details
+                        editingDetails = true
+                        detailsFocused = true
+                    } label: {
+                        Image(systemName: goal.details.isEmpty ? "plus" : "pencil")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(t.muted)
+                    }
+                    .accessibilityLabel(goal.details.isEmpty ? "Add details" : "Edit details")
+                }
+            }
+
+            if editingDetails {
+                TextEditor(text: $detailsDraft)
+                    .focused($detailsFocused)
+                    .font(.system(size: 14, design: .serif))
+                    .foregroundStyle(t.ink)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 88, maxHeight: 140)
+                    .padding(10)
+                    .background(t.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(t.hair, lineWidth: 0.5))
+
+                HStack(spacing: 10) {
+                    PillButton(label: "Save", primary: true) {
+                        Haptics.success()
+                        goal.details = String(detailsDraft.trimmingCharacters(in: .whitespacesAndNewlines).prefix(500))
+                        try? modelContext.save()
+                        editingDetails = false
+                        detailsFocused = false
+                    }
+                    PillButton(label: "Cancel") {
+                        editingDetails = false
+                        detailsFocused = false
+                    }
+                    Spacer()
+                }
+            } else {
+                Text(goal.details.isEmpty ? "No details yet — tap + to describe how you'll do this." : goal.details)
+                    .font(.system(size: 14, design: .serif))
+                    .italic(!goal.details.isEmpty)
+                    .foregroundStyle(goal.details.isEmpty ? t.faint : t.ink2)
+                    .lineSpacing(3)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
     }
 

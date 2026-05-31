@@ -50,7 +50,7 @@ struct TodayView: View {
                                 .foregroundStyle(t.muted)
 
                             Text("Today, as you set it.")
-                                .font(.system(size: 28, weight: .regular, design: .serif))
+                                .font(t.heading(28))
                                 .tracking(-0.3)
                                 .foregroundStyle(t.ink)
                         }
@@ -131,7 +131,7 @@ struct TodayView: View {
 
         let allDone = sorted.allSatisfy { $0.statusRaw != "pending" }
 
-        VStack(alignment: .leading, spacing: 22) {
+        VStack(alignment: .leading, spacing: t.space.section) {
             // Completion state
             if allDone && !sorted.isEmpty {
                 completionCard(plan: plan, t: t)
@@ -275,13 +275,24 @@ struct TodayView: View {
         let isDone = action.statusRaw == "done"
         let isSkipped = action.statusRaw == "skipped"
         let isPast = isDone || isSkipped
+        // PLAN REWRITE — fixed anchors + routines are the day's structure: render
+        // them muted and lighter than goal-work, which gets the normal emphasis.
+        let kind = action.anchorKind
+        let isStructure = kind == .fixed || kind == .routine
+        // Prefer the instruction-style relative cue ("Before 13:00") over the raw
+        // clock when the planner set one.
+        let whenLabel: String = {
+            if !action.scheduleCue.isEmpty { return action.scheduleCue }
+            return action.timeSlot.isEmpty ? "—" : action.timeSlot
+        }()
 
         HStack(alignment: .top, spacing: 12) {
-            // Time
-            Text(action.timeSlot.isEmpty ? "—" : action.timeSlot)
+            // Time / relative cue
+            Text(whenLabel)
                 .font(.system(size: 10, design: .monospaced))
-                .foregroundStyle(isPast ? t.faint : t.muted)
+                .foregroundStyle(isPast ? t.faint : (isStructure ? t.faint : t.muted))
                 .frame(width: 44, alignment: .leading)
+                .lineLimit(2)
                 .padding(.top, 4)
 
             // Dot
@@ -291,7 +302,7 @@ struct TodayView: View {
                     .frame(width: 9, height: 9)
                 if !isNow && !isPast {
                     Circle()
-                        .stroke(t.ink2, lineWidth: 1)
+                        .stroke(isStructure ? t.hair : t.ink2, lineWidth: 1)
                         .frame(width: 9, height: 9)
                 }
                 if isNow {
@@ -306,9 +317,13 @@ struct TodayView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(action.title)
-                        .font(.system(size: 15, weight: .regular, design: .serif))
+                        .font(.system(size: isStructure ? 14 : 15, weight: .regular, design: .serif))
                         .strikethrough(isPast, color: t.faint)
-                        .foregroundStyle(isPast ? t.muted : t.ink)
+                        .foregroundStyle(isPast ? t.muted : (isStructure ? t.ink2 : t.ink))
+
+                    if isStructure {
+                        anchorTag(kind, t: t)
+                    }
 
                     if action.carriedOverFrom != nil && !isPast {
                         carriedOverTag(t)
@@ -319,13 +334,13 @@ struct TodayView: View {
                     cueTargetLine(action, t: t)
                 }
 
-                if !action.whyReasoning.isEmpty {
+                if !action.whyReasoning.isEmpty && !isStructure {
                     Text(action.whyReasoning)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(t.faint)
                 }
             }
-            .opacity(isPast ? 0.5 : 1)
+            .opacity(isPast ? 0.5 : (isStructure ? 0.85 : 1))
         }
         .padding(.vertical, 12)
         .overlay(alignment: .bottom) {
@@ -375,6 +390,21 @@ struct TodayView: View {
     /// Formats a target amount as an int when whole, else one decimal place.
     private func formatTarget(_ value: Double) -> String {
         value == value.rounded() ? String(Int(value)) : String(format: "%.1f", value)
+    }
+
+    /// PLAN REWRITE — a small tag marking a fixed anchor or daily routine so the
+    /// day's structure reads distinctly from goal-work.
+    @ViewBuilder
+    private func anchorTag(_ kind: PlannedAction.AnchorKind, t: ResolvedTheme) -> some View {
+        let label = kind == .routine ? "ROUTINE" : "ANCHOR"
+        Text(label)
+            .font(.system(size: 7, weight: .medium, design: .monospaced))
+            .tracking(1.0)
+            .foregroundStyle(t.muted)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 2)
+            .background(t.hair)
+            .clipShape(Capsule())
     }
 
     /// A small "carried over" tag, marking actions resurfaced from a prior day.
@@ -430,9 +460,13 @@ struct TodayView: View {
 
     @ViewBuilder
     private func timeAccounting(_ plan: DailyPlan, t: ResolvedTheme) -> some View {
-        let done = (plan.actions ?? []).filter { $0.statusRaw == "done" }
+        // PLAN REWRITE — account for the EFFORT the user puts in (goal-work +
+        // routines), not the fixed anchors (work block, sleep, meals) that fill the
+        // day regardless. Otherwise an 8h work-block anchor swamps the bar.
+        let effort = (plan.actions ?? []).filter { $0.anchorKind != .fixed }
+        let done = effort.filter { $0.statusRaw == "done" }
         let totalDoneMinutes = done.reduce(0) { $0 + $1.durationMinutes }
-        let totalPlannedMinutes = (plan.actions ?? []).reduce(0) { $0 + $1.durationMinutes }
+        let totalPlannedMinutes = effort.reduce(0) { $0 + $1.durationMinutes }
         let unaccounted = max(0, 480 - totalPlannedMinutes)
 
         VStack(alignment: .leading, spacing: 10) {
@@ -585,7 +619,10 @@ struct TodayView: View {
             recentDone: done,
             recentSkipped: skipped,
             latestReflection: latestReflection,
-            postponingIntent: intent.isEmpty ? nil : intent
+            postponingIntent: intent.isEmpty ? nil : intent,
+            // FOUNDATION — daily-rhythm preferences so the planner builds the day
+            // around the user's real anchors (wake/sleep, meals, work, routines).
+            userPreferences: profile?.userPreferences
         )
     }
 
@@ -606,29 +643,36 @@ struct TodayView: View {
         plan.actionCount = (plan.actions ?? []).count
     }
 
-    /// Builds template-backed actions (offline path), linking each to its goal's
-    /// current week Milestone via `ensureWeekMilestone`. Actions are NOT yet
-    /// inserted — the caller inserts + attaches them to a plan.
+    /// Builds the offline plan as a single woven timeline — fixed anchors + daily
+    /// routines (from the user's preferences) interleaved with goal-work slotted
+    /// into the free gaps. Goal-work actions link to their goal's current week
+    /// Milestone via `ensureWeekMilestone`. Actions are NOT yet inserted — the
+    /// caller inserts + attaches them to a plan.
     private func buildTemplateActions(goals: [Goal], maxActions: Int) -> [PlannedAction] {
-        // #10 — size the budget to real calendar free time when available.
+        // PLAN REWRITE — weave anchors + routines + goal-work via PlanGenerator,
+        // grounded in the user's daily-rhythm preferences (nil → goal-work only).
         let freeMinutes = resolvedFreeMinutes
-        let templates = PlanGenerator.generateActions(for: goals, freeMinutes: freeMinutes ?? 480, maxActions: maxActions)
-        // #10 — assign time slots from the real free-minute budget via SlotScheduler.
-        let durations = templates.map { $0.durationMinutes }
-        let timeSlots = SlotScheduler.assignSlots(count: templates.count, durations: durations, freeMinutes: freeMinutes)
-        return templates.enumerated().map { (i, tmpl) in
-            let resolvedGoal = goals.first { $0.id == tmpl.goalID }
+        let timeline = PlanGenerator.generateTimeline(
+            for: goals,
+            prefs: profile?.userPreferences,
+            freeMinutes: freeMinutes,
+            maxGoalActions: maxActions
+        )
+        return timeline.map { entry in
+            let resolvedGoal = entry.goalID.flatMap { gid in goals.first { $0.id == gid } }
             return PlannedAction(
-                title: tmpl.title,
-                why: tmpl.why,
-                timeSlot: i < timeSlots.count ? timeSlots[i] : "",
-                duration: tmpl.durationMinutes,
-                goalID: tmpl.goalID,
-                goalTitleSnapshot: tmpl.goalTitle,
+                title: entry.title,
+                why: entry.why,
+                timeSlot: entry.timeSlot,
+                duration: entry.durationMinutes,
+                goalID: entry.goalID,
+                goalTitleSnapshot: entry.goalTitle,
                 milestone: resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) },
-                cueTrigger: tmpl.cueTrigger,
-                targetAmount: tmpl.targetAmount,
-                targetUnit: tmpl.targetUnit
+                cueTrigger: entry.cueTrigger,
+                targetAmount: entry.targetAmount,
+                targetUnit: entry.targetUnit,
+                anchorType: entry.anchorType.rawValue,
+                scheduleCue: entry.scheduleCue
             )
         }
     }
@@ -647,7 +691,18 @@ struct TodayView: View {
                   let actions = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return nil }
             let goalIDs = Set(goals.map { $0.id })
             var built: [PlannedAction] = []
-            for dict in actions.prefix(maxActions) {
+            // PLAN REWRITE — `maxActions` caps GOAL-WORK, not the whole day: fixed
+            // anchors + daily routines structure the day and are always kept, while
+            // goal-work is limited to the user's preferred count so the timeline
+            // stays focused. Count goal-work as we go.
+            var goalWorkCount = 0
+            for dict in actions {
+                let kindRaw = dict["anchor_type"] as? String ?? "goal_work"
+                let isGoalWork = (PlannedAction.AnchorKind(rawValue: kindRaw) ?? .goalWork) == .goalWork
+                if isGoalWork {
+                    if goalWorkCount >= maxActions { continue }
+                    goalWorkCount += 1
+                }
                 var resolvedGoalID: UUID? = nil
                 if let goalIDStr = dict["goal_id"] as? String,
                    let parsed = UUID(uuidString: goalIDStr),
@@ -677,21 +732,32 @@ struct TodayView: View {
                 }
                 let targetUnit = dict["target_unit"] as? String ?? ""
                 let cueTrigger = dict["cue_trigger"] as? String ?? ""
+                // PLAN REWRITE — the anchor kind (fixed | routine | goal_work) and
+                // the instruction-style relative cue ("Before 13:00", "After class").
+                // Fixed/routine entries have no goal, so don't force-link a milestone.
+                let anchorTypeRaw = dict["anchor_type"] as? String ?? "goal_work"
+                let anchorKind = PlannedAction.AnchorKind(rawValue: anchorTypeRaw) ?? .goalWork
+                let scheduleCue = dict["schedule_cue"] as? String ?? ""
                 // C2 — ensure (get-or-create) the goal's current WEEK milestone
                 // BEFORE constructing the action, so its id is available to link.
-                let weekMilestone = resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
+                // Only goal-work entries roll up into a milestone.
+                let weekMilestone = (anchorKind == .goalWork)
+                    ? resolvedGoal.map { WeeklyPlanService.ensureWeekMilestone(for: $0, context: modelContext) }
+                    : nil
                 built.append(PlannedAction(
                     title: dict["title"] as? String ?? "",
                     why: dict["why"] as? String ?? "",
                     timeSlot: dict["time_slot"] as? String ?? "",
                     duration: dict["duration_minutes"] as? Int ?? 30,
-                    goalID: resolvedGoalID,
-                    goalTitleSnapshot: resolvedGoal?.title,
-                    loggedAmount: loggedAmount,
+                    goalID: anchorKind == .goalWork ? resolvedGoalID : nil,
+                    goalTitleSnapshot: anchorKind == .goalWork ? resolvedGoal?.title : nil,
+                    loggedAmount: anchorKind == .goalWork ? loggedAmount : nil,
                     milestone: weekMilestone,
                     cueTrigger: cueTrigger,
                     targetAmount: targetAmount,
-                    targetUnit: targetUnit
+                    targetUnit: targetUnit,
+                    anchorType: anchorKind.rawValue,
+                    scheduleCue: scheduleCue
                 ))
             }
             // #10 — if the AI left time slots blank, assign them from the real
@@ -810,7 +876,12 @@ struct TodayView: View {
                 goalTitleSnapshot: action.goalTitleSnapshot,
                 loggedAmount: action.loggedAmount,
                 milestone: action.milestone,
-                carriedOverFrom: originDate
+                carriedOverFrom: originDate,
+                cueTrigger: action.cueTrigger,
+                targetAmount: action.targetAmount,
+                targetUnit: action.targetUnit,
+                anchorType: action.anchorType,
+                scheduleCue: action.scheduleCue
             )
             modelContext.insert(clone)
             clone.plan = tomorrowPlan
@@ -845,7 +916,9 @@ struct TodayView: View {
                     ProgressLogService.logCheckIn(goal: goal, source: .action, context: modelContext)
                 }
             }
-        } else {
+        } else if action.anchorKind == .goalWork {
+            // Only goal-work without an explicit goalID falls back to title-match.
+            // Fixed anchors + routines (sleep, meals, cooking) credit no goal.
             for goal in goals {
                 let temps = PlanGenerator.templates(for: goal.domain)
                 if temps.contains(where: { $0.0 == action.title }) {

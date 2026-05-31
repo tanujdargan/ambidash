@@ -1,4 +1,9 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#else
+import AppKit
+#endif
 
 // MARK: - Palette Definitions
 
@@ -42,6 +47,37 @@ enum ThemeTypography: String, CaseIterable, Codable, Identifiable {
     var serifDesign: Font.Design { .serif }
     var sansDesign: Font.Design { .default }
     var monoDesign: Font.Design { .monospaced }
+
+    /// Design used for display/heading text. Editorial keeps a literary serif;
+    /// modern switches to a clean sans; technical uses monospaced for a precise,
+    /// instrument-panel feel. This is the most visible lever when toggling.
+    var headingDesign: Font.Design {
+        switch self {
+        case .editorial: .serif
+        case .modern: .default
+        case .technical: .monospaced
+        }
+    }
+
+    /// Design used for running body prose, mirroring the heading family so the
+    /// whole screen shifts coherently.
+    var bodyDesign: Font.Design {
+        switch self {
+        case .editorial: .serif
+        case .modern: .default
+        case .technical: .monospaced
+        }
+    }
+
+    /// Per-option size nudge applied to heading text so the three options read
+    /// at visibly different scales (editorial largest, technical tightest).
+    var headingSizeDelta: CGFloat {
+        switch self {
+        case .editorial: 0
+        case .modern: -1
+        case .technical: -3
+        }
+    }
 
     var serifWeight: Font.Weight {
         switch self {
@@ -89,6 +125,29 @@ enum ThemeDensity: String, CaseIterable, Codable, Identifiable {
     }
 }
 
+// MARK: - Density Spacing Scale
+
+/// A small set of spacing tokens derived from `ThemeDensity`. Views read these
+/// (via `tm.resolved.space`) instead of hardcoding VStack/section spacing, so
+/// toggling Calm <-> Detailed visibly re-flows the most-used screens.
+struct DensitySpacing {
+    /// Gap between major sections in a scroll (e.g. the Dashboard VStack).
+    let section: CGFloat
+    /// Gap between grouped items inside a section.
+    let component: CGFloat
+    /// Tight inner gap (label -> value, header -> subtitle).
+    let tight: CGFloat
+
+    static func forDensity(_ density: ThemeDensity) -> DensitySpacing {
+        switch density {
+        case .calm:
+            return DensitySpacing(section: 28, component: 20, tight: 8)
+        case .detailed:
+            return DensitySpacing(section: 16, component: 12, tight: 5)
+        }
+    }
+}
+
 // MARK: - Resolved Theme
 
 struct ResolvedTheme {
@@ -106,6 +165,23 @@ struct ResolvedTheme {
     let danger: Color
     let ok: Color
     let isDark: Bool
+    /// Density-derived spacing scale (calm = roomier, detailed = tighter).
+    let space: DensitySpacing
+    /// The active typography option, so views can pull font design/weight/size.
+    let typography: ThemeTypography
+
+    /// Heading font (serif-family display text) sized + weighted per typography.
+    /// `size` is the editorial baseline; modern/technical scale it down slightly.
+    func heading(_ size: CGFloat) -> Font {
+        .system(size: size + typography.headingSizeDelta, weight: typography.headingWeight, design: typography.headingDesign)
+    }
+
+    /// Body font (running prose) using the typography's body design + size scale.
+    /// Pass the editorial baseline `size`; modern/technical shift it via bodySize.
+    func body(_ baseline: CGFloat = 15) -> Font {
+        let scaled = baseline + (typography.bodySize - 15)
+        return .system(size: scaled, weight: .regular, design: typography.bodyDesign)
+    }
 }
 
 // MARK: - Theme Environment
@@ -139,6 +215,8 @@ final class ThemeManager {
 
     var resolved: ResolvedTheme {
         let (bgHex, inkHex, accentHex) = palette.colors
+        let space = DensitySpacing.forDensity(density)
+        let typo = typography
         if isDark {
             // OLED forces true-black backgrounds while keeping the palette's accent + ink.
             return ResolvedTheme(
@@ -155,7 +233,9 @@ final class ThemeManager {
                 accentSoft: Color(hex: accentHex).opacity(0.18),
                 danger: Color(hex: 0xD27860),
                 ok: Color(hex: 0x9DAE7A),
-                isDark: true
+                isDark: true,
+                space: space,
+                typography: typo
             )
         } else {
             return ResolvedTheme(
@@ -172,7 +252,9 @@ final class ThemeManager {
                 accentSoft: Color(hex: accentHex).opacity(0.14),
                 danger: Color(hex: 0xB0533A),
                 ok: Color(hex: 0x6A7C4A),
-                isDark: false
+                isDark: false,
+                space: space,
+                typography: typo
             )
         }
     }
@@ -211,7 +293,11 @@ extension Color {
 
     func shiftBrightness(by amount: Double) -> Color {
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        #if os(iOS)
         UIColor(self).getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        #else
+        NSColor(self).usingColorSpace(.deviceRGB)?.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        #endif
         return Color(hue: Double(h), saturation: Double(s), brightness: Double(min(1, max(0, b + CGFloat(amount)))), opacity: Double(a))
     }
 }

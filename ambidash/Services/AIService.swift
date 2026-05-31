@@ -40,6 +40,11 @@ enum AIService {
         if includeID {
             entry["id"] = goal.id.uuidString
         }
+        // PLAN REWRITE — the user's own goal detail makes goal-work concrete.
+        let detail = goal.details.trimmingCharacters(in: .whitespaces)
+        if !detail.isEmpty {
+            entry["details"] = detail
+        }
         if goal.hasTarget {
             let variance: String
             switch TargetMath.variance(goal) {
@@ -91,6 +96,10 @@ enum AIService {
         var postponingIntent: String? = nil
         /// Free-text focus intent, if captured.
         var focusIntent: String? = nil
+        /// FOUNDATION — the user's daily-rhythm preferences ("Your Day"), so the
+        /// planner can build the day around real anchors (wake/sleep, meals, work
+        /// blocks, routines, workout). Optional; nil when not yet set.
+        var userPreferences: UserPreferences? = nil
     }
 
     static func generatePlanJSON(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?, planContext: PlanContext = PlanContext()) async throws -> String {
@@ -121,6 +130,19 @@ enum AIService {
             if let focus = planContext.focusIntent, !focus.isEmpty {
                 context["focus_intent"] = focus
             }
+            // FOUNDATION — make the user's daily-rhythm preferences available to
+            // the edge function (write-only for now; the next pass rewrites the
+            // server prompt to consume them, kept additive so it's harmless until
+            // then).
+            if let prefs = planContext.userPreferences {
+                context["preferences"] = preferencesContext(prefs)
+                // PLAN REWRITE — the concrete fixed/routine skeleton + free gaps so
+                // the edge prompt builds the same woven timeline the client does.
+                let skeleton = DailyTimeline.promptSkeleton(from: prefs)
+                if !skeleton.isEmpty {
+                    context["day_skeleton"] = skeleton
+                }
+            }
             if let result = await SupabaseService.shared.callMentor(action: "plan", context: context) {
                 return result
             }
@@ -143,13 +165,39 @@ enum AIService {
         return entry
     }
 
+    /// FOUNDATION — compact dictionary of the user's daily-rhythm preferences for
+    /// the edge-function context. Mirrors the fields the client prompt renders so
+    /// server + client stay aligned when the server prompt is rewritten next pass.
+    private static func preferencesContext(_ p: UserPreferences) -> [String: Any] {
+        var entry: [String: Any] = [
+            "wake_time": p.wakeTime,
+            "sleep_time": p.sleepTime,
+            "breakfast_time": p.breakfastTime,
+            "lunch_time": p.lunchTime,
+            "dinner_time": p.dinnerTime,
+            "work_busy_block": p.workBusyBlock,
+            "morning_routine": p.morningRoutine,
+            "evening_routine": p.eveningRoutine,
+            "works_out": p.worksOut,
+            "workout_time": p.workoutTime,
+            "workout_type": p.workoutType,
+            "cooks_own_meals": p.cooksOwnMeals,
+            "energy_peak": p.energyPeak,
+            "focus_blocks_per_day": p.focusBlocksPerDay,
+        ]
+        if !p.aboutMe.isEmpty { entry["about_me"] = p.aboutMe }
+        if !p.hardConstraints.isEmpty { entry["hard_constraints"] = p.hardConstraints }
+        if !p.extraContext.isEmpty { entry["extra_context"] = p.extraContext }
+        return entry
+    }
+
     /// A2 / #8 — two-way mentor reply. Sends the user's written reply plus light
     /// goal context and asks the mentor to respond in 2-3 sentences. Reuses the
     /// 'insight' edge action (which logs role=mentor) so no new server branch is
     /// needed; falls back to the direct API with a tailored reply prompt.
-    static func generateMentorReply(userMessage: String, goals: [Goal], snapshot: IntegrationSnapshot?) async throws -> String {
+    static func generateMentorReply(userMessage: String, goals: [Goal], snapshot: IntegrationSnapshot?, todaysActions: [PlannedAction] = []) async throws -> String {
         if SupabaseService.shared.isAuthenticated {
-            let context: [String: Any] = [
+            var context: [String: Any] = [
                 "goals": goals.map { goalContext($0, includeID: false) },
                 "snapshot": snapshot.map { [
                     "sleep_hours": $0.sleepHours, "steps": $0.steps,
@@ -157,11 +205,17 @@ enum AIService {
                 ] } as Any,
                 "user_message": userMessage,
             ]
+            // MENTOR REFOCUS — pass the forward today → week → %-closer breakdown so
+            // the edge reply uses the same framing as the direct-API path.
+            let summary = MentorPromptBuilder.forwardSummaryText(goals: goals, todaysActions: todaysActions)
+            if !summary.isEmpty {
+                context["forward_summary"] = summary
+            }
             if let result = await SupabaseService.shared.callMentor(action: "insight", context: context) {
                 return result
             }
         }
-        let prompt = MentorPromptBuilder.replyPrompt(userMessage: userMessage, goals: goals, snapshot: snapshot)
+        let prompt = MentorPromptBuilder.replyPrompt(userMessage: userMessage, goals: goals, snapshot: snapshot, todaysActions: todaysActions)
         return try await callAPI(prompt: prompt)
     }
 

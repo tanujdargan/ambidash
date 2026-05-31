@@ -31,6 +31,7 @@ enum DataExportService {
             [
                 "title": goal.title,
                 "subtitle": goal.subtitle,
+                "details": goal.details,
                 "domain": goal.domainRaw,
                 "horizon": goal.horizonRaw,
                 "priority": goal.priority,

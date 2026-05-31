@@ -19,6 +19,27 @@ enum PlanGenerator {
         var targetUnit: String = ""
     }
 
+    /// PLAN REWRITE — one fully-formed, time-bound entry in the day's woven
+    /// timeline. Covers fixed anchors, daily routines, AND goal-work, so the
+    /// offline planner emits a single concrete timeline (not a list of nags). The
+    /// caller materializes these into `PlannedAction`s.
+    struct TimelineAction {
+        var title: String
+        var why: String
+        /// Sortable HH:MM scheduling key.
+        var timeSlot: String
+        /// Instruction-style cue when not a hard clock time ("Before 13:00").
+        var scheduleCue: String
+        var durationMinutes: Int
+        var anchorType: PlannedAction.AnchorKind
+        // Goal-work-only fields (empty/nil for fixed + routine entries).
+        var goalID: UUID? = nil
+        var goalTitle: String? = nil
+        var cueTrigger: String = ""
+        var targetAmount: Double? = nil
+        var targetUnit: String = ""
+    }
+
     /// A2 / #10 — a rotating set of if-then implementation-intention anchors. The
     /// planner attaches one per action (cycled by slot index) so each action is
     /// tied to an existing daily rhythm rather than floating free.
@@ -97,24 +118,33 @@ enum PlanGenerator {
     /// nil for types with no specific override so the caller falls back to the
     /// per-domain templates. Habit/recurring actions are sized to cadence.
     static func typeTemplate(for goal: Goal) -> (String, Int, String)? {
+        // PLAN REWRITE — prefer the user's own goal-specific detail when present so
+        // the action reads like a real task ("45 min push/pull/legs at campus gym")
+        // rather than a generic nag. `details` is free text from the goal card.
+        let detail = goal.details.trimmingCharacters(in: .whitespaces)
         switch goal.goalType {
         case .habit:
-            return ("Show up today: \(goal.title)", 20,
+            // Only append the em-dash detail when the user gave one; otherwise the
+            // title would duplicate ("Meditate — Meditate"). Bare title reads fine.
+            let title = detail.isEmpty ? goal.title : "\(goal.title) — \(detail)"
+            return (title, 20,
                     "Daily consistency is the whole game for this one")
         case .recurring:
-            let perWeek = max(goal.timesPerWeek, 1)
-            let cadence = perWeek == 1 ? "this week" : "(\(perWeek)x/week)"
-            return ("Do your \(goal.title) session \(cadence)", 45,
+            let what = detail.isEmpty ? "\(goal.title) session" : detail
+            return ("\(what)", 45,
                     "Hit your weekly cadence — adherence beats intensity")
         case .project:
-            return ("Take the next step on \(goal.title)", 60,
+            let what = detail.isEmpty ? goal.title : detail
+            return ("Work block: \(what)", 60,
                     "Projects move forward one concrete step at a time")
         case .milestone:
-            return ("Advance toward: \(goal.title)", 45,
+            let what = detail.isEmpty ? goal.title : detail
+            return ("Work block: \(what)", 45,
                     "Close the gap to this checkpoint")
         case .accumulation:
             let unit = goal.unit.isEmpty ? "the number" : goal.unit
-            return ("Move \(unit) on \(goal.title)", 30,
+            let what = detail.isEmpty ? "Move \(unit) on \(goal.title)" : detail
+            return ("\(what)", 30,
                     "Small, regular gains compound toward the target")
         }
     }
@@ -173,25 +203,104 @@ enum PlanGenerator {
         return result
     }
 
+    /// PLAN REWRITE — the offline timeline. Weaves the user's FIXED ANCHORS and
+    /// DAILY ROUTINES (from `prefs`, via `DailyTimeline`) together with GOAL-WORK
+    /// slotted into the day's free gaps, producing one concrete, time-ordered
+    /// timeline. Every entry carries a clock time (or relative cue) + duration so
+    /// the offline plan is genuinely good without any AI.
+    ///
+    /// When `prefs` is nil (no preferences set) it falls back to a goal-work-only
+    /// timeline scheduled across the default waking window — i.e. the prior
+    /// behaviour, but still concrete.
+    static func generateTimeline(for goals: [Goal], prefs: UserPreferences?, freeMinutes: Int?, maxGoalActions: Int) -> [TimelineAction] {
+        let skeleton = DailyTimeline.skeleton(from: prefs)
+
+        // 1) Fixed + routine entries become timeline actions verbatim.
+        var timeline: [TimelineAction] = skeleton.map { e in
+            TimelineAction(
+                title: e.title,
+                why: e.why,
+                timeSlot: e.clock,
+                scheduleCue: e.scheduleCue,
+                durationMinutes: e.durationMinutes,
+                anchorType: e.kind
+            )
+        }
+
+        // 2) Goal-work slotted into the free gaps between anchors.
+        let budget = freeMinutes ?? DailyTimeline.freeGaps(in: skeleton).reduce(0) { $0 + $1.minutes }
+        let goalActions = generateActions(for: goals, freeMinutes: max(budget, 30), maxActions: maxGoalActions)
+        let gaps = DailyTimeline.freeGaps(in: skeleton)
+
+        // Hard upper bound for goal-work: nothing may be scheduled to end past the
+        // user's sleep time / day end. Derive it from the last gap's end (which is
+        // the day end = sleep anchor) when gaps exist, else the prefs sleep time,
+        // else a sane default. Overflow that can't fit before this is dropped
+        // rather than appended sequentially past bedtime.
+        let dayEnd = gaps.last?.endMinutes
+            ?? prefs.flatMap { DailyTimeline.minutes(from: $0.sleepTime) }
+            ?? (23 * 60 + 30)
+
+        var gapIndex = 0
+        var cursorInGap = gaps.first?.startMinutes ?? (9 * 60)
+        for tmpl in goalActions {
+            // Advance to a gap that can hold this action; spill into the last gap.
+            while gapIndex < gaps.count,
+                  cursorInGap + tmpl.durationMinutes > gaps[gapIndex].endMinutes {
+                gapIndex += 1
+                cursorInGap = gapIndex < gaps.count ? gaps[gapIndex].startMinutes : cursorInGap
+            }
+            let start: Int
+            if gapIndex < gaps.count {
+                start = cursorInGap
+                cursorInGap += tmpl.durationMinutes + 10
+            } else {
+                // No gap left — try to append after the last placed item, but never
+                // past the day end / sleep time. Drop the overflow instead.
+                guard cursorInGap + tmpl.durationMinutes <= dayEnd else { continue }
+                start = cursorInGap
+                cursorInGap += tmpl.durationMinutes + 10
+            }
+            // Final guard for the in-gap path too: never let an action run past the
+            // day end / sleep time, even if a gap nominally allowed it.
+            guard start + tmpl.durationMinutes <= dayEnd else { continue }
+            timeline.append(TimelineAction(
+                title: tmpl.title,
+                why: tmpl.why,
+                timeSlot: DailyTimeline.Entry.format(start),
+                scheduleCue: "",
+                durationMinutes: tmpl.durationMinutes,
+                anchorType: .goalWork,
+                goalID: tmpl.goalID,
+                goalTitle: tmpl.goalTitle,
+                cueTrigger: tmpl.cueTrigger,
+                targetAmount: tmpl.targetAmount,
+                targetUnit: tmpl.targetUnit
+            ))
+        }
+
+        return timeline.sorted { $0.timeSlot < $1.timeSlot }
+    }
+
     /// A2 / #10 — wraps a chosen base template tuple into a fully-formed
     /// `ActionTemplate`, attaching an if-then cue (cycled by slot index) and a
-    /// quantitative target when the goal is measurable/habitual. The cue and
-    /// target are also folded into the title so the action reads as a concrete,
-    /// cued instruction ("After lunch: Workout session — 45 min").
+    /// quantitative target when the goal is measurable/habitual.
+    ///
+    /// PLAN REWRITE — goal-work is now placed at a concrete clock time on the woven
+    /// timeline, so the title is kept CLEAN (no "After your coffee:" prefix that
+    /// would fight the assigned time). The if-then cue still rides along in
+    /// `cueTrigger` for the small tag the timeline row renders.
     private static func buildTemplate(for goal: Goal, base: (String, Int, String), slotIndex: Int) -> ActionTemplate {
         let cue = cueAnchors[slotIndex % cueAnchors.count]
         let (amount, unit) = quantitativeTarget(for: goal, durationMinutes: base.1)
 
         var title = base.0
-        if let amount, !unit.isEmpty {
-            // Don't double-append a minutes target onto a title that already reads
-            // as a duration-based habit action.
+        if let amount, !unit.isEmpty, !title.lowercased().contains(unit.lowercased()) {
             title += " — \(formatAmount(amount)) \(unit)"
         }
-        let cuedTitle = "\(cue.prefix(1).uppercased() + cue.dropFirst()): \(title)"
 
         return ActionTemplate(
-            title: cuedTitle,
+            title: title,
             goalTitle: goal.title,
             goalID: goal.id,
             domain: goal.domain,

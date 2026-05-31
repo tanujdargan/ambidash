@@ -128,7 +128,20 @@ enum MentorPromptBuilder {
     }
 
     static func planPrompt(goals: [Goal], snapshot: IntegrationSnapshot?, profile: UserProfile?, planContext: AIService.PlanContext = AIService.PlanContext()) -> String {
-        var context = "You are an AI mentor generating a daily action plan. Create specific, time-aware actions.\n\n"
+        // PLAN REWRITE — the plan is the user's REAL DAY, woven from three layers:
+        // (1) fixed anchors, (2) daily routines, (3) goal-work in the free gaps.
+        var context = "You are building this person's real day as a concrete, time-ordered plan they can just follow.\n\n"
+        context += "The day has three layers, woven into ONE timeline:\n"
+        context += "1) FIXED ANCHORS — wake, meals, work/class blocks, sleep. These are set; build around them, never move them.\n"
+        context += "2) DAILY ROUTINES — their morning routine (skincare/oral care/no-phone), workout, cooking. Pull these straight from their preferences below.\n"
+        context += "3) GOAL-WORK — concrete tasks toward their active goals, slotted ONLY into the free gaps between anchors.\n\n"
+        context += "Every single line must read like a real instruction with a time or relative cue + a concrete action + a duration. Examples of the voice:\n"
+        context += "  \"07:00 — No phone, make breakfast (20m)\"\n"
+        context += "  \"Before 13:00 — Have lunch (30m)\"\n"
+        context += "  \"After class — Gym, push day (45m)\"\n"
+        context += "  \"20:00 — Cook dinner (40m)\"\n"
+        context += "  \"Work block 14:00–14:50 — <specific goal task, e.g. draft section 2 of the thesis> (50m)\"\n"
+        context += "BANNED: abstract filler like \"show up today\", \"fix sleep\", \"make progress\", \"work on yourself\". Every goal-work line names a SPECIFIC task.\n\n"
 
         if let profile {
             context += "USER: \(profile.name), age \(profile.age)\n"
@@ -143,6 +156,16 @@ enum MentorPromptBuilder {
             }
         }
 
+        // FOUNDATION — the user's daily-rhythm preferences, so the plan is built
+        // around real anchors (wake/sleep, meals, work blocks, routines, workout)
+        // rather than floating free. Empty when prefs haven't been set.
+        context += preferencesContext(planContext.userPreferences)
+
+        // PLAN REWRITE — the concrete fixed/routine skeleton + the explicit free
+        // gaps, computed from the user's preferences, so the model fills the SAME
+        // gaps the offline planner does. Empty when no prefs are set.
+        context += DailyTimeline.promptSkeleton(from: planContext.userPreferences)
+
         context += "\nGOALS (most in need of attention first):\n"
         // Rank habitual goals by how far short of this week's cadence they are
         // (an off-day for a 3x/wk goal is NOT neglect); rank the rest by raw
@@ -155,6 +178,12 @@ enum MentorPromptBuilder {
                 context += "- [id: \(goal.id.uuidString)] \(goal.title): priority \(goal.priority)"
             } else {
                 context += "- [id: \(goal.id.uuidString)] \(goal.title): \(goal.neglectDays) days neglected, priority \(goal.priority)"
+            }
+            // PLAN REWRITE — the user's own goal detail makes the goal-work
+            // concrete ("45 min push/pull/legs at campus gym"). Use it verbatim.
+            let detail = goal.details.trimmingCharacters(in: .whitespaces)
+            if !detail.isEmpty {
+                context += " · detail: \(detail)"
             }
             context += measurableLine(for: goal)
             context += habitualLine(for: goal)
@@ -171,13 +200,57 @@ enum MentorPromptBuilder {
         // user's postpone/focus choice lets the plan respond to reality.
         context += adaptiveContext(planContext)
 
-        context += "\nRespond with a JSON array of actions. Each action: {\"title\": \"...\", \"why\": \"...\", \"duration_minutes\": N, \"time_slot\": \"HH:MM\", \"goal_id\": \"uuid-string\", \"amount\": N, \"metric\": \"unit\", \"cue_trigger\": \"...\", \"target_amount\": N, \"target_unit\": \"...\"}\n"
-        context += "Every action MUST set goal_id to exactly one UUID from the GOALS list above. Do not invent or hallucinate goal IDs. Each action advances exactly one goal from the list.\n"
-        context += "For goals with a measurable target, size the action to move the number: set \"amount\" to the increment this action should add (in the goal's unit) and \"metric\" to that unit; omit both for goals without a target.\n"
-        context += "Make every action an IF-THEN implementation intention: set \"cue_trigger\" to a concrete daily anchor (e.g. \"after breakfast\", \"when I sit down at my desk\", \"right after lunch\") and phrase the title so it reads as a cued instruction. Where the action is naturally quantifiable (reps, minutes, pages, words), set \"target_amount\" to a specific number and \"target_unit\" to its unit so the action is concrete, not vague; otherwise omit both.\n"
-        context += "Create \(profile?.workStylePreference?.maxActionsPerDay ?? 6) actions max. Prioritize goals that are BEHIND pace toward their target, then habitual goals short of their weekly cadence, then neglected one-off goals. For habitual goals, judge by the weekly cadence shown (e.g. \"2 of 3 this week\"): a goal that has already met its cadence needs no action today, and an off-day is NOT neglect — do not push a habitual goal just because a day or two passed. Fit into free time. Adjust intensity based on sleep quality."
+        let maxGoalWork = profile?.workStylePreference?.maxActionsPerDay ?? 6
+        context += "\nRespond with ONLY a JSON array covering the WHOLE day, time-ordered earliest→latest. Each item:\n"
+        context += "{\"anchor_type\": \"fixed|routine|goal_work\", \"title\": \"...\", \"why\": \"...\", \"duration_minutes\": N, \"time_slot\": \"HH:MM\", \"schedule_cue\": \"...\", \"goal_id\": \"uuid-string\", \"amount\": N, \"metric\": \"unit\", \"cue_trigger\": \"...\", \"target_amount\": N, \"target_unit\": \"...\"}\n\n"
+        context += "RULES:\n"
+        context += "- Emit the FULL woven timeline: every fixed anchor and daily routine from the skeleton above, PLUS goal-work in the free gaps. Order strictly by time_slot.\n"
+        context += "- \"anchor_type\": \"fixed\" for wake/meals/work-class/sleep; \"routine\" for morning routine / workout / cooking; \"goal_work\" for goal tasks.\n"
+        context += "- \"time_slot\" is the start clock time \"HH:MM\" (24h). ALWAYS set it. \"schedule_cue\" is the human label when it's relative, e.g. \"Before 13:00\", \"After class\", \"By 23:30\"; leave it \"\" for a hard clock time.\n"
+        context += "- The \"title\" is a clean instruction WITHOUT the time prefix (the app shows the time separately), e.g. \"No phone, make breakfast\", \"Gym — push day\", \"Cook dinner\", \"Draft section 2 of the thesis\". NEVER abstract: no \"show up\", no \"fix sleep\".\n"
+        context += "- ONLY goal_work items set goal_id (exactly one UUID from the GOALS list; never invent IDs). Fixed and routine items MUST omit goal_id, amount, target_amount.\n"
+        context += "- For a goal_work item on a measurable goal: set \"amount\" to the increment it adds (in the goal's unit) + \"metric\" to that unit. Where it's naturally quantifiable (reps/min/pages/words) also set \"target_amount\" + \"target_unit\". \"cue_trigger\" is its relative anchor (e.g. \"after lunch\").\n"
+        context += "- At most \(maxGoalWork) goal_work items — keep the day focused. Prioritize goals BEHIND pace, then habitual goals short of weekly cadence, then neglected one-off goals. A habitual goal that has met its weekly cadence needs no action today; an off-day is NOT neglect. Adjust goal-work intensity to sleep quality.\n"
+        context += "- If the user has set NO preferences (no skeleton above), still produce a concrete, time-ordered goal_work timeline across a sensible waking day (wake ~07:00, sleep ~23:00)."
 
         return context
+    }
+
+    /// FOUNDATION — renders the user's daily-rhythm preferences as a "YOUR DAY"
+    /// block so the planner builds actions around real anchors. Empty string when
+    /// no preferences are set, so the prompt is unchanged for that case. This pass
+    /// only makes the data available; the next pass rewrites the instructions to
+    /// fully exploit it.
+    private static func preferencesContext(_ prefs: UserPreferences?) -> String {
+        guard let p = prefs else { return "" }
+        var out = "\nYOUR DAY (the user's real daily rhythm — build the plan around these anchors, don't fight them):\n"
+        out += "- Awake \(p.wakeTime)–\(p.sleepTime)\n"
+        out += "- Meals: breakfast \(p.breakfastTime), lunch \(p.lunchTime), dinner \(p.dinnerTime)\n"
+        if !p.workBusyBlock.isEmpty {
+            out += "- Busy block: \(p.workBusyBlock)\n"
+        }
+        if !p.morningRoutine.isEmpty {
+            out += "- Morning routine: \(p.morningRoutine)\n"
+        }
+        if !p.eveningRoutine.isEmpty {
+            out += "- Evening routine: \(p.eveningRoutine)\n"
+        }
+        if p.worksOut {
+            let type = p.workoutType.isEmpty ? "workout" : p.workoutType
+            out += "- Works out around \(p.workoutTime): \(type)\n"
+        }
+        out += "- Cooks own meals: \(p.cooksOwnMeals ? "yes" : "no")\n"
+        out += "- Energy peak: \(p.energyPeak); prefers \(p.focusBlocksPerDay) focus block(s)/day\n"
+        if !p.aboutMe.isEmpty {
+            out += "- About them: \(p.aboutMe)\n"
+        }
+        if !p.hardConstraints.isEmpty {
+            out += "- Hard constraints (never violate): \(p.hardConstraints)\n"
+        }
+        if !p.extraContext.isEmpty {
+            out += "- Also: \(p.extraContext)\n"
+        }
+        return out
     }
 
     /// A2 / #8 — renders the adaptive-context block: recent done/skipped actions
@@ -226,27 +299,87 @@ enum MentorPromptBuilder {
         return out
     }
 
-    /// A2 / #8 — two-way mentor reply prompt. Used as the direct-API fallback when
-    /// the user writes back in MentorView. Gives the mentor the user's message plus
-    /// light goal context and asks for a short, direct, non-generic reply.
-    static func replyPrompt(userMessage: String, goals: [Goal], snapshot: IntegrationSnapshot?) -> String {
-        var context = "You are M., the AI mentor inside ambidash, a life dashboard app. The user has written you a letter. Reply as their mentor — warm but direct, never generic, never a list. Connect to what their goals show.\n\n"
+    /// MENTOR REFOCUS — two-way reply prompt. The mentor now frames its reply in a
+    /// FORWARD breakdown: what the user is doing TODAY, what they're working toward
+    /// THIS WEEK, and roughly how much closer finishing today gets them to the goal.
+    /// `todaysActions` are today's planned actions (for the "doing X, Y, Z" line).
+    static func replyPrompt(userMessage: String, goals: [Goal], snapshot: IntegrationSnapshot?, todaysActions: [PlannedAction] = []) -> String {
+        var context = "You are M., the AI mentor inside ambidash, a life dashboard app. The user has written you a letter. Reply as their mentor — warm but direct, never generic, never a list.\n\n"
+        context += "Frame your reply FORWARD, not as a status report. Ground it in: what they're DOING today, what they're working toward THIS WEEK, and how today's work moves them closer to the goal. Be honest and approximate about the percentage — say \"about\" / \"roughly\".\n\n"
 
-        context += "USER'S GOALS:\n"
-        for goal in goals where goal.isActive {
-            context += "- \(goal.title) (\(goal.domain.displayName)): \(goal.computedStatus.label), \(goal.neglectDays) days since progress"
-            context += measurableLine(for: goal)
-            context += habitualLine(for: goal)
-            context += "\n"
-        }
+        context += forwardSummaryText(goals: goals, todaysActions: todaysActions)
 
         if let snap = snapshot {
             context += "\nTODAY'S DATA: Sleep \(String(format: "%.1f", snap.sleepHours))h, \(snap.steps) steps, \(snap.calendarFreeMinutes)min free\n"
         }
 
         context += "\nTHE USER WROTE:\n\"\(userMessage)\"\n"
-        context += "\nWrite back in 2-4 sentences. Respond to what they actually said. Be specific to their goals and data. No pleasantries, no bullet lists. Sign off with \"— M.\" only if it feels natural."
+        context += "\nWrite back in 2-4 sentences. Respond to what they actually said, then anchor them: today you're doing X; this week you're working toward Y; finishing today puts you roughly N% closer to <goal>. Be specific, never generic, no bullet lists. Sign off with \"— M.\" only if it feels natural."
 
         return context
+    }
+
+    /// MENTOR REFOCUS — the shared today → this-week → %-closer breakdown, used by
+    /// both the reply prompt and the MentorView forward-summary card so the spoken
+    /// framing and the on-screen framing stay identical. Pure text; safe with no
+    /// milestones (each block degrades gracefully).
+    static func forwardSummaryText(goals: [Goal], todaysActions: [PlannedAction]) -> String {
+        let active = goals.filter(\.isActive)
+        var out = ""
+
+        // TODAY — the goal-work the user is actually doing today (skip anchors/routines).
+        let goalWork = todaysActions.filter { $0.anchorKind == .goalWork }
+        if !goalWork.isEmpty {
+            let titles = goalWork.prefix(4).map(\.title).joined(separator: "; ")
+            out += "TODAY YOU'RE DOING: \(titles)\n"
+        }
+
+        // THIS WEEK — the active week checkpoint(s) and their parent month focus.
+        var weekLines: [String] = []
+        for goal in active {
+            if let week = activeMilestone(in: goal, period: .week) {
+                let pct = Int((week.percentComplete * 100).rounded())
+                weekLines.append("\(week.title) — \(pct)% done")
+            }
+        }
+        if !weekLines.isEmpty {
+            out += "THIS WEEK YOU'RE WORKING TOWARD:\n"
+            for line in weekLines.prefix(4) { out += "- \(line)\n" }
+        }
+
+        // PROGRESS — for each goal in flight, how close after today.
+        var progressLines: [String] = []
+        for goal in active {
+            if goal.hasTarget {
+                let now = Int((goal.percentComplete * 100).rounded())
+                progressLines.append("\(goal.title): about \(now)% complete; finishing today's work nudges that up")
+            } else if goal.isHabitual {
+                let logged = AdherenceFormat.loggedThisWeek(for: goal)
+                let target = AdherenceFormat.target(for: goal)
+                progressLines.append("\(goal.title): \(logged) of \(target) this week; today would make it \(min(logged + 1, target)) of \(target)")
+            }
+        }
+        if !progressLines.isEmpty {
+            out += "PROGRESS IF THEY FINISH TODAY:\n"
+            for line in progressLines.prefix(4) { out += "- \(line)\n" }
+        }
+
+        if out.isEmpty {
+            // No milestone/goal structure yet — give the mentor the bare goal list.
+            out += "USER'S GOALS:\n"
+            for goal in active {
+                out += "- \(goal.title) (\(goal.domain.displayName)): \(goal.computedStatus.label)\(measurableLine(for: goal))\(habitualLine(for: goal))\n"
+            }
+        }
+        return out
+    }
+
+    /// MENTOR REFOCUS — the goal's active milestone at `period` whose window
+    /// contains now, searching the flat milestone list. nil when none is active.
+    private static func activeMilestone(in goal: Goal, period: MilestonePeriod) -> Milestone? {
+        (goal.milestones ?? [])
+            .filter { $0.period == period && $0.isActiveNow }
+            .sorted { $0.startDate > $1.startDate }
+            .first
     }
 }

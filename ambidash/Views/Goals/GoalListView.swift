@@ -11,7 +11,7 @@ struct GoalListView: View {
     @State private var searchText = ""
     @State private var filterPillar: GoalDomain?
 
-    private enum GoalViewMode: Hashable { case list, board }
+    private enum GoalViewMode: Hashable { case list, board, byPillar }
     @State private var viewMode: GoalViewMode = .list
 
     private var profile: UserProfile? { profiles.first }
@@ -29,6 +29,18 @@ struct GoalListView: View {
             }
         }
         return result
+    }
+
+    /// Goals filtered by SEARCH only, ignoring the single-pillar filter. The
+    /// .byPillar grouping already separates pillars into their own sections, so
+    /// honoring the pillar filter there would collapse the overview to one
+    /// redundant group. Pillar view groups these so every populated pillar shows.
+    private var searchFilteredGoals: [Goal] {
+        guard !searchText.isEmpty else { return goals }
+        return goals.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.subtitle.localizedCaseInsensitiveContains(searchText)
+        }
     }
 
     var body: some View {
@@ -77,7 +89,7 @@ struct GoalListView: View {
                     .foregroundStyle(t.muted)
 
                 Text("As you've named them.")
-                    .font(.system(size: 28, weight: .regular, design: .serif))
+                    .font(t.heading(28))
                     .tracking(-0.3)
                     .foregroundStyle(t.ink)
             }
@@ -86,9 +98,10 @@ struct GoalListView: View {
             .padding(.bottom, 8)
             .fadeSlideIn(delay: 0)
 
-            // Search + pillar filters only apply to the list; the board runs its
-            // own @Query and ignores them, so hide these controls in board mode.
-            if viewMode == .list {
+            // Search + pillar filters apply to the list and the pillar overview
+            // (both render from `filteredGoals`); the board runs its own @Query
+            // and ignores them, so hide these controls only in board mode.
+            if viewMode != .board {
                 // Search
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
@@ -126,13 +139,13 @@ struct GoalListView: View {
 
             // View mode toggle
             HStack(spacing: 4) {
-                ForEach([GoalViewMode.list, .board], id: \.self) { mode in
+                ForEach([GoalViewMode.list, .board, .byPillar], id: \.self) { mode in
                     let isSelected = viewMode == mode
                     Button {
                         Haptics.selection()
                         viewMode = mode
                     } label: {
-                        Image(systemName: mode == .list ? "list.bullet" : "square.grid.2x2")
+                        Image(systemName: icon(for: mode))
                             .font(.system(size: 11))
                             .foregroundStyle(isSelected ? t.bg : t.muted)
                             .padding(.horizontal, 10)
@@ -143,7 +156,7 @@ struct GoalListView: View {
                                 Capsule().stroke(isSelected ? .clear : t.hair, lineWidth: 0.5)
                             )
                     }
-                    .accessibilityLabel(mode == .list ? "List view" : "Board view")
+                    .accessibilityLabel(label(for: mode))
                     .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
                 Spacer()
@@ -152,11 +165,115 @@ struct GoalListView: View {
             .padding(.bottom, 8)
 
             // Content
-            if viewMode == .board {
+            switch viewMode {
+            case .board:
                 LifeMapView(embedded: true)
-            } else {
+            case .byPillar:
+                pillarContent(t)
+            case .list:
                 listContent(t)
             }
+        }
+    }
+
+    private func icon(for mode: GoalViewMode) -> String {
+        switch mode {
+        case .list: return "list.bullet"
+        case .board: return "square.grid.2x2"
+        case .byPillar: return "square.stack.3d.up"
+        }
+    }
+
+    private func label(for mode: GoalViewMode) -> String {
+        switch mode {
+        case .list: return "List view"
+        case .board: return "Board view"
+        case .byPillar: return "Pillar view"
+        }
+    }
+
+    // MARK: - Pillar view (relocated from the dashboard)
+
+    /// Active goals that pass the current search/pillar filter, grouped by pillar.
+    /// This is the goals-by-pillar overview that used to live on the dashboard:
+    /// for each populated pillar, a header (icon + name + count + status
+    /// breakdown) above a horizontal strip of tappable goal chips. Goal chips
+    /// drill into GoalDetailView via GoalStripView's existing navigation.
+    private var populatedDomains: [GoalDomain] {
+        let active = searchFilteredGoals.filter(\.isActive)
+        return GoalDomain.allCases.filter { domain in
+            active.contains { $0.domain == domain }
+        }
+    }
+
+    @ViewBuilder
+    private func pillarContent(_ t: ResolvedTheme) -> some View {
+        let active = searchFilteredGoals.filter(\.isActive)
+        ScrollView {
+            if populatedDomains.isEmpty {
+                Text("No goals match.")
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundStyle(t.faint)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 60)
+            } else {
+                VStack(alignment: .leading, spacing: t.space.component) {
+                    ForEach(Array(populatedDomains.enumerated()), id: \.element) { index, domain in
+                        let domainGoals = active.filter { $0.domain == domain }
+                            .sorted { $0.priority < $1.priority }
+                        VStack(alignment: .leading, spacing: 8) {
+                            pillarHeader(domain, goals: domainGoals, t: t)
+                                .padding(.horizontal, 22)
+                            // GoalStripView already pads ±22 so its chips scroll
+                            // edge-to-edge; leave it unpadded here.
+                            GoalStripView(goals: domainGoals)
+                        }
+                        .staggeredAppear(index: index)
+                    }
+                }
+                .padding(.top, 8)
+                .padding(.bottom, 100)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func pillarHeader(_ domain: GoalDomain, goals: [Goal], t: ResolvedTheme) -> some View {
+        let onTrack = goals.filter { $0.computedStatus == .onTrack }.count
+        let attention = goals.filter { $0.computedStatus == .needsAttention }.count
+        let slipping = goals.filter { $0.computedStatus == .slipping }.count
+
+        HStack(spacing: 8) {
+            Image(systemName: domain.icon)
+                .font(.system(size: 12))
+                .foregroundStyle(t.muted)
+            Text(domain.dimension.displayName)
+                .font(.system(size: 13, weight: .medium, design: .serif))
+                .foregroundStyle(t.ink)
+            Text("\(goals.count)")
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(t.faint)
+            Spacer()
+            HStack(spacing: 8) {
+                if onTrack > 0 { statusCount(.onTrack, count: onTrack, t: t) }
+                if attention > 0 { statusCount(.needsAttention, count: attention, t: t) }
+                if slipping > 0 { statusCount(.slipping, count: slipping, t: t) }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(domain.dimension.displayName): \(goals.count) goals, \(onTrack) on track, \(attention) need attention, \(slipping) slipping")
+    }
+
+    @ViewBuilder
+    private func statusCount(_ status: GoalStatus, count: Int, t: ResolvedTheme) -> some View {
+        HStack(spacing: 3) {
+            StatusDot(status: status)
+                .scaleEffect(0.7)
+                .frame(width: 6, height: 6)
+            Text("\(count)")
+                .font(.system(size: 10, design: .monospaced))
+                .monospacedDigit()
+                .foregroundStyle(t.muted)
         }
     }
 
@@ -308,7 +425,11 @@ struct GoalListView: View {
                 } else if goal.isHabitual {
                     AdherenceBar(goal: goal, maxWidth: 200, showCaption: false)
                 } else {
-                    let progress = min(1.0, max(0.05, 1.0 - Double(goal.neglectDays) / 14.0))
+                    // Mirror the actual scoring: non-measurable goals are judged by
+                    // the STEP-FUNCTION neglect band (≤1d:90, ≤3d:75, ≤5d:55,
+                    // ≤7d:40, else decaying), not a linear recency ramp. Fill to the
+                    // band value so the bar matches DimensionScoreCalculator.
+                    let progress = Double(DimensionScoreCalculator.neglectBandScore(forDays: goal.neglectDays)) / 100.0
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 1).fill(t.hair)
@@ -384,34 +505,9 @@ private struct FilterChip: View {
 }
 
 // MARK: - F3 shared goal-type / adherence helpers
-// Defined here (file-internal, not private) so GoalQuickSheet and GoalDetailView
-// can reuse them without duplicating the markup.
-
-/// Formats the weekly adherence of a habitual goal as human-readable strings.
-enum AdherenceFormat {
-    /// Count of progress logs recorded in the current calendar week.
-    static func loggedThisWeek(for goal: Goal) -> Int {
-        let calendar = Calendar.current
-        let weekStart = calendar.dateInterval(of: .weekOfYear, for: .now)?.start
-            ?? calendar.startOfDay(for: .now)
-        return (goal.progressLogs ?? []).filter { $0.date >= weekStart }.count
-    }
-
-    /// The intended weekly cadence, defaulting to once if none was set.
-    static func target(for goal: Goal) -> Int {
-        max(goal.timesPerWeek, 1)
-    }
-
-    /// e.g. "3 of 4 this week".
-    static func fraction(for goal: Goal) -> String {
-        "\(loggedThisWeek(for: goal)) of \(target(for: goal)) this week"
-    }
-
-    /// Compact form for dense rows, e.g. "3/4 this wk".
-    static func compact(for goal: Goal) -> String {
-        "\(loggedThisWeek(for: goal))/\(target(for: goal)) this wk"
-    }
-}
+// `AdherenceFormat` moved to Utilities/AdherenceFormat.swift so the shared,
+// cross-platform MentorPromptBuilder service can use it on macOS too (this view
+// file is iOS-only and excluded from the mac target).
 
 /// A small labeled pill showing a goal's `GoalType`.
 struct GoalTypeChip: View {

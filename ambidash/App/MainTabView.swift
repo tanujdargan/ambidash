@@ -1,6 +1,13 @@
 import SwiftUI
 
 struct MainTabView: View {
+    /// Height reserved (via a bottom safe-area inset) for the custom tab bar that
+    /// overlays content. Icon (~20) + label (~12) + 12 top + 6 bottom + 6 vertical
+    /// button padding lands near 56; this is the inset that keeps screen content
+    /// scrollable above the bar. Excludes the device's own bottom safe area, which
+    /// the inset machinery already accounts for.
+    static let tabBarReservedHeight: CGFloat = 56
+
     @Environment(ThemeManager.self) private var tm
     @State private var selectedTab = 0
     var initialTab: Int? = nil
@@ -22,6 +29,14 @@ struct MainTabView: View {
                 case 4: MentorView()
                 default: DashboardView()
                 }
+            }
+            // Reserve space for the custom tab bar that overlays the content
+            // below. Without this, each screen's ScrollView extends under the bar
+            // and its last rows are unreachable. A safe-area inset cascades into
+            // every child ScrollView automatically and adapts to device insets,
+            // so no per-screen bottom padding is required.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear.frame(height: MainTabView.tabBarReservedHeight)
             }
 
             // Custom tab bar

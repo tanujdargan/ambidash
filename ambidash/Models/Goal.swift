@@ -13,6 +13,10 @@ final class Goal {
     var isActive: Bool = false
     var horizonRaw: String = GoalHorizon.now.rawValue
     var subtitle: String = ""
+    // FOUNDATION — free-text description carrying goal-specific context (e.g.
+    // "push/pull/legs at campus gym, 45 min"). Feeds richer plan generation and
+    // the goal detail card. Additive: optional/defaulted, CloudKit-safe.
+    var details: String = ""
 
     // F2 — measurable target layer (all optional/defaulted; additive migration)
     var metricEnabled: Bool = false

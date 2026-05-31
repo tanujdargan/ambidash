@@ -53,7 +53,7 @@ struct ReflectView: View {
                                 .fadeSlideIn(delay: 0)
 
                             Text("Three questions.\nTake your time.")
-                                .font(.system(size: 28, weight: .regular, design: .serif))
+                                .font(t.heading(28))
                                 .tracking(-0.3)
                                 .lineSpacing(2)
                                 .foregroundStyle(t.ink)
@@ -76,7 +76,7 @@ struct ReflectView: View {
                             }
 
                             // Three reflection questions
-                            VStack(spacing: 22) {
+                            VStack(spacing: t.space.section) {
                                 ReflectionQuestion(number: 1,
                                     question: "What did you actually do today?",
                                     hint: "Not what was on the list. What you did.",

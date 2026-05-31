@@ -1,6 +1,8 @@
 import Foundation
 import SwiftData
+#if os(iOS)
 import WidgetKit
+#endif
 
 enum ProgressLogService {
     /// Record a measurable progress update by setting an absolute new value.
@@ -86,6 +88,7 @@ enum ProgressLogService {
         goal.lastProgressDate = .now
         goal.streak?.recordActivity()
 
+        #if os(iOS)
         if isRegression(goal: goal, previousValue: previousValue, newValue: newValue) {
             let unitLabel = goal.unit.isEmpty ? goal.title : goal.unit
             NotificationService.scheduleLossFramingNudge(
@@ -94,6 +97,7 @@ enum ProgressLogService {
                 previousValue: formatted(previousValue, unit: goal.unit)
             )
         }
+        #endif
 
         refreshWidget(context: context)
         return log
@@ -126,7 +130,9 @@ enum ProgressLogService {
     /// a log from being recorded.
     private static func refreshWidget(context: ModelContext) {
         WidgetSnapshotWriter.write(context: context)
+        #if os(iOS)
         WidgetCenter.shared.reloadAllTimelines()
+        #endif
     }
 }
 

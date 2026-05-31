@@ -14,6 +14,9 @@ final class UserProfile {
 
     @Relationship(deleteRule: .cascade) var coreAssessment: CoreAssessment?
     @Relationship(deleteRule: .cascade) var workStylePreference: WorkStylePreference?
+    // FOUNDATION — the user's daily-rhythm preferences ("Your Day"). Optional +
+    // cascade so it's CloudKit-safe (additive) and removed with the profile.
+    @Relationship(deleteRule: .cascade) var userPreferences: UserPreferences?
     @Relationship(deleteRule: .cascade) var goals: [Goal]?
 
     init(name: String = "", age: Int = 0, lifeStage: String = "student") {

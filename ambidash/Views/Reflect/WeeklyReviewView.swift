@@ -35,12 +35,12 @@ struct WeeklyReviewView: View {
     var body: some View {
         let t = tm.resolved
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
+            VStack(alignment: .leading, spacing: t.space.section) {
                 // Header
                 VStack(alignment: .leading, spacing: 4) {
                     SectionLabel(title: "This week")
                     Text("Honest charts. No badges.")
-                        .font(.system(size: 28, weight: .regular, design: .serif))
+                        .font(t.heading(28))
                         .tracking(-0.3)
                         .foregroundStyle(t.ink)
                 }

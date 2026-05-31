@@ -15,7 +15,9 @@ enum GoalImportService {
     /// Accepts either `{ "goals": [ {…} ] }` or a bare top-level array `[ {…} ]`.
     /// Per goal, only `title` is required; `domain` defaults to body and `horizon`
     /// to now. Optional `type` (habit/recurring/project/milestone/accumulation) and
-    /// `times_per_week` are applied when present. Goals whose title already exists
+    /// `times_per_week` are applied when present. An optional `details` string (how
+    /// you'll do it, e.g. "push/pull/legs at campus gym, 45 min") is parsed too so a
+    /// hand-enriched file carries descriptions in. Goals whose title already exists
     /// (case-insensitive) are skipped, so re-importing is safe.
     static func importGoals(from data: Data, context: ModelContext, profile: UserProfile?) -> ImportSummary {
         let parsed = try? JSONSerialization.jsonObject(with: data)
@@ -51,6 +53,11 @@ enum GoalImportService {
             let domain = GoalDomain(rawValue: (row["domain"] as? String) ?? "") ?? .body
             let goal = Goal(title: title, domain: domain, priority: priority)
             goal.subtitle = (row["subtitle"] as? String) ?? ""
+            // Optional free-text clarification; trim and cap to match the in-app
+            // editor's constraints so a malformed/oversized value can't slip in.
+            if let rawDetails = row["details"] as? String {
+                goal.details = String(rawDetails.trimmingCharacters(in: .whitespacesAndNewlines).prefix(500))
+            }
             if let h = row["horizon"] as? String, GoalHorizon(rawValue: h) != nil {
                 goal.horizonRaw = h
             }

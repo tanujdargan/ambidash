@@ -1,3 +1,4 @@
+#if os(iOS)
 import UIKit
 
 enum Haptics {
@@ -25,3 +26,15 @@ enum Haptics {
         UISelectionFeedbackGenerator().selectionChanged()
     }
 }
+#else
+// macOS has no haptic feedback APIs; provide silent no-op stubs so shared
+// call sites compile and behave gracefully on the desktop.
+enum Haptics {
+    static func light() {}
+    static func medium() {}
+    static func success() {}
+    static func warning() {}
+    static func error() {}
+    static func selection() {}
+}
+#endif

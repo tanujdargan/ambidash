@@ -32,6 +32,7 @@ struct AmbidashApp: App {
             UserProfile.self,
             CoreAssessment.self,
             WorkStylePreference.self,
+            UserPreferences.self,
             Goal.self,
             DomainAssessment.self,
             GoalProgress.self,
