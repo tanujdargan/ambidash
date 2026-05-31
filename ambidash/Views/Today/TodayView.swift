@@ -692,22 +692,40 @@ struct TodayView: View {
         }
         // CLOSING RITUAL — pin last night's chosen ONE most-important thing as a
         // protected, top-of-day block so the day is built around it (the "keep your
-        // ONE thing" intent). No-op when none was set, or when an action with the
-        // same title already exists in the plan (e.g. the user picked a piece of
-        // rolling-forward work that's already here), so it's never duplicated.
+        // ONE thing" intent). No-op when none was set; when an action with the same
+        // title already exists in the plan (e.g. the user picked a piece of
+        // rolling-forward work that's already here) we don't duplicate it — but we
+        // still CONSUME the one-thing below.
         if let oneThing = pinnedOneThing(in: actions) {
             modelContext.insert(oneThing)
             oneThing.plan = plan
-            // CONSUME the one-thing so it pins onto exactly ONE day's plan, not every
-            // subsequent day's protected first block. Clearing the source reflection's
-            // fields persists the consumption (the clean fix); the next closing ritual
-            // sets a fresh one-thing for the following day.
-            if let source = latestReflection {
-                source.tomorrowOneThing = ""
-                source.tomorrowOneThingActionID = nil
-            }
+        }
+        // CONSUME the one-thing so it pins onto exactly ONE day's plan, not every
+        // subsequent day's protected first block. We clear it whenever the day's plan
+        // has been generated AND the one-thing is represented on it (freshly pinned OR
+        // already present as existing work) — otherwise an already-on-plan one-thing
+        // would never clear and would keep re-matching on later days. Clearing the
+        // source reflection's fields persists the consumption; the next closing ritual
+        // sets a fresh one-thing for the following day.
+        if oneThingIsConsumed(in: plan.actions ?? []), let source = latestReflection {
+            source.tomorrowOneThing = ""
+            source.tomorrowOneThingActionID = nil
         }
         plan.actionCount = (plan.actions ?? []).count
+    }
+
+    /// CLOSING RITUAL — true when the reflection's chosen one-thing is now represented
+    /// on `actions` (by case-insensitive title match), i.e. it has been consumed by
+    /// this day's plan and the source reflection field should be cleared so it doesn't
+    /// persist into later days. False when there's no one-thing set.
+    private func oneThingIsConsumed(in actions: [PlannedAction]) -> Bool {
+        guard let raw = latestReflection?.tomorrowOneThing else { return false }
+        let title = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return false }
+        return actions.contains {
+            $0.title.trimmingCharacters(in: .whitespacesAndNewlines)
+                .caseInsensitiveCompare(title) == .orderedSame
+        }
     }
 
     /// CLOSING RITUAL — builds the protected "tomorrow's one thing" block from the

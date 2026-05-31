@@ -255,8 +255,13 @@ struct DisruptionDiffSheet: View {
     // MARK: - Logic
 
     private func buildAndWarm() async {
+        // Derive the user's LEARNED/actual wake-sleep (and the rest of the learned
+        // profile) from recent logged actuals so the re-plan's free gaps fit the REAL
+        // day rather than the ideal prefs skeleton. Empty/no-signal ⇒ a strict no-op
+        // (prefs targets are used unchanged).
+        let learned = LearningService.buildProfile(from: modelContext)
         let built = DisruptionService.buildDiff(
-            for: plan, trigger: trigger, prefs: prefs, goals: goals
+            for: plan, trigger: trigger, prefs: prefs, goals: goals, learned: learned
         )
         await MainActor.run {
             self.diff = built

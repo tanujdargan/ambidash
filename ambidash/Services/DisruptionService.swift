@@ -240,11 +240,16 @@ enum DisruptionService {
     ///      into the next free gaps after now (so they fit the shrunken day); the
     ///      rest are gently DROPPED (deferred, rolls forward).
     ///   4. A health flare defers ALL goal-work except the protected one.
+    /// `learned` (optional) carries the user's inferred REAL wake/sleep so the free
+    /// gaps that MOVED blocks land in fit how the user ACTUALLY lives, not the ideal
+    /// `UserPreferences` defaults. nil ⇒ the prefs skeleton is used unchanged (a strict
+    /// no-op for callers that don't pass it).
     static func buildDiff(
         for plan: DailyPlan,
         trigger: Trigger,
         prefs: UserPreferences?,
         goals: [Goal],
+        learned: LearnedProfile? = nil,
         now: Date = .now
     ) -> PlanDiff {
         let remaining = remainingActions(in: plan, now: now)
@@ -277,7 +282,16 @@ enum DisruptionService {
         //   • all remaining fixed anchors / routines (always kept in place), and
         //   • the protected block's own original slot when it's still in the future
         //     (we intend to keep it there if we can).
-        let skeleton = DailyTimeline.skeleton(from: prefs)
+        // FIT THE REAL DAY: anchor the skeleton (and so the free gaps the moved blocks
+        // land in) to the user's LEARNED/actual wake & sleep when we have enough signal,
+        // falling back to the prefs targets otherwise. This means a re-plan reshapes
+        // around how the user really lives — if they sleep in or stay up late, the gaps
+        // shift with them instead of assuming the ideal schedule.
+        let skeleton = DailyTimeline.skeleton(
+            from: prefs,
+            wakeOverride: learned?.realWakeMinutes,
+            sleepOverride: learned?.realSleepMinutes
+        )
         let nowMin = nowMinutes(now)
 
         var occupied: [(start: Int, end: Int)] = []
@@ -567,9 +581,10 @@ enum DisruptionService {
         for plan: DailyPlan,
         prefs: UserPreferences?,
         goals: [Goal],
+        learned: LearnedProfile? = nil,
         now: Date = .now
     ) -> PlanDiff {
-        buildDiff(for: plan, trigger: .healthFlare, prefs: prefs, goals: goals, now: now)
+        buildDiff(for: plan, trigger: .healthFlare, prefs: prefs, goals: goals, learned: learned, now: now)
     }
 
     // MARK: - Auto-detect triggers (offers, never verdicts)
