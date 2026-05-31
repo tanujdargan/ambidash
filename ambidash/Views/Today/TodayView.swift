@@ -3,6 +3,7 @@ import SwiftData
 
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(ThemeManager.self) private var tm
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query private var profiles: [UserProfile]
@@ -95,6 +96,23 @@ struct TodayView: View {
                 BlockLogSheet(action: action, initialStatus: .partial)
             }
         }
+        // Catch the Now/Next Live Activity up to the current block whenever Today
+        // appears or the app returns to the foreground. The countdown itself is
+        // system-ticked; this only re-anchors it at block boundaries (and ends it
+        // once the day's blocks are exhausted) without any background scheduler.
+        .onAppear { refreshLiveActivity() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { refreshLiveActivity() }
+        }
+    }
+
+    /// Re-anchor / start / end the Now/Next focus Live Activity from today's plan.
+    private func refreshLiveActivity() {
+        guard let plan = todayPlan else {
+            LiveActivityService.endAll()
+            return
+        }
+        LiveActivityService.refresh(for: plan.actions ?? [], on: plan.date)
     }
 
     // MARK: - Plan Menu (reachable controls once a plan exists)
@@ -615,6 +633,13 @@ struct TodayView: View {
             // step) for every future goal-work block. Idempotent per block; back-off
             // and waking-window clamps are handled inside NotificationService.
             NotificationService.scheduleChains(for: plan.actions ?? [], on: plan.date)
+            // GENTLE TIMELINE ALARMS — reconcile each block's opt-in start
+            // reminder/alarm (default gentle; unmissable AlarmKit/timeSensitive only
+            // where the user opted in). Idempotent alongside the chains.
+            AlarmService.reconcilePlan(for: plan.actions ?? [], on: plan.date)
+            // Start / refresh the Now/Next focus Live Activity for the freshly
+            // generated day (local-only; no-op pre-iOS 16.1 and on macOS).
+            LiveActivityService.refresh(for: plan.actions ?? [], on: plan.date)
             PremiumGateService.recordPlanGeneration()
             Haptics.medium()
         }
@@ -665,7 +690,48 @@ struct TodayView: View {
             modelContext.insert(action)
             action.plan = plan
         }
+        // CLOSING RITUAL — pin last night's chosen ONE most-important thing as a
+        // protected, top-of-day block so the day is built around it (the "keep your
+        // ONE thing" intent). No-op when none was set, or when an action with the
+        // same title already exists in the plan (e.g. the user picked a piece of
+        // rolling-forward work that's already here), so it's never duplicated.
+        if let oneThing = pinnedOneThing(in: actions) {
+            modelContext.insert(oneThing)
+            oneThing.plan = plan
+            // CONSUME the one-thing so it pins onto exactly ONE day's plan, not every
+            // subsequent day's protected first block. Clearing the source reflection's
+            // fields persists the consumption (the clean fix); the next closing ritual
+            // sets a fresh one-thing for the following day.
+            if let source = latestReflection {
+                source.tomorrowOneThing = ""
+                source.tomorrowOneThingActionID = nil
+            }
+        }
         plan.actionCount = (plan.actions ?? []).count
+    }
+
+    /// CLOSING RITUAL — builds the protected "tomorrow's one thing" block from the
+    /// most recent reflection, or nil when there's nothing to pin (no one-thing set,
+    /// blank, or already represented by an existing action in `existing`).
+    private func pinnedOneThing(in existing: [PlannedAction]) -> PlannedAction? {
+        guard let raw = latestReflection?.tomorrowOneThing else { return nil }
+        let title = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return nil }
+        // Don't duplicate work already on the plan (case-insensitive title match).
+        let already = existing.contains {
+            $0.title.trimmingCharacters(in: .whitespacesAndNewlines)
+                .caseInsensitiveCompare(title) == .orderedSame
+        }
+        guard !already else { return nil }
+        guard let entry = PlanGenerator.oneThingAction(title: title) else { return nil }
+        return PlannedAction(
+            title: entry.title,
+            why: entry.why,
+            timeSlot: entry.timeSlot,
+            duration: entry.durationMinutes,
+            anchorType: entry.anchorType.rawValue,
+            scheduleCue: entry.scheduleCue
+        )
     }
 
     /// Builds the offline plan as a single woven timeline — fixed anchors + daily

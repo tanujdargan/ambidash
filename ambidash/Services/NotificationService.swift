@@ -202,6 +202,37 @@ enum NotificationService {
         center.add(request)
     }
 
+    /// CLOSING RITUAL — a single GENTLE evening invitation to close the day
+    /// (celebrate what you did + pick tomorrow's one thing). Non-punitive by design:
+    /// `.passive` level (no buzz/intrusion), worded as a warm offer never a chore,
+    /// and CLAMPED to the evening within the user's waking window so it never fires
+    /// while they're asleep. Defaults to 20:30; a daytime hour is first biased toward
+    /// evening, then clamped to waking. Idempotent on the fixed id.
+    static func scheduleClosingRitualReminder(hour: Int = 20, minute: Int = 30) {
+        // Keep it in the evening: if a caller passes a daytime hour, bias it to at
+        // least 19:00 so the "close the day" framing lands when the day is winding
+        // down — then clamp to the waking window so it's never delivered asleep.
+        let eveningHour = max(hour, 19)
+        let (h, m) = clampToWaking(hour: eveningHour, minute: minute)
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: ["closing-ritual"])
+
+        let content = UNMutableNotificationContent()
+        content.title = "Close the day, gently"
+        content.body = "Here's what you did today — take a breath and pick tomorrow's one thing."
+        content.sound = .default
+        content.interruptionLevel = .passive
+        content.userInfo = ["deepLink": DeepLink.closingRitual.rawValue]
+
+        var dateComponents = DateComponents()
+        dateComponents.hour = h
+        dateComponents.minute = m
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+
+        let request = UNNotificationRequest(identifier: "closing-ritual", content: content, trigger: trigger)
+        center.add(request)
+    }
+
     static func scheduleMorningPlan(hour: Int = 7, minute: Int = 30) {
         let (h, m) = clampToWaking(hour: hour, minute: minute)
         let center = UNUserNotificationCenter.current()

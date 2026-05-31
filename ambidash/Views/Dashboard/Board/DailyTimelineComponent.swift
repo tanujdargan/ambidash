@@ -692,6 +692,13 @@ private struct TimelineBlockDetailSheet: View {
                                 .foregroundStyle(statusColor(t))
                         }
 
+                        // GENTLE TIMELINE ALARMS — a calm per-block reminder picker.
+                        // Only meaningful for a block that is still upcoming and has a
+                        // clock time; a logged/past/timeless block has nothing to remind.
+                        if showsAlarmPicker {
+                            alarmPicker(t)
+                        }
+
                         // One-tap logging entry — "How'd that go?". Calm, optional,
                         // never a demand. Opens the gentle log sheet.
                         Button {
@@ -751,6 +758,92 @@ private struct TimelineBlockDetailSheet: View {
             BlockLogSheet(action: action) { dismiss() }
                 .environment(tm)
         }
+    }
+
+    // MARK: - Gentle alarm picker
+
+    /// Show the reminder picker only when there's something to remind toward: an
+    /// upcoming block (not yet done/let-go) that has a resolvable clock time today.
+    /// A timeless ("anytime") or already-settled block has no start to fire at.
+    private var showsAlarmPicker: Bool {
+        guard action.lifecycle != .done, action.lifecycle != .abandoned else { return false }
+        guard let startMin = DailyTimeline.minutes(from: action.timeSlot) else { return false }
+        let dayStart = Calendar.current.startOfDay(for: .now)
+        let startDate = dayStart.addingTimeInterval(TimeInterval(startMin * 60))
+        return startDate > .now
+    }
+
+    /// A calm 3-way picker: Off / Gentle / Alarm. DEFAULT is Gentle (a soft
+    /// notification); Alarm is the explicit opt-in to a genuinely-unmissable
+    /// AlarmKit alarm (iOS 26) or a clearly-labelled time-sensitive reminder pre-26.
+    /// Selecting a mode persists it and immediately reconciles THIS block's scheduled
+    /// surface so the change takes effect without waiting for a re-plan.
+    @ViewBuilder
+    private func alarmPicker(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionLabel(title: "Remind me")
+            HStack(spacing: 8) {
+                ForEach(PlannedAction.AlarmMode.allCases, id: \.self) { mode in
+                    let on = action.alarmMode == mode
+                    Button {
+                        Haptics.light()
+                        setAlarmMode(mode)
+                    } label: {
+                        VStack(spacing: 5) {
+                            Image(systemName: mode.symbol)
+                                .font(.system(size: 14))
+                            Text(mode.label)
+                                .font(.system(size: 11, weight: on ? .semibold : .medium))
+                        }
+                        // Non-punitive even at the loudest setting: accent, never red.
+                        .foregroundStyle(on ? t.accent : t.muted)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(on ? t.accentSoft : t.sunken.opacity(0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: 11))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 11)
+                                .stroke(on ? t.accent.opacity(0.5) : t.hair, lineWidth: on ? 1 : 0.5)
+                        )
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .scaleOnPress()
+                    .accessibilityLabel("\(mode.label) reminder")
+                    .accessibilityAddTraits(on ? .isSelected : [])
+                }
+            }
+            // Honest one-liner about what "Alarm" does so the loud option is never a
+            // surprise — it overrides Silent/Focus (iOS 26).
+            if action.alarmMode == .alarm {
+                Text("Unmissable — overrides Silent & Focus when your block starts.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(t.muted)
+            }
+        }
+    }
+
+    /// Persist the chosen mode and reconcile only THIS block's scheduled
+    /// reminder/alarm immediately (so the toggle feels live). Goal-work's gentle path
+    /// stays owned by the chain; `AlarmService` no-ops a duplicate gentle ping for it.
+    private func setAlarmMode(_ mode: PlannedAction.AlarmMode) {
+        guard action.alarmMode != mode else { return }
+        action.alarmMode = mode
+        try? modelContext.save()
+        #if os(iOS)
+        if let startMin = DailyTimeline.minutes(from: action.timeSlot) {
+            let dayStart = Calendar.current.startOfDay(for: .now)
+            let startDate = dayStart.addingTimeInterval(TimeInterval(startMin * 60))
+            AlarmService.reconcile(
+                blockID: action.id.uuidString,
+                blockTitle: action.title,
+                startDate: startDate,
+                mode: mode,
+                gentleHandledByChain: action.anchorKind == .goalWork
+            )
+        }
+        #endif
+        Haptics.success()
     }
 
     /// ZERO-GUILT one-tap actions: gently defer to tomorrow, mark a first-class rest,

@@ -7,6 +7,11 @@ enum DeepLink: String {
     case reflect = "ambidash://reflect"
     case mentor = "ambidash://mentor"
     case settings = "ambidash://settings"
+    /// CLOSING RITUAL — the gentle evening wrap-up. Lands on the dashboard, where the
+    /// "Close the Day" component is reachable; the ritual is also available from the
+    /// Reflect tab. Kept distinct from `.reflect` so the evening notification's intent
+    /// reads clearly and a future direct-present hook can branch on it.
+    case closingRitual = "ambidash://closing-ritual"
 
     var tabIndex: Int {
         switch self {
@@ -16,6 +21,7 @@ enum DeepLink: String {
         case .reflect: 3
         case .mentor: 4
         case .settings: 0
+        case .closingRitual: 0
         }
     }
 

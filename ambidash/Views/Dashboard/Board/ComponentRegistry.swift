@@ -184,6 +184,17 @@ enum ComponentRegistry {
             defaultConfig: "{}",
             isSingleton: true
         ),
+        ComponentDescriptor(
+            kind: .closingRitual,
+            title: "Close the Day",
+            sfSymbol: "moon.stars",
+            category: .reflection,
+            blurb: "A calm end-of-day wrap — celebrate what you did and pick tomorrow's one thing.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
     ]
 
     static func descriptor(for kind: ComponentKind) -> ComponentDescriptor? {
@@ -232,6 +243,11 @@ enum ComponentRegistry {
             // offer; reads prefs/goals from BoardData. Renders nothing when there's no
             // persistent pattern worth surfacing.
             PatternCheckInComponent(boardData: boardData)
+        case .closingRitual:
+            // Owns small @Querys for today's plan / actuals / reflection to build
+            // its preview + the ritual sheet; mutates the store on save, so it is
+            // intentionally NOT fed from the static BoardData snapshot.
+            ClosingRitualComponent()
         case .mentorCard:
             MentorComponent(boardData: boardData)
         case .identityLine:

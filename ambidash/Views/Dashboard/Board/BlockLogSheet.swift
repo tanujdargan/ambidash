@@ -302,6 +302,9 @@ struct BlockLogSheet: View {
         // with it, so silence its escalating reminder chain. A partial still rolls
         // forward and will get a fresh chain when tomorrow's plan is generated.
         NotificationService.cancelReminderChain(blockID: action.id.uuidString)
+        // Also clear any opt-in start reminder/alarm for this block — the user has
+        // engaged with it, so an unmissable alarm for its start is no longer wanted.
+        AlarmService.cancel(blockID: action.id.uuidString)
 
         Haptics.success()
         try? modelContext.save()

@@ -68,6 +68,10 @@ struct WidgetVitalsSnapshot: Codable, Hashable {
     var tasks: [WidgetTask]
     /// At-a-glance goal summaries, highest priority first.
     var goals: [WidgetGoalSummary]
+    /// The block running RIGHT NOW (timeSlot <= now < timeSlot+duration) — the
+    /// radical-focus "Now". Optional/defaulted so an older app binary that doesn't
+    /// write this key still decodes (nil → no current block, fall back to "Next").
+    var nowTask: WidgetTask?
 
     static let empty = WidgetVitalsSnapshot(
         generatedAt: .now,
@@ -76,13 +80,53 @@ struct WidgetVitalsSnapshot: Codable, Hashable {
         topGoalTitle: "Open AmbiDash",
         topGoalStatus: "",
         tasks: [],
-        goals: []
+        goals: [],
+        nowTask: nil
     )
 
-    /// The single most relevant "next" task — first pending task, used by the
-    /// Lock Screen accessory families.
+    enum CodingKeys: String, CodingKey {
+        case generatedAt, compositeScore, pillarsActive
+        case topGoalTitle, topGoalStatus, tasks, goals, nowTask
+    }
+
+    init(
+        generatedAt: Date,
+        compositeScore: Int,
+        pillarsActive: Int,
+        topGoalTitle: String,
+        topGoalStatus: String,
+        tasks: [WidgetTask],
+        goals: [WidgetGoalSummary],
+        nowTask: WidgetTask? = nil
+    ) {
+        self.generatedAt = generatedAt
+        self.compositeScore = compositeScore
+        self.pillarsActive = pillarsActive
+        self.topGoalTitle = topGoalTitle
+        self.topGoalStatus = topGoalStatus
+        self.tasks = tasks
+        self.goals = goals
+        self.nowTask = nowTask
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        generatedAt = try c.decode(Date.self, forKey: .generatedAt)
+        compositeScore = try c.decode(Int.self, forKey: .compositeScore)
+        pillarsActive = try c.decode(Int.self, forKey: .pillarsActive)
+        topGoalTitle = try c.decode(String.self, forKey: .topGoalTitle)
+        topGoalStatus = try c.decode(String.self, forKey: .topGoalStatus)
+        tasks = try c.decode([WidgetTask].self, forKey: .tasks)
+        goals = try c.decode([WidgetGoalSummary].self, forKey: .goals)
+        // Additive: older snapshots have no nowTask key.
+        nowTask = try c.decodeIfPresent(WidgetTask.self, forKey: .nowTask)
+    }
+
+    /// The single most relevant "next" task — first pending task NOT currently
+    /// running, used by the Lock Screen accessory families. When a block is
+    /// running now, "next" skips past it to the following one.
     var nextTask: WidgetTask? {
-        tasks.first { !$0.isDone }
+        tasks.first { !$0.isDone && $0.id != nowTask?.id }
     }
 
     /// Count of tasks still open today.

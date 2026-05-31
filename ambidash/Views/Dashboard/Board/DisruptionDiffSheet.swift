@@ -308,6 +308,12 @@ struct DisruptionDiffSheet: View {
             // blocks get their chain rebuilt at the new time, dropped (now .deferred)
             // blocks get theirs cancelled. Idempotent per block.
             NotificationService.scheduleChains(for: plan.actions ?? [], on: plan.date)
+            // Re-sync opt-in block alarms/reminders to the reshaped day too (moved
+            // blocks re-armed at their new time; dropped blocks cancelled).
+            AlarmService.reconcilePlan(for: plan.actions ?? [], on: plan.date)
+            // Keep the Now/Next focus Live Activity in lock-step with the reshaped
+            // day so its live countdown jumps to the new current/next block.
+            LiveActivityService.refresh(for: plan.actions ?? [], on: plan.date)
             onApplied()
         }
         dismiss()

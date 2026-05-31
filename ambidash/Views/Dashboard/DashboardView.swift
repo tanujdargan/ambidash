@@ -158,6 +158,9 @@ struct DashboardView: View {
                     await NotificationService.requestPermission()
                     NotificationService.scheduleDailyReminder()
                     NotificationService.scheduleMorningPlan()
+                    // CLOSING RITUAL — gentle evening invite to wrap the day and pick
+                    // tomorrow's one thing. Idempotent + clamped to waking-evening.
+                    NotificationService.scheduleClosingRitualReminder()
                     // Review-ritual reminders (idempotent: each removes its pending
                     // request by stable identifier before re-adding), safe per appear.
                     StreakService.scheduleWeeklyReviewReminder()

@@ -40,6 +40,13 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// the plan, or keep your target?"). Accepting edits UserPreferences. Confidence-
     /// gated + non-punitive; renders nothing when there's no pattern worth surfacing.
     case patternCheckIn
+    /// CLOSING RITUAL — the gentle end-of-day flow (Sunsama's most-loved mechanic,
+    /// made non-punitive). Celebrates what you ACTUALLY did today (partials count,
+    /// deferrals roll forward), takes an optional one-line "what felt good / hard",
+    /// and lets you pick TOMORROW's ONE most-important thing — which the next
+    /// plan-generation pins as the protected first block. Never punitive, never a
+    /// chore.
+    case closingRitual
     /// Fallback for raw values this build doesn't understand.
     case unknown
 }

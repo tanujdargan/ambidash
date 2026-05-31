@@ -364,4 +364,38 @@ enum PlanGenerator {
     private static func formatAmount(_ value: Double) -> String {
         value == value.rounded() ? String(Int(value)) : String(format: "%.1f", value)
     }
+
+    // MARK: - CLOSING RITUAL — tomorrow's ONE protected thing
+
+    /// CLOSING RITUAL — when the user named tomorrow's ONE most-important thing in
+    /// last night's closing ritual, surface it as a PROTECTED, top-of-day block that
+    /// the plan is built around (the "keep your ONE thing" intent DisruptionService
+    /// also honors). Returns a `TimelineAction` to prepend, or nil when no one-thing
+    /// was set / it's blank.
+    ///
+    /// Placement: pinned early (07:00 sort key) so it sorts to the front of the day
+    /// without colliding with the user's fixed wake/meal anchors' own slots; it reads
+    /// as the day's headline, not a clock-locked block. `anchorType` stays `.goalWork`
+    /// so existing surfaces treat it as real, carry-forward-eligible work.
+    ///
+    /// Pure: no fetch/save. The caller resolves the latest reflection's
+    /// `tomorrowOneThing` and passes it in.
+    static func oneThingAction(
+        title rawTitle: String,
+        goalID: UUID? = nil,
+        goalTitle: String? = nil
+    ) -> TimelineAction? {
+        let title = rawTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return nil }
+        return TimelineAction(
+            title: title,
+            why: "Your one most-important thing for today — chosen last night. Protect it.",
+            timeSlot: "07:00",
+            scheduleCue: "Your one thing — first",
+            durationMinutes: 45,
+            anchorType: .goalWork,
+            goalID: goalID,
+            goalTitle: goalTitle
+        )
+    }
 }

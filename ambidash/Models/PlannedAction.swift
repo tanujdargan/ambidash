@@ -108,6 +108,23 @@ final class PlannedAction {
     /// absence. Defaulted (CloudKit-safe).
     var restMarker: Bool = false
 
+    // MARK: - GENTLE TIMELINE ALARMS (opt-in per-block "remind me / alarm")
+
+    /// GENTLE ALARMS — how loudly this block's START should be surfaced, resolved via
+    /// `AlarmMode`. The DEFAULT is `gentle`: goal-work blocks already get the
+    /// escalating, waking-window-clamped notification chain (the non-punitive floor),
+    /// so `gentle` changes nothing for them and gives every OTHER block (fixed/routine)
+    /// a single calm time-sensitive reminder at its start.
+    /// - `off`    → no start reminder at all for this block.
+    /// - `gentle` → a gentle notification reminder (the default, non-intrusive floor).
+    /// - `alarm`  → an UNMISSABLE alarm at the block's start. On iOS 26 this is a
+    ///              genuine AlarmKit alarm (overrides Silent/Focus, system-drawn Stop/
+    ///              Snooze). Pre-iOS-26 it gracefully degrades to a `.timeSensitive`
+    ///              reminder clearly labelled as a reminder, never a fake system alarm.
+    /// String-keyed with a safe fallback (`gentle`) so an unknown value never crashes.
+    /// Additive/defaulted (CloudKit-safe).
+    var alarmModeRaw: String = "gentle"
+
     init(title: String, why: String = "", timeSlot: String = "", duration: Int = 30, goalID: UUID? = nil, goalTitleSnapshot: String? = nil, loggedAmount: Double? = nil, milestone: Milestone? = nil, carriedOverFrom: Date? = nil, cueTrigger: String = "", targetAmount: Double? = nil, targetUnit: String = "", anchorType: String = "goal_work", scheduleCue: String = "") {
         self.id = UUID()
         self.title = title
@@ -132,6 +149,7 @@ final class PlannedAction {
         self.deferredFrom = nil
         self.deferralReason = ""
         self.restMarker = false
+        self.alarmModeRaw = "gentle"
     }
 
     /// PLAN REWRITE — typed accessor over `anchorType` for safe matching at the
@@ -232,5 +250,45 @@ final class PlannedAction {
             statusRaw = "pending"
             restMarker = false
         }
+    }
+
+    // MARK: - GENTLE TIMELINE ALARMS (typed accessor)
+
+    /// How this block's START is surfaced. STRING-keyed with a safe `gentle` fallback so
+    /// an older client (or an unknown value) never crashes — additive/forward-compatible.
+    enum AlarmMode: String, CaseIterable {
+        /// No start reminder for this block.
+        case off
+        /// A gentle, non-intrusive notification reminder (the default floor).
+        case gentle
+        /// An unmissable alarm at the block's start (AlarmKit on iOS 26; a
+        /// `.timeSensitive` labelled-reminder fallback pre-26).
+        case alarm
+
+        /// Short, calm, non-punitive label for the toggle UI.
+        var label: String {
+            switch self {
+            case .off: return "Off"
+            case .gentle: return "Gentle"
+            case .alarm: return "Alarm"
+            }
+        }
+
+        /// SF Symbol for the toggle UI.
+        var symbol: String {
+            switch self {
+            case .off: return "bell.slash"
+            case .gentle: return "bell"
+            case .alarm: return "alarm"
+            }
+        }
+    }
+
+    /// Typed accessor over `alarmModeRaw`. Setting it just mirrors the raw string;
+    /// scheduling the actual reminder/alarm is the caller's job (so the model stays a
+    /// plain value type with no side effects).
+    var alarmMode: AlarmMode {
+        get { AlarmMode(rawValue: alarmModeRaw) ?? .gentle }
+        set { alarmModeRaw = newValue.rawValue }
     }
 }
