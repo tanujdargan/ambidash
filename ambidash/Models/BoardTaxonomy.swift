@@ -20,6 +20,16 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     case identityLine
     case reflectionPrompt
     case streaks
+    /// Design principle #3 — TODAY as a vertical, duration-sized block timeline
+    /// (fixed anchors / routines / goal-work woven into one column). Current block
+    /// highlighted with a live remaining-time countdown; past blocks fade via the
+    /// non-punitive `deferred` token (never red); the next block is emphasized.
+    case dailyTimeline
+    /// Design principle #4 — the universal capture inbox. Shows recent UNPROCESSED
+    /// thoughts the user dumped (uncategorized, <2s) with one-tap gentle triage
+    /// (promote → goal/today task, archive, drop). Never a backlog count, never a
+    /// red "unprocessed" badge.
+    case captureInbox
     /// Fallback for raw values this build doesn't understand.
     case unknown
 }

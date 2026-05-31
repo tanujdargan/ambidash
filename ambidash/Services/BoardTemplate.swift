@@ -84,9 +84,13 @@ enum BoardTemplate {
                 // Quiet hero: one pulse + who today is shaping you into.
                 ComponentPlacement(.compositeScore, .top, .full),
                 ComponentPlacement(.identityLine, .top, .full),
-                // Gentle body: a short look at today, three latest goals, one
-                // reflection prompt to close on. No streaks, no screen-time.
-                ComponentPlacement(.todayNarrow, .body, .medium, config: today3),
+                // Gentle body: an always-there capture inbox (the validated #1
+                // need — dump a thought in <2s, triage later or never), today as a
+                // spatial block timeline (current block highlighted, a live
+                // countdown), three latest goals, one reflection prompt to close on.
+                // No streaks, no screen-time.
+                ComponentPlacement(.captureInbox, .body, .full),
+                ComponentPlacement(.dailyTimeline, .body, .full),
                 ComponentPlacement(.latestGoals, .body, .full),
                 ComponentPlacement(.reflectionPrompt, .body, .full),
             ]
@@ -94,10 +98,11 @@ enum BoardTemplate {
         case .balanced:
             return [
                 ComponentPlacement(.compositeScore, .top, .full),
+                ComponentPlacement(.captureInbox, .body, .full),
                 ComponentPlacement(.vitalsGrid, .body, .full),
+                ComponentPlacement(.dailyTimeline, .body, .full),
                 ComponentPlacement(.latestGoals, .body, .full),
                 ComponentPlacement(.mentorCard, .body, .full),
-                ComponentPlacement(.todayNarrow, .body, .medium),
                 ComponentPlacement(.identityLine, .body, .full),
             ]
 

@@ -41,7 +41,7 @@ struct IntegrationSetupView: View {
                         IntegrationRow(
                             icon: "checklist",
                             title: "Reminders",
-                            subtitle: "Overdue tasks, completion patterns",
+                            subtitle: "Open tasks, completion patterns",
                             connected: manager.remindersAuthorized
                         )
                     }

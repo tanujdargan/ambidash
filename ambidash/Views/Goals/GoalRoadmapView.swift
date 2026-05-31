@@ -199,7 +199,7 @@ struct GoalRoadmapView: View {
             switch milestone.status {
             case .onTrack: return t.ok
             case .needsAttention: return t.accent
-            case .slipping: return t.danger
+            case .slipping: return t.deferred
             case .paused: return t.ink
             }
         }()

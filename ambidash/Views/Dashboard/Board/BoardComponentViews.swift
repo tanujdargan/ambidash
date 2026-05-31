@@ -272,9 +272,11 @@ struct StreaksComponent: View {
                 VStack(alignment: .leading, spacing: 4) {
                     ForEach(Array(summary.atRiskStreaks.prefix(3).enumerated()), id: \.offset) { _, risk in
                         HStack(spacing: 6) {
-                            Image(systemName: "exclamationmark.triangle.fill")
+                            // Non-punitive: a streak "at risk" is a gentle time cue,
+                            // not an alarm — a soft accent clock, never a red warning.
+                            Image(systemName: "clock")
                                 .font(.system(size: 10))
-                                .foregroundStyle(t.danger)
+                                .foregroundStyle(t.accent)
                             Text(risk.goalTitle)
                                 .font(.system(size: 12))
                                 .foregroundStyle(t.muted)

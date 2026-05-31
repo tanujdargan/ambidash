@@ -70,7 +70,8 @@ private enum WidgetStyle {
         switch raw {
         case "onTrack": return .green
         case "needsAttention": return .orange
-        case "slipping": return .red
+        // Non-punitive (principle #1): a slipping goal fades to grey, never red.
+        case "slipping": return .gray
         case "paused": return .secondary
         default: return .secondary
         }

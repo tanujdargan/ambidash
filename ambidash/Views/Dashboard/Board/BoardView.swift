@@ -38,6 +38,10 @@ struct BoardView: View {
     @State private var showTemplatePicker = false
     /// Guards the first-load decision so we only evaluate "has a board?" once.
     @State private var didCheckForBoard = false
+    /// The always-accessible <2s quick-capture sheet (design principle #4). Lives in
+    /// the board control bar so a thought can be dumped from the main dashboard with
+    /// one tap, no matter which components are on the board.
+    @State private var showQuickCapture = false
 
     var body: some View {
         let t = tm.resolved
@@ -67,6 +71,9 @@ struct BoardView: View {
             }
             .environment(tm)
         }
+        .sheet(isPresented: $showQuickCapture) {
+            QuickCaptureSheet().environment(tm)
+        }
         .sheet(isPresented: $showTemplatePicker) {
             BoardSetupView(mode: .firstRun) { template in
                 BoardSeeder.seed(template: template, in: modelContext)
@@ -87,6 +94,31 @@ struct BoardView: View {
                     .font(.system(size: 11, weight: .medium, design: .monospaced))
                     .tracking(1.2)
                     .foregroundStyle(t.accent)
+            } else {
+                // Always-accessible <2s capture affordance (design principle #4). A
+                // labeled pill so it reads as "dump a thought", distinct from the
+                // "+" that adds a board component.
+                Button {
+                    Haptics.light()
+                    showQuickCapture = true
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text("Capture")
+                            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                            .tracking(0.6)
+                    }
+                    .foregroundStyle(t.accent)
+                    .padding(.horizontal, 12)
+                    .frame(height: 30)
+                    .background(t.surface)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(t.hair, lineWidth: 0.5))
+                }
+                .buttonStyle(.plain)
+                .scaleOnPress()
+                .accessibilityLabel("Capture a thought")
             }
             Spacer()
             Button {

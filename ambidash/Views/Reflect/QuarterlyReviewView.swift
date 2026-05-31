@@ -202,7 +202,7 @@ struct QuarterlyReviewView: View {
         switch status {
         case .onTrack: return t.ok
         case .needsAttention: return t.accent
-        case .slipping: return t.danger
+        case .slipping: return t.deferred
         case .paused: return t.faint
         }
     }

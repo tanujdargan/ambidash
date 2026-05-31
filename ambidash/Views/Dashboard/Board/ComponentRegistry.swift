@@ -130,11 +130,33 @@ enum ComponentRegistry {
             isSingleton: true
         ),
         ComponentDescriptor(
+            kind: .dailyTimeline,
+            title: "Day Timeline",
+            sfSymbol: "calendar.badge.clock",
+            category: .daily,
+            blurb: "Today as duration-sized blocks — current highlighted, with a live countdown.",
+            defaultSection: .body,
+            supportedSizes: [.large, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
             kind: .streaks,
             title: "Streaks",
             sfSymbol: "flame",
             category: .daily,
             blurb: "Active streaks and which ones are at risk today.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
+            kind: .captureInbox,
+            title: "Capture Inbox",
+            sfSymbol: "tray",
+            category: .daily,
+            blurb: "Recent thoughts you dumped — triage one tap at a time, no pressure.",
             defaultSection: .body,
             supportedSizes: [.medium, .full],
             defaultConfig: "{}",
@@ -170,8 +192,15 @@ enum ComponentRegistry {
             LatestGoalsComponent(boardData: boardData)
         case .todayNarrow:
             TodayNarrowComponent(boardData: boardData, config: ComponentConfig.today(from: component.configJSON))
+        case .dailyTimeline:
+            DailyTimelineComponent(boardData: boardData)
         case .streaks:
             StreaksComponent(boardData: boardData)
+        case .captureInbox:
+            // The one inherently-dynamic component: it owns a small @Query for the
+            // recent inbox (mutated by quick-add/triage), so it is intentionally NOT
+            // fed from the static BoardData snapshot.
+            CaptureInboxComponent()
         case .mentorCard:
             MentorComponent(boardData: boardData)
         case .identityLine:

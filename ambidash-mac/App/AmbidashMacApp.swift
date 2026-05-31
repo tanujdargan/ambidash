@@ -41,6 +41,7 @@ struct AmbidashMacApp: App {
             Milestone.self,
             Board.self,
             BoardComponent.self,
+            CaptureItem.self,
         ])
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)

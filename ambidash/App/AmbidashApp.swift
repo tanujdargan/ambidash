@@ -46,6 +46,7 @@ struct AmbidashApp: App {
             Milestone.self,
             Board.self,
             BoardComponent.self,
+            CaptureItem.self,
         ])
     }
 }

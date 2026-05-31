@@ -164,6 +164,13 @@ struct ResolvedTheme {
     let accentSoft: Color
     let danger: Color
     let ok: Color
+    /// Non-punitive state token (design principle #1). The single shared treatment
+    /// for PAST / MISSED / DEFERRED / behind-pace items: a soft, muted taupe-grey
+    /// that reads as "faded / rolled forward", never as failure. Use this anywhere
+    /// a surface would otherwise reach for `danger` to mark a user *miss* (skipped,
+    /// slipping, behind pace, at-risk). `danger` stays reserved for genuine errors
+    /// and truly destructive actions only.
+    let deferred: Color
     let isDark: Bool
     /// Density-derived spacing scale (calm = roomier, detailed = tighter).
     let space: DensitySpacing
@@ -233,6 +240,7 @@ final class ThemeManager {
                 accentSoft: Color(hex: accentHex).opacity(0.18),
                 danger: Color(hex: 0xD27860),
                 ok: Color(hex: 0x9DAE7A),
+                deferred: Color(hex: 0x7A6E7C),
                 isDark: true,
                 space: space,
                 typography: typo
@@ -252,6 +260,7 @@ final class ThemeManager {
                 accentSoft: Color(hex: accentHex).opacity(0.14),
                 danger: Color(hex: 0xB0533A),
                 ok: Color(hex: 0x6A7C4A),
+                deferred: Color(hex: 0xB8B0B8),
                 isDark: false,
                 space: space,
                 typography: typo

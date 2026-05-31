@@ -135,7 +135,7 @@ struct MacTodayView: View {
             } label: {
                 Text(skipped ? "Skipped" : "Skip")
                     .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(skipped ? theme.danger : theme.muted)
+                    .foregroundStyle(skipped ? theme.deferred : theme.muted)
             }
             .buttonStyle(.plain)
         }

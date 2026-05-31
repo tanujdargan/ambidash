@@ -7,7 +7,10 @@ enum GoalStatus: String, Codable {
         switch self {
         case .onTrack: .green
         case .needsAttention: .orange
-        case .slipping: .red
+        // Non-punitive (principle #1): a "slipping" goal is not a failure, just one
+        // that needs time. Use a muted grey, never red. Theme-bound surfaces should
+        // prefer `ResolvedTheme.deferred`; this is the theme-unbound fallback.
+        case .slipping: .gray
         case .paused: .gray
         }
     }
@@ -16,7 +19,7 @@ enum GoalStatus: String, Codable {
         switch self {
         case .onTrack: "On Track"
         case .needsAttention: "Needs Attention"
-        case .slipping: "Slipping"
+        case .slipping: "Needs Time"
         case .paused: "Paused"
         }
     }
