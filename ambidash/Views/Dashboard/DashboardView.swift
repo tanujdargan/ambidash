@@ -73,7 +73,8 @@ struct DashboardView: View {
             compositeScore: compositeScore,
             streakSummary: streakSummary,
             compositeHistory: compositeHistory,
-            lowestDimension: dimensionScores.min(by: { $0.value < $1.value })?.key
+            lowestDimension: dimensionScores.min(by: { $0.value < $1.value })?.key,
+            isHardDay: HardModeService.isHardToday(profile?.userPreferences)
         )
     }
 
@@ -173,6 +174,16 @@ struct DashboardView: View {
                     if let newLevel = ScaffoldingService.shouldUpdateLevel(for: profile) {
                         profile.scaffoldLevel = newLevel.rawValue
                         try? modelContext.save()
+                    }
+                    // REST-DAY BANK — gently evaluate earned rest days once per day from
+                    // the user's best live streak. Non-punitive: this only ever ADDS to
+                    // the bank; it never penalizes. Idempotent per day via prefs stamp.
+                    if let prefs = profile.userPreferences {
+                        let earned = RestBankService.evaluateEarn(
+                            prefs,
+                            longestLiveStreak: streakSummary.longestCurrentStreak
+                        )
+                        if earned > 0 { try? modelContext.save() }
                     }
                 }
                 updateWidgetData()

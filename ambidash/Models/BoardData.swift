@@ -24,6 +24,12 @@ struct BoardData {
     /// Lowest-scoring dimension, used to pick the identity-line copy.
     let lowestDimension: LifeDimension?
 
+    /// "TODAY IS HARD" MODE — true when the user marked today hard (a per-DAY flag on
+    /// UserPreferences, auto-expiring at day roll-over). Drives a TRANSIENT, view-level
+    /// minimal-board filter + softened copy; it never mutates the persisted board
+    /// layout. Defaulted false so existing render paths are unchanged.
+    var isHardDay: Bool = false
+
     /// Contextual "you are becoming…" line, derived from the lowest dimension.
     /// Hoisted out of DashboardView so the identityLine component can render it.
     var identityText: String {

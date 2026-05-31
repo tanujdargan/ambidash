@@ -195,6 +195,28 @@ enum ComponentRegistry {
             defaultConfig: "{}",
             isSingleton: true
         ),
+        ComponentDescriptor(
+            kind: .focusSession,
+            title: "Focus",
+            sfSymbol: "timer",
+            category: .daily,
+            blurb: "A calm focus timer for your current block or a quick session — gentle finish, optional soundscape, a companion alongside you.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
+            kind: .winsWall,
+            title: "Wins",
+            sfSymbol: "rosette",
+            category: .reflection,
+            blurb: "Evidence of what you actually did — partials count, never a deficit. With a gentle weekly review.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
     ]
 
     static func descriptor(for kind: ComponentKind) -> ComponentDescriptor? {
@@ -248,6 +270,17 @@ enum ComponentRegistry {
             // its preview + the ritual sheet; mutates the store on save, so it is
             // intentionally NOT fed from the static BoardData snapshot.
             ClosingRitualComponent()
+        case .focusSession:
+            // Reads the current/next block from the static BoardData snapshot; the
+            // running session is ephemeral (@State). When a session finishes against
+            // a block it may fold an inferred ActualEvent into the store, so it also
+            // takes the modelContext from the environment internally.
+            FocusSessionComponent(boardData: boardData)
+        case .winsWall:
+            // Owns small @Querys for recent ActualEvents + DailyPlans to derive wins via
+            // WinsService (no new @Model). Reads nothing it mutates; the weekly review
+            // sheet is read-only too.
+            WinsWallComponent()
         case .mentorCard:
             MentorComponent(boardData: boardData)
         case .identityLine:

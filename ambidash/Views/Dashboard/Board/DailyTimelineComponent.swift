@@ -53,14 +53,19 @@ struct DailyTimelineComponent: View {
                 emptyState(t)
             } else {
                 VStack(spacing: 0) {
-                    ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
-                        TimelineBlockRow(
-                            block: block,
-                            isFirst: index == 0,
-                            isLast: index == blocks.count - 1,
-                            now: now,
-                            onTap: { selected = block.action }
-                        )
+                    ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                        switch row {
+                        case .block(let block):
+                            TimelineBlockRow(
+                                block: block,
+                                isFirst: index == 0,
+                                isLast: index == rows.count - 1,
+                                now: now,
+                                onTap: { selected = block.action }
+                            )
+                        case .transition(let buffer):
+                            TransitionBufferRow(buffer: buffer)
+                        }
                     }
                 }
                 .environment(\.timelineNextBlockID, nextBlockID)
@@ -276,6 +281,37 @@ struct DailyTimelineComponent: View {
         }
     }
 
+    /// The rendered rows: the ordered blocks with gentle, NON-INTERACTIVE transition
+    /// buffers woven between consecutive SCHEDULED blocks that sit close together. The
+    /// buffers are a DISPLAY-TIME concern only — no PlannedAction, no @Model, no
+    /// CloudKit/plan impact; they're computed purely from adjacent blocks here. Gated
+    /// by `UserPreferences.showTransitionBuffers` (default on) and `MotionPreference`
+    /// (a reduced-motion day stays uncluttered), and only inserted when the gap is
+    /// genuinely tight, so calm days aren't littered with markers.
+    private var rows: [TimelineRow] {
+        let bs = blocks
+        guard showsTransitionBuffers else {
+            return bs.map { .block($0) }
+        }
+        var out: [TimelineRow] = []
+        for (i, block) in bs.enumerated() {
+            out.append(.block(block))
+            guard i < bs.count - 1 else { continue }
+            let next = bs[i + 1]
+            if let buffer = TransitionBuffer.between(block, next) {
+                out.append(.transition(buffer))
+            }
+        }
+        return out
+    }
+
+    /// Whether to weave transition buffers in. Respects the user's preference (default
+    /// on) and suppresses the extra chrome under reduced motion for a calmer surface.
+    private var showsTransitionBuffers: Bool {
+        let pref = boardData.profile?.userPreferences?.showTransitionBuffers ?? true
+        return pref && !MotionPreference.prefersReducedMotion
+    }
+
     /// The id of the block to give "next" emphasis: the earliest block that hasn't
     /// ended yet and isn't the current one. nil when nothing is upcoming.
     private var nextBlockID: UUID? {
@@ -287,6 +323,110 @@ struct DailyTimelineComponent: View {
         let f = DateFormatter()
         f.dateFormat = "HH:mm"
         return f.string(from: date)
+    }
+}
+
+// MARK: - Timeline row (block or transition buffer)
+
+/// One rendered row of the timeline: either a real duration-sized block, or a gentle
+/// NON-INTERACTIVE transition buffer synthesized between two close blocks. The buffer
+/// is render-time only — it is NEVER persisted, never a PlannedAction, and never feeds
+/// carry-over / closing-ritual / CloudKit.
+enum TimelineRow: Identifiable {
+    case block(TimelineBlock)
+    case transition(TransitionBuffer)
+
+    var id: UUID {
+        switch self {
+        case .block(let b): return b.id
+        case .transition(let t): return t.id
+        }
+    }
+}
+
+/// A tiny, derived "wrap up → next" marker between two consecutive blocks. Pure value,
+/// computed from adjacent blocks at render time. Only created when the gap between the
+/// current block's end and the next block's start is small but positive — the moment a
+/// transition actually needs a gentle buffer.
+struct TransitionBuffer: Identifiable {
+    let id: UUID
+    /// The title of the block coming up, for the "next: X" copy.
+    let nextTitle: String
+    /// Minutes of breathing room between the two blocks (1...maxGap).
+    let gapMinutes: Int
+
+    /// The window (in minutes) within which a gap is treated as a tight transition
+    /// worth a buffer. A larger gap is genuine free time, not a hand-off, so we leave
+    /// it alone.
+    static let maxGap = 15
+
+    /// Synthesize a buffer between two blocks when they're both scheduled and sit
+    /// close together (0 < gap <= maxGap). Returns nil otherwise.
+    static func between(_ current: TimelineBlock, _ next: TimelineBlock) -> TransitionBuffer? {
+        guard current.isScheduled, next.isScheduled else { return nil }
+        let gap = next.startMinutes - current.endMinutes
+        guard gap > 0, gap <= maxGap else { return nil }
+        let title = next.action.title.trimmingCharacters(in: .whitespaces)
+        guard !title.isEmpty else { return nil }
+        return TransitionBuffer(id: UUID(), nextTitle: title, gapMinutes: gap)
+    }
+
+    /// Gentle, non-punitive copy: "wrap up · stretch · next: Cook dinner".
+    var copy: String {
+        "wrap up · stretch · next: \(nextTitle)"
+    }
+}
+
+// MARK: - Transition buffer row
+
+/// Renders a `TransitionBuffer` as a thin, inset, NON-INTERACTIVE marker: a dashed
+/// connector + muted "wrap up → next" copy in the soft `deferred` token. Never sized
+/// by duration like a real block, never tappable, never carries a lifecycle badge —
+/// it's purely a calm visual breath between hand-offs.
+private struct TransitionBufferRow: View {
+    @Environment(ThemeManager.self) private var tm
+    let buffer: TransitionBuffer
+
+    var body: some View {
+        let t = tm.resolved
+        HStack(alignment: .center, spacing: 12) {
+            // Dashed connector aligned with the timeline rail (matches the 18pt gutter).
+            DashedVerticalLine()
+                .stroke(t.deferred.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [2, 3]))
+                .frame(width: 1.5)
+                .frame(maxHeight: .infinity)
+                .frame(width: 18)
+
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.down")
+                    .font(.system(size: 8))
+                Text(buffer.copy)
+                    .font(.system(size: 10))
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                Text("\(buffer.gapMinutes)m")
+                    .font(.system(size: 9, design: .monospaced))
+                    .monospacedDigit()
+            }
+            .foregroundStyle(t.deferred)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+        }
+        .frame(height: 28)
+        .opacity(0.7)
+        .allowsHitTesting(false)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Transition: wrap up, then \(buffer.nextTitle)")
+    }
+}
+
+/// A simple vertical line shape, stroked with a dash pattern for the transition rail.
+private struct DashedVerticalLine: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        return p
     }
 }
 

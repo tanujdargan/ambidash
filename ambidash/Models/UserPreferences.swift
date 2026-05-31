@@ -50,6 +50,46 @@ final class UserPreferences {
     var enableEnergyBudgeting: Bool = false
     var dailyEnergyBudget: Int = 12
 
+    // FOCUS SESSION soundscape (additive/defaulted, CloudKit-safe). OFF by default so
+    // nothing changes for existing users and no audio session is ever touched unless
+    // the user opts in. When on, the focus timer loops a quiet ambient sound via
+    // AVAudioSession .ambient (mixes with the user's music, respects the silent
+    // switch). A safe no-op if no sound asset is bundled.
+    var focusSoundEnabled: Bool = false
+
+    // TRANSITION BUFFERS (display-time only, additive/defaulted). When on, the timeline
+    // inserts gentle, non-interactive "wrap up → next" markers between consecutive
+    // blocks that sit close together, sized small in the muted/deferred token. Purely a
+    // render-time concern — no persisted model, no CloudKit/plan impact. Defaults ON;
+    // only ever shown when a gap is genuinely tight, so calm days stay uncluttered.
+    var showTransitionBuffers: Bool = true
+
+    // "TODAY IS HARD" MODE (additive/defaulted, CloudKit-safe). A per-DAY flag, NOT a
+    // global bool: stores the start-of-day (as a stored `Date?`) of the day the user
+    // marked hard. Compared with `Calendar.isDateInToday` so it auto-expires when the
+    // day rolls over — no migration, no new @Model. When today is marked hard the board
+    // softens to a minimal, kind set ("today, just one thing" + rest option) and copy
+    // gentles app-wide for the day. Fully reversible (set back to nil). nil = not hard.
+    var hardModeDay: Date? = nil
+
+    // REST-DAY BANK (additive/defaulted, CloudKit-safe). Guilt-free rest days the user
+    // EARNS through consistency and SPENDS with no penalty (streak-safe, non-punitive).
+    // `bankedRestDays` is the current balance; the earned/spent totals are kept purely
+    // for a warm "X earned · Y spent" breakdown and never gate anything. All scalars on
+    // the already-registered UserPreferences → nothing new to register in either
+    // ModelContainer. Defaults to 0 so existing users start with an empty, growing bank.
+    var bankedRestDays: Int = 0
+    var restDaysEarnedTotal: Int = 0
+    var restDaysSpentTotal: Int = 0
+    // The start-of-day (stored `Date?`) of the last day a banked rest day was spent, so
+    // spending is idempotent per day (you can't drain the bank by re-tapping). nil =
+    // never spent / not spent today.
+    var lastRestDaySpent: Date? = nil
+    // The start-of-day (stored `Date?`) of the last consistency check that granted (or
+    // evaluated) an earned rest day, so earning is evaluated at most once per day and
+    // never double-credits. nil = never evaluated.
+    var lastRestEarnCheck: Date? = nil
+
     // Free-form context the planner should weave in.
     var aboutMe: String = ""
     var hardConstraints: String = ""

@@ -47,6 +47,23 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// plan-generation pins as the protected first block. Never punitive, never a
     /// chore.
     case closingRitual
+    /// FOCUS SESSION — a calm, visible countdown timer for a chosen duration or the
+    /// CURRENT timeline block. Start/pause/stop with gentle (never guilt) completion,
+    /// an optional looping soundscape (AVAudioSession .ambient — mixes with the user's
+    /// audio, respects the silent switch), and a LOCAL "body-double" presence
+    /// affordance (a calm "focusing with you" companion line + an optional on-device
+    /// AI check-in, gated; no networking required for the timer itself). The session
+    /// is ephemeral (@State) — no new @Model, no CloudKit impact. A finished session
+    /// against a block may fold an inferred ActualEvent into the wins/learning loop.
+    case focusSession
+    /// WINS WALL — evidence of what you actually DID, framed as "look what you did".
+    /// Derives recent wins from existing data (completed/partial ActualEvents +
+    /// lifecycle .done/.partial PlannedActions) over a rolling window via WinsService —
+    /// no new @Model, no CloudKit migration. Partials COUNT; nothing is ever framed as a
+    /// deficit or a miss-count. A preview shows the top recent wins + a warm "X this
+    /// week", and a gentle weekly "your week in wins" review surface (WinsWeekSheet)
+    /// groups the week's wins by day.
+    case winsWall
     /// Fallback for raw values this build doesn't understand.
     case unknown
 }

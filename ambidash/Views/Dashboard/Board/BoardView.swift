@@ -42,11 +42,20 @@ struct BoardView: View {
     /// the board control bar so a thought can be dumped from the main dashboard with
     /// one tap, no matter which components are on the board.
     @State private var showQuickCapture = false
+    /// Shows the kind confirmation after spending a banked rest day.
+    @State private var restSpentConfirmation = false
 
     var body: some View {
         let t = tm.resolved
         VStack(alignment: .leading, spacing: t.space.section) {
             controlBar(t)
+
+            // "TODAY IS HARD" — a gentle banner + rest-bank chip when today is marked
+            // hard (or whenever a banked rest day is available to spend). Shown above the
+            // (transiently minimal) board; never present in edit mode.
+            if !editing {
+                hardModeArea(t)
+            }
 
             if components.isEmpty {
                 emptyBoardState(t)
@@ -156,6 +165,141 @@ struct BoardView: View {
             .buttonStyle(.plain)
             .scaleOnPress()
             .accessibilityLabel(editing ? "Done editing board" : "Edit board")
+        }
+    }
+
+    // MARK: - "Today is hard" mode + rest-day bank
+
+    /// The resolved UserPreferences for the signed-in profile (where the per-day hard
+    /// flag + the rest-day bank live). Reached through the boardData snapshot.
+    private var prefs: UserPreferences? { boardData.profile?.userPreferences }
+
+    /// Banner (when today is hard) + the toggle / rest-bank chip row. Renders nothing
+    /// when there's no profile/prefs to mutate.
+    @ViewBuilder
+    private func hardModeArea(_ t: ResolvedTheme) -> some View {
+        if let prefs {
+            VStack(alignment: .leading, spacing: t.space.component) {
+                if boardData.isHardDay {
+                    hardModeBanner(t)
+                }
+                hardModeControls(prefs, t)
+            }
+            .animation(MotionPreference.animation(.ambidashSpring), value: boardData.isHardDay)
+        }
+    }
+
+    /// The calm "today, just one thing" banner shown when the board is in hard mode.
+    @ViewBuilder
+    private func hardModeBanner(_ t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                Image(systemName: "heart.circle")
+                    .font(.system(size: 15))
+                    .foregroundStyle(t.deferred)
+                Text(HardModeService.headline)
+                    .font(.system(size: 16, weight: tm.typography.serifWeight, design: .serif))
+                    .foregroundStyle(t.ink)
+                Spacer(minLength: 0)
+            }
+            Text(HardModeService.subhead)
+                .font(.system(size: 12))
+                .foregroundStyle(t.muted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(t.deferred.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(alignment: .leading) {
+            t.deferred.frame(width: 2).clipShape(RoundedRectangle(cornerRadius: 1)).padding(.vertical, 1)
+        }
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(HardModeService.headline) \(HardModeService.subhead)")
+    }
+
+    /// The hard-mode toggle chip + (when a rest day is available) the spend-a-rest-day
+    /// chip. Both framed as permission, never obligation.
+    @ViewBuilder
+    private func hardModeControls(_ prefs: UserPreferences, _ t: ResolvedTheme) -> some View {
+        let isHard = boardData.isHardDay
+        HStack(spacing: 8) {
+            // Today-is-hard toggle.
+            Button {
+                toggleHardMode(prefs)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: isHard ? "heart.circle.fill" : "heart.circle")
+                        .font(.system(size: 12))
+                    Text(isHard ? "Hard day on" : "Today is hard")
+                        .font(.system(size: 12, weight: .medium))
+                }
+                .foregroundStyle(isHard ? t.accent : t.muted)
+                .padding(.horizontal, 12)
+                .frame(height: 30)
+                .background(isHard ? t.accentSoft : t.surface)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(isHard ? t.accent.opacity(0.4) : t.hair, lineWidth: isHard ? 1 : 0.5))
+                .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .scaleOnPress()
+            .accessibilityLabel(isHard ? "Turn off hard day" : "Mark today as hard")
+
+            // Rest-day bank chip (only when there's a day available to spend today).
+            if RestBankService.canSpend(prefs) {
+                Button {
+                    spendRestDay(prefs)
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "moon.zzz")
+                            .font(.system(size: 12))
+                        Text(prefs.bankedRestDays == 1 ? "Use a rest day" : "Use a rest day · \(prefs.bankedRestDays)")
+                            .font(.system(size: 12, weight: .medium))
+                    }
+                    .foregroundStyle(t.deferred)
+                    .padding(.horizontal, 12)
+                    .frame(height: 30)
+                    .background(t.surface)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(t.hair, lineWidth: 0.5))
+                    .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .scaleOnPress()
+                .accessibilityLabel(RestBankService.chipLabel(prefs))
+            }
+            Spacer(minLength: 0)
+        }
+        .alert("Rest day, on the house.", isPresented: $restSpentConfirmation) {
+            Button("Thanks") { restSpentConfirmation = false }
+        } message: {
+            Text("Today's a rest day — you earned it. Your streaks are safe, and nothing carries any guilt. Be kind to yourself.")
+        }
+    }
+
+    /// Toggle the per-day hard flag and persist. The board re-derives `isHardDay` from
+    /// the freshly-saved prefs on the next render (DashboardView rebuilds BoardData).
+    private func toggleHardMode(_ prefs: UserPreferences) {
+        Haptics.selection()
+        withAnimation(MotionPreference.animation(.ambidashSpring)) {
+            HardModeService.toggle(prefs)
+        }
+        save()
+    }
+
+    /// Spend a banked rest day: decrement the bank, mark today hard (so the board goes
+    /// minimal), and show the kind confirmation. Idempotent per day via the service.
+    private func spendRestDay(_ prefs: UserPreferences) {
+        guard RestBankService.spend(prefs) else { return }
+        // Spending a rest day auto-enables the minimal/hard board for the day — the
+        // whole point is a guilt-free soft day.
+        HardModeService.markHard(prefs)
+        save()
+        Haptics.success()
+        withAnimation(MotionPreference.animation(.ambidashSpring)) {
+            restSpentConfirmation = true
         }
     }
 
@@ -306,9 +450,19 @@ struct BoardView: View {
     /// Visible components of the active board (hidden ones are filtered out of the
     /// render tree in both modes — edit mode toggles visibility, it doesn't show
     /// hidden rows inline).
+    ///
+    /// "TODAY IS HARD" — when today is marked hard AND we're not editing, the set is
+    /// TRANSIENTLY narrowed to `HardModeService.minimalAllowList`. This is a view-level
+    /// filter only: the persisted board (sortIndex/section/visibility) is untouched, so
+    /// the user's real layout returns intact the moment the flag clears or the day rolls
+    /// over. In edit mode the full board always shows so the user can still configure it.
     private var components: [BoardComponent] {
         guard let board = activeBoard else { return [] }
-        return allComponents.filter { $0.board?.id == board.id && $0.isVisible }
+        let visible = allComponents.filter { $0.board?.id == board.id && $0.isVisible }
+        if boardData.isHardDay && !editing {
+            return visible.filter { HardModeService.allowsOnHardDay($0.kind) }
+        }
+        return visible
     }
 
     /// Kinds present on the board (visible OR hidden) — drives singleton "Added"
