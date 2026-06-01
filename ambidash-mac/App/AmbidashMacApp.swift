@@ -36,6 +36,7 @@ struct AmbidashMacApp: App {
             DailyPlan.self,
             PlannedAction.self,
             Reflection.self,
+            ReflectionPhoto.self,
             MentorFeedback.self,
             ProgressLog.self,
             Milestone.self,

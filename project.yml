@@ -51,6 +51,18 @@ targets:
         INFOPLIST_KEY_NSHealthUpdateUsageDescription: "ambidash does not write health data."
         INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription: "ambidash reads your calendar to find free time for your daily action plan and understand how you spend your time."
         INFOPLIST_KEY_NSRemindersFullAccessUsageDescription: "ambidash reads your reminders to understand what tasks are on your mind."
+        # VOICE DICTATION (on-device only) — Speech + Microphone usage strings. Both
+        # keys are in Xcode's INFOPLIST_KEY_* auto-emit allowlist, so they belong here
+        # (not the explicit ambidash/Info.plist). Transcription runs entirely on-device;
+        # nothing is sent to a server.
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "ambidash transcribes your spoken reflections entirely on your device so you can dictate instead of type. Your voice never leaves your iPhone."
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "ambidash uses the microphone for on-device dictation when you tap the mic to speak a reflection. Audio is processed on-device and never uploaded."
+        # PHOTO-OF-NOTES + ON-DEVICE OCR — Camera + Photo Library usage strings. Both keys
+        # are in Xcode's INFOPLIST_KEY_* auto-emit allowlist, so they belong here (not the
+        # explicit ambidash/Info.plist). The photo is OCR'd on-device with Vision; the
+        # image and its contents never leave the device.
+        INFOPLIST_KEY_NSCameraUsageDescription: "ambidash uses the camera so you can snap a photo of your handwritten or printed notes and have the text read into your reflection. The photo is processed on-device and never uploaded."
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "ambidash reads a photo you pick so it can extract the text from your notes into your reflection. The photo is processed on-device and never uploaded."
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "10"
         INFOPLIST_KEY_CFBundleDisplayName: "AmbiDash"

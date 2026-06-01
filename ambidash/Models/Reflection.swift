@@ -24,6 +24,13 @@ final class Reflection {
     /// the CloudKit surface additive. nil when the one-thing is free text or unset.
     var tomorrowOneThingActionID: UUID?
 
+    /// PHOTO-OF-NOTES — photos the user attached to this reflection (each carrying its
+    /// own on-device-OCR'd text). Cascade-delete so removing a reflection clears its
+    /// photos; the inverse lives on the child (`ReflectionPhoto.reflection`). Optional +
+    /// defaulted per the CloudKit additive rule — no migration, no container change
+    /// beyond registering `ReflectionPhoto` in both ModelContainers.
+    @Relationship(deleteRule: .cascade) var photos: [ReflectionPhoto]? = nil
+
     init(date: Date = .now, type: String = "daily") {
         self.id = UUID()
         self.date = date

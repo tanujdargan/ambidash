@@ -112,17 +112,23 @@ struct ReflectView: View {
                                 ReflectionQuestion(number: 1,
                                     question: "What did you actually do today?",
                                     hint: "Not what was on the list. What you did.",
-                                    text: $q1Text)
+                                    text: $q1Text,
+                                    reflection: resolveReflection,
+                                    photoReflection: todayReflection)
                                     .fadeSlideIn(delay: 0.2)
                                 ReflectionQuestion(number: 2,
                                     question: "Where did the time you can't account for go?",
                                     hint: "Approximate is fine.",
-                                    text: $q2Text)
+                                    text: $q2Text,
+                                    reflection: resolveReflection,
+                                    photoReflection: todayReflection)
                                     .fadeSlideIn(delay: 0.3)
                                 ReflectionQuestion(number: 3,
                                     question: "What is one thing tomorrow's you will need from tonight's you?",
                                     hint: "",
-                                    text: $q3Text)
+                                    text: $q3Text,
+                                    reflection: resolveReflection,
+                                    photoReflection: todayReflection)
                                     .fadeSlideIn(delay: 0.4)
                             }
                             .padding(.horizontal, 22)
@@ -175,6 +181,17 @@ struct ReflectView: View {
         }
     }
 
+    /// Resolves today's reflection for photo attachment, creating + inserting it if it
+    /// doesn't exist yet (so a photo can be attached before "Save quietly" is tapped).
+    /// Idempotent: returns the same record on repeat calls within the day.
+    private func resolveReflection() -> Reflection {
+        if let existing = todayReflection { return existing }
+        let r = Reflection()
+        modelContext.insert(r)
+        try? modelContext.save()
+        return r
+    }
+
     private func saveReflection() {
         let combined = [q1Text, q2Text, q3Text]
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -200,6 +217,10 @@ private struct ReflectionQuestion: View {
     let question: String
     let hint: String
     @Binding var text: String
+    /// PHOTO-OF-NOTES — resolves the reflection an attached photo binds to (created lazily).
+    let reflection: () -> Reflection
+    /// The current reflection (if any) whose photo thumbnails to show under this field.
+    let photoReflection: Reflection?
 
     var body: some View {
         let t = tm.resolved
@@ -213,6 +234,15 @@ private struct ReflectionQuestion: View {
                 Text(question)
                     .font(.system(size: 17, weight: .regular, design: .serif))
                     .foregroundStyle(t.ink)
+
+                Spacer(minLength: 8)
+
+                // PHOTO-OF-NOTES — attach a photo of notes; on-device OCR offers its text.
+                ReflectionPhotoButton(text: $text, reflection: reflection)
+                    .alignmentGuide(.firstTextBaseline) { $0[.bottom] }
+                // VOICE DICTATION — on-device mic streams speech into this field.
+                DictationMicButton(text: $text)
+                    .alignmentGuide(.firstTextBaseline) { $0[.bottom] }
             }
 
             if !hint.isEmpty {
@@ -231,6 +261,11 @@ private struct ReflectionQuestion: View {
                 .padding(.leading, 28)
                 .padding(.top, 10)
                 .lineLimit(2...6)
+
+            // PHOTO-OF-NOTES — thumbnails of photos attached to this reflection.
+            ReflectionPhotoStrip(reflection: photoReflection)
+                .padding(.leading, 28)
+                .padding(.top, 8)
 
             t.hair.frame(height: 0.5)
                 .padding(.leading, 28)
