@@ -17,6 +17,11 @@ struct ReflectView: View {
     /// Tracks a "Send to Mentor" round-trip so the primary button can show progress
     /// and not double-fire.
     @State private var isSendingToMentor = false
+    /// Transient note: AI is unreachable (no key / not signed in), so M. can't reply.
+    /// The letter is still saved — mirrors MentorView so the send never appears silent.
+    @State private var noReplyNote = false
+    /// Transient note: an attempted reply failed (network/edge/decode/empty reply).
+    @State private var replyFailedNote = false
     /// CLOSING RITUAL — presents the gentle end-of-day flow (also reachable from the
     /// dashboard "Close the Day" component + the evening notification).
     @State private var showClosingRitual = false
@@ -161,6 +166,20 @@ struct ReflectView: View {
                             .padding(.horizontal, 22)
                             .padding(.top, 18)
                             .fadeSlideIn(delay: 0.5)
+
+                            if noReplyNote {
+                                mentorNoteRow(
+                                    "Your letter is saved, but M. can't reply until you add an Anthropic API key in Settings → AI Configuration.",
+                                    t: t
+                                )
+                            }
+
+                            if replyFailedNote {
+                                mentorNoteRow(
+                                    "Your letter is saved, but M. couldn't reply right now — try again in a moment.",
+                                    t: t
+                                )
+                            }
                         }
                         .padding(.bottom, 24)
                     }
@@ -251,12 +270,19 @@ struct ReflectView: View {
         let actions = (todayPlan?.actions ?? [])
 
         isSendingToMentor = true
+        // Clear any prior transient notes for this fresh attempt.
+        noReplyNote = false
+        replyFailedNote = false
         Haptics.light()
         Task {
             defer { isSendingToMentor = false }
             // Only attempt an AI reply when AI is reachable; the user's letter still
-            // stands on its own otherwise.
-            guard AIConfig.isConfigured || SupabaseService.shared.isAuthenticated else { return }
+            // stands on its own otherwise — surface a small note so the send doesn't
+            // appear to silently fail.
+            guard AIConfig.isConfigured || SupabaseService.shared.isAuthenticated else {
+                showNoReplyNote()
+                return
+            }
             do {
                 let replyContent = try await AIService.generateMentorReply(
                     userMessage: combined,
@@ -265,14 +291,54 @@ struct ReflectView: View {
                     todaysActions: actions
                 )
                 let cleaned = replyContent.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !cleaned.isEmpty else { return }
+                guard !cleaned.isEmpty else {
+                    showReplyFailedNote()
+                    return
+                }
                 let mentorLetter = MentorFeedback(role: "mentor", content: cleaned, trigger: "reflection")
                 modelContext.insert(mentorLetter)
                 try? modelContext.save()
                 Haptics.success()
             } catch {
                 ErrorLogger.log(error, context: "ReflectView.sendToMentor")
+                showReplyFailedNote()
             }
+        }
+    }
+
+    /// Small italic info row shown below the Save buttons when M. can't reply.
+    /// Mirrors MentorView's transient note styling (info.circle + muted serif).
+    @ViewBuilder
+    private func mentorNoteRow(_ text: String, t: ResolvedTheme) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "info.circle")
+                .foregroundStyle(t.muted)
+            Text(text)
+                .font(.system(size: 13, design: .serif))
+                .italic()
+                .foregroundStyle(t.muted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 22)
+        .padding(.top, 8)
+        .fadeSlideIn(delay: 0)
+    }
+
+    /// Surface the "AI unreachable" note (no key / not signed in), then auto-dismiss.
+    @MainActor private func showNoReplyNote() {
+        withAnimation { noReplyNote = true }
+        Task {
+            try? await Task.sleep(for: .seconds(6))
+            withAnimation { noReplyNote = false }
+        }
+    }
+
+    /// Surface the "reply failed" note (network/edge/decode/empty), then auto-dismiss.
+    @MainActor private func showReplyFailedNote() {
+        withAnimation { replyFailedNote = true }
+        Task {
+            try? await Task.sleep(for: .seconds(6))
+            withAnimation { replyFailedNote = false }
         }
     }
 }

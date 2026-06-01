@@ -9,76 +9,65 @@ struct HonestMirrorView: View {
     @Environment(ThemeManager.self) private var tm
     @State private var feedback: String?
     @State private var isLoading = false
+    /// Set when a fetch fails (network/edge/decode) so the resting prompt is
+    /// replaced by a calm, retryable one-liner instead of silently reappearing.
+    @State private var failed = false
 
     var body: some View {
         let t = tm.resolved
-        if PremiumGateService.canUseHonestMirror() {
-            if AIConfig.isConfigured {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("DAILY REFLECTION")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(t.accent)
-                            .tracking(1.2)
-                        Spacer()
-                        if isLoading {
-                            ProgressView()
-                                .controlSize(.small)
-                                .tint(t.muted)
-                        }
+        // Honest Mirror is always available now (everything is free with a
+        // bring-your-own Anthropic API key), so the only gate is whether AI is
+        // configured.
+        if AIConfig.isConfigured {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("DAILY REFLECTION")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(t.accent)
+                        .tracking(1.2)
+                    Spacer()
+                    if isLoading {
+                        ProgressView()
+                            .controlSize(.small)
+                            .tint(t.muted)
                     }
+                }
 
-                    if let feedback {
-                        Text(feedback)
-                            .font(.subheadline)
-                            .foregroundStyle(t.ink)
-                            .lineSpacing(2)
-                    } else if !isLoading {
-                        Text("Tap to get honest feedback on your day.")
-                            .font(.subheadline)
-                            .foregroundStyle(t.muted)
-                    }
+                if let feedback {
+                    Text(feedback)
+                        .font(.subheadline)
+                        .foregroundStyle(t.ink)
+                        .lineSpacing(2)
+                } else if !isLoading {
+                    Text(failed
+                         ? "Couldn't reach the mirror just now — tap to try again."
+                         : "Tap to get honest feedback on your day.")
+                        .font(.subheadline)
+                        .foregroundStyle(t.muted)
                 }
-                .padding()
-                .background(t.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(t.accent.opacity(0.4), lineWidth: 1)
-                )
-                .overlay(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(t.accent)
-                        .frame(width: 3)
-                        .padding(.vertical, 8)
-                }
-                .onTapGesture {
-                    if !isLoading { Task { await fetchFeedback() } }
-                }
-            }
-        } else {
-            let t2 = tm.resolved
-            VStack(alignment: .leading, spacing: 6) {
-                Text("DAILY REFLECTION")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(t2.accent)
-                    .tracking(1.2)
-                Text("Upgrade to Premium for AI-powered honest feedback on your day.")
-                    .font(.subheadline)
-                    .foregroundStyle(t2.muted)
             }
             .padding()
-            .background(t2.surface)
+            .background(t.surface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(t2.hair, lineWidth: 0.5)
+                    .stroke(t.accent.opacity(0.4), lineWidth: 1)
             )
+            .overlay(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(t.accent)
+                    .frame(width: 3)
+                    .padding(.vertical, 8)
+            }
+            .onTapGesture {
+                if !isLoading { Task { await fetchFeedback() } }
+            }
         }
     }
 
     private func fetchFeedback() async {
         isLoading = true
+        failed = false
         defer { isLoading = false }
 
         let doneCount = (plan?.actions ?? []).filter { $0.statusRaw == "done" }.count
@@ -102,6 +91,7 @@ struct HonestMirrorView: View {
             feedback = try await AIService.generateInsight(goals: [], snapshot: nil, streakSummary: prompt)
         } catch {
             feedback = nil
+            failed = true
         }
     }
 }
