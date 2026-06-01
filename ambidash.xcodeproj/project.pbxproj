@@ -16,14 +16,17 @@
 		0816E2C74C0BF35EA9A167D5 /* DataExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807163D3523A51DB7F3CAD31 /* DataExportService.swift */; };
 		081F1BCAA4B0318A5DBDCDA0 /* V3CaptureWinsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FD946E1A05C7E29D06CEDF /* V3CaptureWinsTests.swift */; };
 		086C9A549E30CE15A8D05B39 /* MacGoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC28EFE86848BE025DEC6036 /* MacGoalsView.swift */; };
+		0A79720BFD96FB42BE1749EF /* CameraCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F4C275B0FA5AA834346DAF /* CameraCaptureView.swift */; };
 		0C92C68ED7060020ACD5219D /* MilestoneGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C3A9D6728D4B87C4CC0AB8 /* MilestoneGenerator.swift */; };
 		0CAEAC7D48006FA09434FA12 /* Reflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A43853C2967CC34AAA86A7 /* Reflection.swift */; };
 		0E0FC6E961BF756A96E1629E /* WidgetSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CADF2AD6539649C7FF757AF /* WidgetSharedData.swift */; };
 		0E52B9416614A9425F2A8FBE /* SnapshotBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671B9B4705A3549951558745 /* SnapshotBuilder.swift */; };
 		10AD8F355FE2CCC0513D0EDF /* QuickCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0A6D257402FC4E1C367568 /* QuickCaptureSheet.swift */; };
+		1361E1C004DB519EBBF8C1C3 /* ReflectionPhotoButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674702D93B4F67BDEE04EA6F /* ReflectionPhotoButton.swift */; };
 		14F49C8BD75E857B542426DF /* CaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA769C3BB42686A987FE9BF /* CaptureService.swift */; };
 		1588B5063ABB996BB8017882 /* ScoreBreakdownCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA435598BE28E5D0A83152A /* ScoreBreakdownCard.swift */; };
 		15971BC033D1BC485E2C999C /* ActualEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52BC660CF7E679BE4155DD60 /* ActualEvent.swift */; };
+		16EF7E91D6ABB5ADFA3A5DA9 /* DictationMicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3336AA08A9393BD6943AB8E2 /* DictationMicButton.swift */; };
 		17E6E11A685678AE4A8BEFCC /* ScaffoldingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4004EE008BD6D70D44DF2FA /* ScaffoldingService.swift */; };
 		1880BD72388E65521276FB3A /* MentorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667F065818028B3C2D921079 /* MentorView.swift */; };
 		1942167DC682B46176408948 /* DailyTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73728F77ABFF165074EB01CD /* DailyTimeline.swift */; };
@@ -42,6 +45,7 @@
 		2146EDB97577C876C323D1E5 /* BoardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31BBFF23E2302CE4CF47C6DC /* BoardData.swift */; };
 		2200D05DA1B93A702178200C /* GoalProgressTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B73B908D3586F0C284753C /* GoalProgressTracker.swift */; };
 		23D30FEF3895CE79E050A119 /* IntegrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A33E9CED2D0772100C550 /* IntegrationManager.swift */; };
+		247F60C26A311B7EB35AB895 /* ReflectionPhotoStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05149A5C3B4408B8911385E6 /* ReflectionPhotoStrip.swift */; };
 		24FDA9B6ABFF5CB69741C235 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE9BC2C6D2DB031A788193C /* AIService.swift */; };
 		25974430D8705F48B6FE9E78 /* GoalType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B55BDB7BA2148D749F6E8C /* GoalType.swift */; };
 		25ABA2DC6E3D50EC7FC62DD1 /* ActualEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52BC660CF7E679BE4155DD60 /* ActualEvent.swift */; };
@@ -74,6 +78,7 @@
 		38E2886966B30A3D0877C6AF /* BoardTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DE822F12A7371D5F89D6D6 /* BoardTemplate.swift */; };
 		39AC819FC859C06C5CA1E367 /* EnergyCheckin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7C6678B6DC6E00D1D1100C /* EnergyCheckin.swift */; };
 		3AC8FF3BC3B5EA992533CBA8 /* IdentityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1011A65E55C44311E372F71C /* IdentityView.swift */; };
+		3B42ED34A54C27D0D8A4E170 /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A045BE47C090BF8FD0EE66 /* OCRService.swift */; };
 		3B5074956A8ADD7AED6A3153 /* MilestonePeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C81FA8E263B7788DE57DB6 /* MilestonePeriod.swift */; };
 		3BEB999A3CDD8C46637B5ACC /* LaunchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8AB6B613C1E35A8C681943 /* LaunchScreen.swift */; };
 		3CA841D872EA3923E5D783E3 /* GoalImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9F9FBB7C83D3507C745607 /* GoalImportService.swift */; };
@@ -90,6 +95,7 @@
 		45222946A481B15212F94DA1 /* MentorPromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88911E206DDFC07ECF427A18 /* MentorPromptBuilder.swift */; };
 		454505233B70E8234667734E /* OnboardingCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE95BEBDD012D7AFC4BFEE10 /* OnboardingCompleteView.swift */; };
 		45AB36FF749D3D7BBE534CBF /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3CDF2192AEB9764B867246 /* NetworkMonitor.swift */; };
+		4600F92FD020F93D80F43B0A /* DictationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A088EBE00A51577CCE5A0AB4 /* DictationService.swift */; };
 		4669AF4D42EFE3C7C2B722AD /* GoalDeclarationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83302B08A2C9BF4EA6CE66ED /* GoalDeclarationView.swift */; };
 		486BCE0D12B5DB253DFD1595 /* FocusGuardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDB2D5CC80B55EA184C74EC /* FocusGuardView.swift */; };
 		487BFA8F01B0508E77C123DC /* ClosingRitualSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC61B30F854A3E0EE1EDACC /* ClosingRitualSheet.swift */; };
@@ -149,6 +155,7 @@
 		7677238BFCD18FA986F6D7ED /* IntegrationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */; };
 		77F9530EAC1B7BB507A0A4CF /* MilestonePeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C81FA8E263B7788DE57DB6 /* MilestonePeriod.swift */; };
 		792B1DD08E6D4E62462CF4C9 /* PatternCheckInComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E79A880B760BC35A3F1457 /* PatternCheckInComponent.swift */; };
+		795966C02B0E4B6536FF7FA0 /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A045BE47C090BF8FD0EE66 /* OCRService.swift */; };
 		7B524D3727795C6DA9478A34 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 89FB14763BD36D1D0E2C76C1 /* SwiftUI.framework */; };
 		7D6678B3212A43F399C5C79B /* GoalRecurrence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7F8595B53C9A15E62DE1FE /* GoalRecurrence.swift */; };
 		7DA3FE8583609074600B6E28 /* MacTodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CFCE63EA5A4551049359FB /* MacTodayView.swift */; };
@@ -168,6 +175,7 @@
 		8D706478F0DD849D4FA50D0F /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB77796CED406ECEB71F9B1D /* UserProfile.swift */; };
 		8DDC59758806307690526307 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54C8F7D558E93707C5C545A /* DailyPlan.swift */; };
 		90331D5D5B12AB3244A23809 /* FirstLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F25BD1C79A41FD3D12A25FC /* FirstLetterView.swift */; };
+		9251D594277DAA1B97A28E8C /* ReflectionPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A70CD8711EDE905721F05A /* ReflectionPhoto.swift */; };
 		929FBA6FF352C56D34357C6E /* BoardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31BBFF23E2302CE4CF47C6DC /* BoardData.swift */; };
 		92D1B62C710731F9F391EF38 /* PatternCheckInPhrasing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AAFDE5871F4DD90DC7B49D /* PatternCheckInPhrasing.swift */; };
 		937F4A9FCC63B60DB6A52BA4 /* BoardComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2060D32B4E1AF25F7B2F87 /* BoardComponent.swift */; };
@@ -225,6 +233,7 @@
 		B64C0F93578241D6CE564A2A /* CoreAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A38222B4230E1501AA0726E /* CoreAssessment.swift */; };
 		B64C162C60CD1C2E3767BB14 /* AmbidashTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3DBC8F6AC246D974F0209D8 /* AmbidashTheme.swift */; };
 		B656409BAC69666EA0046B54 /* PremiumGateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F0BED7D21FE5BC72E347A5 /* PremiumGateService.swift */; };
+		B6AF7F07DFD98681D0F8BC86 /* DictationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A088EBE00A51577CCE5A0AB4 /* DictationService.swift */; };
 		B6E9C6D6FB4AA5469EF277BA /* SlotScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2FD2F186F292DAF3C25A54F /* SlotScheduler.swift */; };
 		B7CF693AF84AC25D8745E33D /* Reflection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A43853C2967CC34AAA86A7 /* Reflection.swift */; };
 		B89DFDDB97B0B9EDB55E6A05 /* CoreAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A38222B4230E1501AA0726E /* CoreAssessment.swift */; };
@@ -280,6 +289,7 @@
 		E29E0F9384FA608439D5A0C5 /* ScoreBreakdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2358097EB8560493301CD8BF /* ScoreBreakdown.swift */; };
 		E2F1B4C0EA305406F5BA09A5 /* LiveActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350A18824CEF28BC56CF2174 /* LiveActivityService.swift */; };
 		E3BEB3AB363D2DB45B9D1FC4 /* MetricDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBB260644DD3DA4C763D0BC /* MetricDirection.swift */; };
+		E500B4B76782AC89AB7E23A5 /* ReflectionPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A70CD8711EDE905721F05A /* ReflectionPhoto.swift */; };
 		E60C26D269DEF64410700B52 /* SpotlightService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */; };
 		E68DEF617D671FC1F3132BC6 /* MetricDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBB260644DD3DA4C763D0BC /* MetricDirection.swift */; };
 		E74D04063D5E1D100D7AA634 /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D85C97171671F9FEA4F482F /* StreakService.swift */; };
@@ -350,6 +360,7 @@
 /* Begin PBXFileReference section */
 		00A95F8F1E41B65F97863892 /* PlanBlockAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanBlockAttributes.swift; sourceTree = "<group>"; };
 		018C09A0E97620D8DCC1B80C /* HardModeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardModeService.swift; sourceTree = "<group>"; };
+		05149A5C3B4408B8911385E6 /* ReflectionPhotoStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionPhotoStrip.swift; sourceTree = "<group>"; };
 		064A0D38F26A67B4FD7F5D12 /* V3TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3TestSupport.swift; sourceTree = "<group>"; };
 		06A390E83D88E68BBBC75FEE /* WeeklyPlanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyPlanService.swift; sourceTree = "<group>"; };
 		06B28262EA68702E892BDD82 /* MorningBriefView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningBriefView.swift; sourceTree = "<group>"; };
@@ -392,6 +403,7 @@
 		30BD4D96F1AD5BC044A123D8 /* PlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanGeneratorTests.swift; sourceTree = "<group>"; };
 		31BBFF23E2302CE4CF47C6DC /* BoardData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardData.swift; sourceTree = "<group>"; };
 		32B969A7D316C8F46CCDA2EE /* MonthlyReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyReviewView.swift; sourceTree = "<group>"; };
+		3336AA08A9393BD6943AB8E2 /* DictationMicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationMicButton.swift; sourceTree = "<group>"; };
 		343F2BAD8B05D6F390651E44 /* AssessmentQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentQuestion.swift; sourceTree = "<group>"; };
 		350A18824CEF28BC56CF2174 /* LiveActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityService.swift; sourceTree = "<group>"; };
 		36CFCE63EA5A4551049359FB /* MacTodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacTodayView.swift; sourceTree = "<group>"; };
@@ -406,6 +418,7 @@
 		4CADF2AD6539649C7FF757AF /* WidgetSharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSharedData.swift; sourceTree = "<group>"; };
 		50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannedAction.swift; sourceTree = "<group>"; };
 		519313A26A851EA1B979BC07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		51A045BE47C090BF8FD0EE66 /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
 		52BC660CF7E679BE4155DD60 /* ActualEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActualEvent.swift; sourceTree = "<group>"; };
 		53C0FC0F75B58F7C4B19324E /* BoardSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSetupView.swift; sourceTree = "<group>"; };
 		550FF629879641F39F8E0B88 /* DeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLink.swift; sourceTree = "<group>"; };
@@ -422,6 +435,7 @@
 		644F202B9C638DCBD1709A4A /* GoalDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalDomainTests.swift; sourceTree = "<group>"; };
 		667F065818028B3C2D921079 /* MentorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentorView.swift; sourceTree = "<group>"; };
 		671B9B4705A3549951558745 /* SnapshotBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotBuilder.swift; sourceTree = "<group>"; };
+		674702D93B4F67BDEE04EA6F /* ReflectionPhotoButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionPhotoButton.swift; sourceTree = "<group>"; };
 		67CCA9EB090C0B07F883749A /* MotionPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionPreference.swift; sourceTree = "<group>"; };
 		67D43971DAD901C2756FFED5 /* ThemeSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSetupView.swift; sourceTree = "<group>"; };
 		68A116922E7C83F18C94B15C /* CaptureItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureItem.swift; sourceTree = "<group>"; };
@@ -477,6 +491,7 @@
 		9DD8C7505C64CA5B3A78CDEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9EE9BC2C6D2DB031A788193C /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIService.swift; sourceTree = "<group>"; };
 		9F25BD1C79A41FD3D12A25FC /* FirstLetterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstLetterView.swift; sourceTree = "<group>"; };
+		A088EBE00A51577CCE5A0AB4 /* DictationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationService.swift; sourceTree = "<group>"; };
 		A144C194003E0432B867973D /* LogProgressSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogProgressSheet.swift; sourceTree = "<group>"; };
 		A28E88B33A2DF877FBC2E57E /* Streak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Streak.swift; sourceTree = "<group>"; };
 		A3AFDDC2F74A33BC395F2031 /* AmbidashWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashWidget.swift; sourceTree = "<group>"; };
@@ -485,6 +500,7 @@
 		A54EC269745FD894B292207A /* EnergyCheckinComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyCheckinComponent.swift; sourceTree = "<group>"; };
 		A7C3A9D6728D4B87C4CC0AB8 /* MilestoneGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneGenerator.swift; sourceTree = "<group>"; };
 		A80277931E967A1E0EB5D661 /* LogProgressIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogProgressIntent.swift; sourceTree = "<group>"; };
+		A8F4C275B0FA5AA834346DAF /* CameraCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureView.swift; sourceTree = "<group>"; };
 		A91F697489DC7FDEFF473D8C /* WinsWeekSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinsWeekSheet.swift; sourceTree = "<group>"; };
 		A920E50AB2E6C82B236A3787 /* MacSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacSettingsView.swift; sourceTree = "<group>"; };
 		AA3CDF2192AEB9764B867246 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
@@ -533,6 +549,7 @@
 		D65BD7D413FE358539710506 /* DisruptionDiffSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisruptionDiffSheet.swift; sourceTree = "<group>"; };
 		D75F4CEBFD96B0E1ADBDD364 /* MacDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacDashboardView.swift; sourceTree = "<group>"; };
 		D78FF5763EBED7079842E6CE /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
+		D7A70CD8711EDE905721F05A /* ReflectionPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionPhoto.swift; sourceTree = "<group>"; };
 		D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseScoreCalculator.swift; sourceTree = "<group>"; };
 		D9170D019CD2C5BDB5180723 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		DCDB2D5CC80B55EA184C74EC /* FocusGuardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusGuardView.swift; sourceTree = "<group>"; };
@@ -784,6 +801,7 @@
 				6CAE97FA153D60855682189A /* CompositeHistoryCalculator.swift */,
 				73728F77ABFF165074EB01CD /* DailyTimeline.swift */,
 				807163D3523A51DB7F3CAD31 /* DataExportService.swift */,
+				A088EBE00A51577CCE5A0AB4 /* DictationService.swift */,
 				3099F0CBCE4380F52D4ADBB6 /* DimensionScoreCalculator.swift */,
 				F30F0FF8D6314B45E775B260 /* DisruptionPhrasing.swift */,
 				6CA6F98CB1EB7273C9F13408 /* DisruptionService.swift */,
@@ -805,6 +823,7 @@
 				B607B9E2BC8919E3F0D2E809 /* NotificationService.swift */,
 				3FC183A57A063887061AA22C /* NotionService.swift */,
 				74BCAD31DCCCEDFFDF02F0C2 /* ObsidianService.swift */,
+				51A045BE47C090BF8FD0EE66 /* OCRService.swift */,
 				F3AAFDE5871F4DD90DC7B49D /* PatternCheckInPhrasing.swift */,
 				6F890667176321970EE56898 /* PatternCheckInService.swift */,
 				EF13B66F23BBABD3F2AD0064 /* PlanGenerator.swift */,
@@ -907,9 +926,13 @@
 		A3DF7DB27BADD0238A3A3808 /* Reflect */ = {
 			isa = PBXGroup;
 			children = (
+				A8F4C275B0FA5AA834346DAF /* CameraCaptureView.swift */,
+				3336AA08A9393BD6943AB8E2 /* DictationMicButton.swift */,
 				5AAB2BDBA51600EC90D23C79 /* HonestMirrorView.swift */,
 				32B969A7D316C8F46CCDA2EE /* MonthlyReviewView.swift */,
 				B0554D30ABA238056EEA5767 /* QuarterlyReviewView.swift */,
+				674702D93B4F67BDEE04EA6F /* ReflectionPhotoButton.swift */,
+				05149A5C3B4408B8911385E6 /* ReflectionPhotoStrip.swift */,
 				73107790D53825C77448FC4E /* ReflectView.swift */,
 				8A8718928D7E27FCE4BC3824 /* WeeklyReviewView.swift */,
 			);
@@ -1012,6 +1035,7 @@
 				50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */,
 				ACFC2D910FD8BA86CC2428E5 /* ProgressLog.swift */,
 				98A43853C2967CC34AAA86A7 /* Reflection.swift */,
+				D7A70CD8711EDE905721F05A /* ReflectionPhoto.swift */,
 				A28E88B33A2DF877FBC2E57E /* Streak.swift */,
 				20EC0EF99B1AC4E53E2D36D4 /* UserPreferences.swift */,
 				CB77796CED406ECEB71F9B1D /* UserProfile.swift */,
@@ -1216,6 +1240,7 @@
 				4C8F1D5CB431EE8D14502357 /* DailyTimeline.swift in Sources */,
 				E94D668BF989DB62E1927541 /* DataExportService.swift in Sources */,
 				8C3D770ACB5C7B6CEB33465F /* DeepLink.swift in Sources */,
+				4600F92FD020F93D80F43B0A /* DictationService.swift in Sources */,
 				F157CDC8E7F312A637108C16 /* DimensionScoreCalculator.swift in Sources */,
 				E789BA48813E30592AF8C0EF /* DisruptionPhrasing.swift in Sources */,
 				F301604950EA01CD399CDED0 /* DisruptionService.swift in Sources */,
@@ -1259,6 +1284,7 @@
 				B1F54A1AB0D75E32C18911E8 /* MotionPreference.swift in Sources */,
 				45AB36FF749D3D7BBE534CBF /* NetworkMonitor.swift in Sources */,
 				2684893969864CE3F31D9723 /* NotionService.swift in Sources */,
+				3B42ED34A54C27D0D8A4E170 /* OCRService.swift in Sources */,
 				44C0BD4475B6828AD2BAA4B4 /* ObsidianService.swift in Sources */,
 				3DA6967BBDB6F582DA4CD481 /* PatternCheckInPhrasing.swift in Sources */,
 				CC7C5027050D417744489513 /* PatternCheckInService.swift in Sources */,
@@ -1271,6 +1297,7 @@
 				AD26124935C3EFDE2D449EC7 /* ProgressLogSource.swift in Sources */,
 				4C60A1DF87A602EA80F0E6BB /* PulseScoreCalculator.swift in Sources */,
 				0CAEAC7D48006FA09434FA12 /* Reflection.swift in Sources */,
+				E500B4B76782AC89AB7E23A5 /* ReflectionPhoto.swift in Sources */,
 				2E25DB297C023372004116A6 /* RestBankService.swift in Sources */,
 				626ADE2400C82D68F9885F2A /* ScaffoldingService.swift in Sources */,
 				E29E0F9384FA608439D5A0C5 /* ScoreBreakdown.swift in Sources */,
@@ -1324,6 +1351,7 @@
 				B5247FC3DCA690FDACA5FCFA /* BoardTaxonomy.swift in Sources */,
 				38E2886966B30A3D0877C6AF /* BoardTemplate.swift in Sources */,
 				6D71C04F1A1FC750ED0F4173 /* BoardView.swift in Sources */,
+				0A79720BFD96FB42BE1749EF /* CameraCaptureView.swift in Sources */,
 				A9B02BD693323253BB211A71 /* CaptureDecomposeService.swift in Sources */,
 				A071F8704BB00C9457005C8B /* CaptureInboxComponent.swift in Sources */,
 				F31564BAC5DBE4D894A1A59A /* CaptureItem.swift in Sources */,
@@ -1345,6 +1373,8 @@
 				7EC47396C51CCE81CED961CA /* DashboardView.swift in Sources */,
 				0816E2C74C0BF35EA9A167D5 /* DataExportService.swift in Sources */,
 				5712490E8FF65F298CACDDF0 /* DeepLink.swift in Sources */,
+				16EF7E91D6ABB5ADFA3A5DA9 /* DictationMicButton.swift in Sources */,
+				B6AF7F07DFD98681D0F8BC86 /* DictationService.swift in Sources */,
 				C84508AC103EFF75F541B68A /* DimensionScoreCalculator.swift in Sources */,
 				F6AAC9D66E41ECFB718042A6 /* DisruptionDiffSheet.swift in Sources */,
 				32060571563B7F992E51874B /* DisruptionPhrasing.swift in Sources */,
@@ -1411,6 +1441,7 @@
 				8946EBF76629A49997E1B9D0 /* NotificationDelegate.swift in Sources */,
 				BB0F6E8E8F8ADA5968DB21C2 /* NotificationService.swift in Sources */,
 				60C2E35CE35FEA13BBECB005 /* NotionService.swift in Sources */,
+				795966C02B0E4B6536FF7FA0 /* OCRService.swift in Sources */,
 				CE67117CAFC02BE675D37B67 /* ObsidianService.swift in Sources */,
 				454505233B70E8234667734E /* OnboardingCompleteView.swift in Sources */,
 				792B1DD08E6D4E62462CF4C9 /* PatternCheckInComponent.swift in Sources */,
@@ -1431,6 +1462,9 @@
 				10AD8F355FE2CCC0513D0EDF /* QuickCaptureSheet.swift in Sources */,
 				25BCD30136EDBDDADB9F9EBA /* ReflectView.swift in Sources */,
 				B7CF693AF84AC25D8745E33D /* Reflection.swift in Sources */,
+				9251D594277DAA1B97A28E8C /* ReflectionPhoto.swift in Sources */,
+				1361E1C004DB519EBBF8C1C3 /* ReflectionPhotoButton.swift in Sources */,
+				247F60C26A311B7EB35AB895 /* ReflectionPhotoStrip.swift in Sources */,
 				7E407FC36982969F7C6F5ECC /* RestBankService.swift in Sources */,
 				F672462D0640E3EB97773133 /* RootView.swift in Sources */,
 				17E6E11A685678AE4A8BEFCC /* ScaffoldingService.swift in Sources */,
@@ -1536,7 +1570,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ambidash-widget/ambidash-widget.entitlements";
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				INFOPLIST_FILE = "ambidash-widget/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1573,15 +1607,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ambidash/ambidash.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ambidash/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AmbiDash;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "ambidash reads your calendar to find free time for your daily action plan and understand how you spend your time.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "ambidash uses the camera so you can snap a photo of your handwritten or printed notes and have the text read into your reflection. The photo is processed on-device and never uploaded.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "ambidash reads your health data (sleep, steps, workouts, heart rate) to power your self-awareness dashboard and personalize your daily plan.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "ambidash does not write health data.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "ambidash uses the microphone for on-device dictation when you tap the mic to speak a reflection. Audio is processed on-device and never uploaded.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "ambidash reads a photo you pick so it can extract the text from your notes into your reflection. The photo is processed on-device and never uploaded.";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "ambidash reads your reminders to understand what tasks are on your mind.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "ambidash transcribes your spoken reflections entirely on your device so you can dictate instead of type. Your voice never leaves your iPhone.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1623,15 +1661,19 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ambidash/ambidash.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ambidash/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AmbiDash;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "ambidash reads your calendar to find free time for your daily action plan and understand how you spend your time.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "ambidash uses the camera so you can snap a photo of your handwritten or printed notes and have the text read into your reflection. The photo is processed on-device and never uploaded.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "ambidash reads your health data (sleep, steps, workouts, heart rate) to power your self-awareness dashboard and personalize your daily plan.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "ambidash does not write health data.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "ambidash uses the microphone for on-device dictation when you tap the mic to speak a reflection. Audio is processed on-device and never uploaded.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "ambidash reads a photo you pick so it can extract the text from your notes into your reflection. The photo is processed on-device and never uploaded.";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "ambidash reads your reminders to understand what tasks are on your mind.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "ambidash transcribes your spoken reflections entirely on your device so you can dictate instead of type. Your voice never leaves your iPhone.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -1679,7 +1721,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ambidash-widget/ambidash-widget.entitlements";
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				INFOPLIST_FILE = "ambidash-widget/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
