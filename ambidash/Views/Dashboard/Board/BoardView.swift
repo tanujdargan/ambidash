@@ -283,7 +283,7 @@ struct BoardView: View {
     /// the freshly-saved prefs on the next render (DashboardView rebuilds BoardData).
     private func toggleHardMode(_ prefs: UserPreferences) {
         Haptics.selection()
-        withAnimation(MotionPreference.animation(.ambidashSpring)) {
+        _ = withAnimation(MotionPreference.animation(.ambidashSpring)) {
             HardModeService.toggle(prefs)
         }
         save()
