@@ -35,13 +35,13 @@ struct InsightCardView: View {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small).tint(t.accent)
                     Text("Thinking...")
-                        .font(.system(size: 14, design: .serif))
+                        .font(t.heading(14))
                         .italic()
                         .foregroundStyle(t.muted)
                 }
             } else {
                 Text(insight ?? localInsight)
-                    .font(.system(size: 18, weight: .regular, design: .serif))
+                    .font(t.heading(18))
                     .italic()
                     .lineSpacing(3)
                     .foregroundStyle(t.ink)

@@ -35,11 +35,11 @@ struct EnergyCheckinComponent: View {
             picker(t)
             if let latest {
                 Text(footnote(for: latest))
-                    .font(.system(size: 11))
+                    .font(t.body(11))
                     .foregroundStyle(t.muted)
             } else {
                 Text("Tap how much you've got — takes a second, never a judgment.")
-                    .font(.system(size: 11))
+                    .font(t.body(11))
                     .foregroundStyle(t.muted)
             }
         }

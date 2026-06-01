@@ -95,7 +95,7 @@ struct SparklineHistoryComponent: View {
 
     var body: some View {
         let t = tm.resolved
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: t.space.tight) {
             SectionLabel(title: "History · 14d")
             GeometryReader { geo in
                 SparklineView(values: boardData.compositeHistory, width: geo.size.width, height: 56)
@@ -133,7 +133,7 @@ struct LatestGoalsComponent: View {
                         .foregroundStyle(t.faint)
                 }
 
-                VStack(spacing: 8) {
+                VStack(spacing: t.space.tight) {
                     ForEach(Array(boardData.latestGoals.enumerated()), id: \.element.id) { index, goal in
                         NavigationLink {
                             GoalDetailView(goal: goal)
@@ -162,7 +162,8 @@ struct TodayNarrowComponent: View {
     var config: ComponentConfig.Today = .default
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        let t = tm.resolved
+        VStack(alignment: .leading, spacing: t.space.tight) {
             SectionLabel(title: "Today, narrow")
             if let plan = boardData.todayPlan, !(plan.actions ?? []).isEmpty {
                 let topActions = (plan.actions ?? []).sorted { $0.timeSlot < $1.timeSlot }.prefix(config.resolvedRowCount)
@@ -214,10 +215,10 @@ struct ReflectionPromptComponent: View {
 
     var body: some View {
         let t = tm.resolved
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: t.space.tight) {
             SectionLabel(title: "Reflection")
             Text(prompt)
-                .font(.system(size: 18, weight: tm.typography.serifWeight, design: .serif))
+                .font(t.heading(18))
                 .italic()
                 .lineSpacing(3)
                 .foregroundStyle(t.ink)
@@ -260,7 +261,7 @@ struct StreaksComponent: View {
 
     var body: some View {
         let t = tm.resolved
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: t.space.component) {
             SectionLabel(title: "Streaks")
 
             HStack(spacing: 20) {
@@ -269,7 +270,7 @@ struct StreaksComponent: View {
             }
 
             if !summary.atRiskStreaks.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: t.space.tight) {
                     ForEach(Array(summary.atRiskStreaks.prefix(3).enumerated()), id: \.offset) { _, risk in
                         HStack(spacing: 6) {
                             // Non-punitive: a streak "at risk" is a gentle time cue,
@@ -278,7 +279,7 @@ struct StreaksComponent: View {
                                 .font(.system(size: 10))
                                 .foregroundStyle(t.accent)
                             Text(risk.goalTitle)
-                                .font(.system(size: 12))
+                                .font(t.body(12))
                                 .foregroundStyle(t.muted)
                                 .lineLimit(1)
                             Spacer(minLength: 4)
@@ -290,7 +291,7 @@ struct StreaksComponent: View {
                 }
             } else if summary.totalActiveStreaks == 0 {
                 Text("No streaks going yet — log progress to start one.")
-                    .font(.system(size: 12))
+                    .font(t.body(12))
                     .foregroundStyle(t.faint)
             }
         }

@@ -56,12 +56,13 @@ struct EditableComponentRow: View {
 
             Spacer(minLength: 8)
 
-            // Resize control intentionally NOT surfaced: no renderer or section-band
-            // layout currently reads `component.size`, so a visible S/M/L/XL control
-            // would persist `sizeRaw` with zero visual effect — an inert affordance
-            // that reads as a bug. Size-driven layout is deferred to a later build
-            // (per the design brief); the `onResize` plumbing + persisted size are
-            // kept intact so re-enabling this is a one-line change once layout lands.
+            // Resize control — now LIVE: `componentSlot` applies `component.size`'s
+            // width fraction in browse mode (via SizeFractionWidth), so picking S/M/L/XL
+            // visibly narrows/widens the card on the board. Only shown for kinds that
+            // declare more than one supported size.
+            if let sizes = descriptor?.supportedSizes, sizes.count > 1 {
+                resizeControl(sizes, t)
+            }
 
             if descriptor?.isConfigurable == true {
                 Button {

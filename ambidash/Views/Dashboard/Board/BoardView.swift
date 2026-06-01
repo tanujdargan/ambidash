@@ -198,12 +198,12 @@ struct BoardView: View {
                     .font(.system(size: 15))
                     .foregroundStyle(t.deferred)
                 Text(HardModeService.headline)
-                    .font(.system(size: 16, weight: tm.typography.serifWeight, design: .serif))
+                    .font(t.heading(16))
                     .foregroundStyle(t.ink)
                 Spacer(minLength: 0)
             }
             Text(HardModeService.subhead)
-                .font(.system(size: 12))
+                .font(t.body(12))
                 .foregroundStyle(t.muted)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -368,11 +368,17 @@ struct BoardView: View {
                 )
             )
         } else {
+            // Size-aware layout: a component renders at its `size`'s width fraction of
+            // the band, leading-aligned, so resizing in edit mode produces a VISIBLE
+            // change. `full` spans the whole band (the common default). Using
+            // `containerRelativeFrame` keeps the row's natural HEIGHT (unlike a
+            // GeometryReader, which wouldn't size to content) while constraining width.
             ComponentRegistry.render(
                 component,
                 boardData: boardData,
                 onTapScore: onTapScore
             )
+            .modifier(SizeFractionWidth(fraction: component.size.widthFraction))
         }
     }
 
@@ -617,6 +623,28 @@ struct BoardView: View {
 
     private func save() {
         try? modelContext.save()
+    }
+}
+
+// MARK: - Size-aware width
+
+/// Constrains a component to a fraction of the band's width, leading-aligned, so a
+/// non-`full` `CardSize` renders visibly narrower. `containerRelativeFrame` measures
+/// the enclosing band width and keeps the component's NATURAL height (a GeometryReader
+/// would collapse height), so the LazyVStack still lays rows out correctly. A `full`
+/// (1.0) component is left untouched so the common path stays a plain full-width card.
+private struct SizeFractionWidth: ViewModifier {
+    let fraction: CGFloat
+
+    func body(content: Content) -> some View {
+        if fraction >= 1.0 {
+            content
+        } else {
+            content
+                .containerRelativeFrame(.horizontal, alignment: .leading) { width, _ in
+                    width * fraction
+                }
+        }
     }
 }
 

@@ -53,7 +53,7 @@ struct ClosingRitualComponent: View {
             showRitual = true
             Haptics.light()
         } label: {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: t.space.component) {
                 HStack(alignment: .firstTextBaseline) {
                     SectionLabel(title: "Close the day")
                     Spacer()
@@ -63,7 +63,7 @@ struct ClosingRitualComponent: View {
                 }
 
                 Text(headline(r))
-                    .font(.system(size: 16, weight: tm.typography.serifWeight, design: .serif))
+                    .font(t.heading(16))
                     .foregroundStyle(t.ink)
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -72,7 +72,7 @@ struct ClosingRitualComponent: View {
                 HStack(spacing: 6) {
                     Text(ritualDone ? "Tomorrow's one thing is set — tap to review."
                                     : "Celebrate today and pick tomorrow's one thing.")
-                        .font(.system(size: 11))
+                        .font(t.body(11))
                         .foregroundStyle(t.muted)
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.right")

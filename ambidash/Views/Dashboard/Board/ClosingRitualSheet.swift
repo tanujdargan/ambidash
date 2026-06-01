@@ -99,7 +99,7 @@ struct ClosingRitualSheet: View {
                 .tracking(2)
                 .foregroundStyle(t.muted)
             Text(recap.celebration)
-                .font(.system(size: 24, weight: tm.typography.serifWeight, design: .serif))
+                .font(t.heading(24))
                 .tracking(-0.3)
                 .lineSpacing(2)
                 .foregroundStyle(t.ink)
@@ -212,7 +212,7 @@ struct ClosingRitualSheet: View {
                 .font(.system(size: 11))
                 .foregroundStyle(t.faint)
             TextField("tap to write…", text: $feltNote, axis: .vertical)
-                .font(.system(size: 14, design: .serif))
+                .font(t.heading(14))
                 .italic()
                 .lineSpacing(3)
                 .foregroundStyle(feltNote.isEmpty ? t.faint : t.ink2)
@@ -242,7 +242,7 @@ struct ClosingRitualSheet: View {
                 DictationMicButton(text: $oneThingText)
             }
             Text("If only one thing happens tomorrow, what should it be?")
-                .font(.system(size: 13, design: .serif))
+                .font(t.heading(13))
                 .foregroundStyle(t.ink)
 
             // Quick-pick from work that rolls forward (one tap).

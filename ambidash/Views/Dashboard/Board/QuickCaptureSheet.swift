@@ -27,7 +27,7 @@ struct QuickCaptureSheet: View {
                 t.bg.ignoresSafeArea()
                 VStack(alignment: .leading, spacing: 18) {
                     Text("What's on your mind?")
-                        .font(.system(size: 22, weight: .regular, design: .serif))
+                        .font(t.heading(22))
                         .foregroundStyle(t.ink)
                         .padding(.top, 8)
 

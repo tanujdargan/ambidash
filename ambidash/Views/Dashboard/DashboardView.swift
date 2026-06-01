@@ -247,7 +247,7 @@ struct LatestGoalCard: View {
                     .foregroundStyle(t.muted)
                     .frame(width: 16)
                 Text(goal.title)
-                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    .font(t.heading(15))
                     .foregroundStyle(t.ink)
                     .lineLimit(1)
                 Spacer(minLength: 8)

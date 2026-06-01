@@ -50,7 +50,7 @@ struct SerifText: View {
     var body: some View {
         let t = tm.resolved
         Text(text)
-            .font(.system(size: size, weight: tm.typography.serifWeight, design: .serif))
+            .font(t.heading(size))
             .italic(italic)
             .tracking(-0.2)
             .foregroundStyle(t.ink)
@@ -297,13 +297,13 @@ struct IdentityStatement: View {
             SectionLabel(title: "You are becoming")
 
             Text(text)
-                .font(.system(size: 24, weight: tm.typography.serifWeight, design: .serif))
+                .font(t.heading(24))
                 .italic()
                 .tracking(-0.3)
                 .lineSpacing(2)
                 .foregroundStyle(t.ink)
         }
-        .padding(.vertical, 20)
+        .padding(.vertical, t.space.section)
         .overlay(alignment: .top) { HairlineRule() }
         .overlay(alignment: .bottom) { HairlineRule() }
     }
