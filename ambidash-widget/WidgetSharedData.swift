@@ -122,11 +122,40 @@ struct WidgetVitalsSnapshot: Codable, Hashable {
         nowTask = try c.decodeIfPresent(WidgetTask.self, forKey: .nowTask)
     }
 
-    /// The single most relevant "next" task — first pending task NOT currently
-    /// running, used by the Lock Screen accessory families. When a block is
-    /// running now, "next" skips past it to the following one.
+    /// Parses an "HH:mm" (or "H:mm") clock string into minutes-from-midnight.
+    /// Self-contained copy of `DailyTimeline.minutes(from:)` — that type lives in
+    /// the app target and isn't shared with the widget extension. Tolerates
+    /// en-dash ranges by taking the first time. Returns nil when unparseable.
+    private static func minutes(from clock: String) -> Int? {
+        let trimmed = clock.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil }
+        let firstToken = trimmed.split(whereSeparator: { "–—-".contains($0) }).first.map(String.init) ?? trimmed
+        let parts = firstToken.split(separator: ":")
+        guard let h = Int(parts.first ?? "") else { return nil }
+        let m = parts.count > 1 ? (Int(parts[1].prefix(2)) ?? 0) : 0
+        guard (0...23).contains(h), (0...59).contains(m) else { return nil }
+        return h * 60 + m
+    }
+
+    /// The single most relevant "next" task — the first pending task whose start
+    /// is strictly AFTER now (and not the block running now), so an earlier
+    /// missed/un-started block can never masquerade as "Next". `tasks` is sorted
+    /// ascending by `timeSlot` on the app side. A task with an unparseable
+    /// timeSlot is treated as undated and only used as a last resort.
     var nextTask: WidgetTask? {
-        tasks.first { !$0.isDone && $0.id != nowTask?.id }
+        let nowMinutes = Calendar.current.component(.hour, from: .now) * 60
+            + Calendar.current.component(.minute, from: .now)
+        let open = tasks.filter { !$0.isDone && $0.id != nowTask?.id }
+        // Prefer a genuinely-upcoming block (start strictly after now).
+        if let upcoming = open.first(where: { task in
+            guard let start = Self.minutes(from: task.timeSlot) else { return false }
+            return start > nowMinutes
+        }) {
+            return upcoming
+        }
+        // Fall back to any open block with no readable time (undated), so a
+        // timeless task still surfaces rather than showing nothing.
+        return open.first { Self.minutes(from: $0.timeSlot) == nil }
     }
 
     /// Count of tasks still open today.

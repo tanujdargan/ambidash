@@ -160,13 +160,31 @@ enum PlanGenerator {
         return domain
     }
 
-    static func generateActions(for goals: [Goal], freeMinutes: Int, maxActions: Int) -> [ActionTemplate] {
+    static func generateActions(
+        for goals: [Goal],
+        freeMinutes: Int,
+        maxActions: Int,
+        learned: LearnedProfile? = nil
+    ) -> [ActionTemplate] {
         let active = goals.filter(\.isActive)
         guard !active.isEmpty else { return [] }
 
         let sorted = active.sorted { a, b in
             if a.neglectDays != b.neglectDays { return a.neglectDays > b.neglectDays }
             return a.priority < b.priority
+        }
+
+        // LEARNING — re-size a candidate template to the user's logged median for that
+        // goal BEFORE it's selected/budgeted, so selection, the `<= remainingMinutes`
+        // budget check, AND downstream slotting all see the SAME (learned) duration.
+        // (Previously the learned size was applied only AFTER selection, so a goal
+        // admitted on its 20m template but re-sized to 90m would routinely fail the
+        // gap-fit and be silently dropped — the most-learned-about goals most often.)
+        // Identity no-op without a usable profile.
+        let hasLearning = (learned?.isEmpty == false)
+        func adjusted(_ base: (String, Int, String), for goal: Goal) -> (String, Int, String) {
+            guard hasLearning, let learned else { return base }
+            return (base.0, learned.adjustedDuration(forGoal: goal.id, default: base.1), base.2)
         }
 
         var result: [ActionTemplate] = []
@@ -177,7 +195,7 @@ enum PlanGenerator {
             if result.count >= maxActions || remainingMinutes <= 0 { break }
 
             // F3 — prefer a goalType-aware action, then fall back to per-domain templates.
-            let temps = candidateTemplates(for: goal)
+            let temps = candidateTemplates(for: goal).map { adjusted($0, for: goal) }
             guard let t = temps.first(where: { $0.1 <= remainingMinutes && !usedKeys.contains("\(goal.title)-\($0.0)") }) else { continue }
 
             result.append(buildTemplate(for: goal, base: t, slotIndex: result.count))
@@ -187,7 +205,7 @@ enum PlanGenerator {
 
         if result.count < maxActions {
             for goal in sorted where result.count < maxActions && remainingMinutes > 0 {
-                let temps = candidateTemplates(for: goal)
+                let temps = candidateTemplates(for: goal).map { adjusted($0, for: goal) }
                 for t in temps {
                     let key = "\(goal.title)-\(t.0)"
                     if !usedKeys.contains(key) && t.1 <= remainingMinutes && result.count < maxActions {
@@ -245,21 +263,18 @@ enum PlanGenerator {
         }
 
         // 2) Goal-work slotted into the free gaps between anchors.
+        // LEARNING — the learned per-goal median duration is applied INSIDE
+        // generateActions, BEFORE selection/budgeting, so the same (learned) size
+        // drives selection, the free-minutes budget, AND the slotting below. This
+        // means a goal whose learned typical far exceeds its template is budgeted at
+        // its real cost rather than admitted cheap and then dropped at slot time.
         let budget = freeMinutes ?? DailyTimeline.freeGaps(in: skeleton).reduce(0) { $0 + $1.minutes }
-        var goalActions = generateActions(for: goals, freeMinutes: max(budget, 30), maxActions: maxGoalActions)
-
-        // LEARNING — re-estimate each goal-work duration from the user's logged
-        // median for that goal, when we have enough signal. Identity no-op without a
-        // profile. Done BEFORE slotting so the new size drives placement.
-        if let learned, !learned.isEmpty {
-            goalActions = goalActions.map { tmpl in
-                let adjusted = learned.adjustedDuration(forGoal: tmpl.goalID, default: tmpl.durationMinutes)
-                guard adjusted != tmpl.durationMinutes else { return tmpl }
-                var t = tmpl
-                t.durationMinutes = adjusted
-                return t
-            }
-        }
+        let goalActions = generateActions(
+            for: goals,
+            freeMinutes: max(budget, 30),
+            maxActions: maxGoalActions,
+            learned: learned
+        )
 
         // Gaps stay in chronological order so the bedtime guard (which relies on the
         // last gap being the latest in the day) holds. Adherence is applied as a

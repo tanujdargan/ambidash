@@ -209,7 +209,17 @@ enum WidgetSnapshotWriter {
 
         // Today's pending, goal-linked tasks (sorted by time slot, capped).
         let tasks: [WidgetTaskDTO] = (todayPlan?.actions ?? [])
-            .filter { $0.statusRaw == "pending" }
+            // Mirror the lifecycle gating every other ambient surface applies
+            // (LiveActivityService.resolveBlocks, NotificationService.scheduleChains,
+            // AlarmService.reconcilePlan): a rested/deferred/abandoned block keeps
+            // statusRaw == "pending" but must NOT leak onto the widget or feed
+            // now/next. Only genuinely-open work surfaces.
+            .filter { action in
+                switch action.lifecycle {
+                case .pending, .partial: return action.statusRaw == "pending"
+                default: return false
+                }
+            }
             .sorted { $0.timeSlot < $1.timeSlot }
             .prefix(6)
             .map { action in

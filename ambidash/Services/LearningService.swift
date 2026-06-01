@@ -109,10 +109,28 @@ enum LearningService {
             let sameDay = health.filter { $0.endMinutes >= $0.startMinutes }
             let wake = (overnight.map(\.endMinutes) + sameDay.map(\.startMinutes)).max()
             let sleep = (overnight.map(\.startMinutes) + sameDay.map(\.endMinutes)).min()
-            return (wake, sleep)
+            return sanitized(wake: wake, sleep: sleep)
         }
         let wake = health.map(\.startMinutes).min()
         let sleep = health.map(\.endMinutes).max()
+        return sanitized(wake: wake, sleep: sleep)
+    }
+
+    /// The shortest plausible waking day, in minutes. An inferred wake/sleep pair that
+    /// leaves LESS waking time than this is treated as a misread (most often an
+    /// after-midnight bedtime same-day sample — e.g. bedtime 01:00 / wake 08:00 read
+    /// as wake 01:00 / sleep 08:00 — which would invert the day and collapse the
+    /// planning window to before morning). We discard it rather than corrupt the day.
+    private static let minWakingMinutes = 6 * 60   // 6h awake floor
+
+    /// Reject clearly-inverted / implausible reads so a bad inference can never tighten
+    /// the planning window onto nonsense. A `sleep` earlier than (or barely after)
+    /// `wake` is no real waking day — drop BOTH so the caller falls back to the user's
+    /// preference targets instead. Conservative: only discards the obviously-broken
+    /// pair, never a normal day.
+    private static func sanitized(wake: Int?, sleep: Int?) -> (wakeMinutes: Int?, sleepMinutes: Int?) {
+        guard let wake, let sleep else { return (wake, sleep) }
+        guard sleep - wake >= minWakingMinutes else { return (nil, nil) }
         return (wake, sleep)
     }
 

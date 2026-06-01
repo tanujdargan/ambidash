@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+#if os(iOS)
+import WidgetKit
+#endif
 
 /// Design principle #3 — "Make time visible & spatial, not a checklist."
 ///
@@ -1061,10 +1064,31 @@ private struct TimelineBlockDetailSheet: View {
         .scaleOnPress()
     }
 
-    /// Save the lifecycle mutation and dismiss the sheet calmly.
+    /// Save the lifecycle mutation and dismiss the sheet calmly. The soft actions
+    /// (Defer / Rest / Let go, and the gentle-review variants) settle this block,
+    /// so — mirroring BlockLogSheet.confirm — silence its escalating reminder chain
+    /// and any opt-in start alarm, then rewrite the widget snapshot and refresh the
+    /// Live Activity so the ambient surfaces stop pointing at a block the user just
+    /// set aside.
     private func persist() {
+        // The user has settled this block — cancel its escalating reminder chain
+        // (including the .now timeSensitive ping) and any opt-in start alarm.
+        NotificationService.cancelReminderChain(blockID: action.id.uuidString)
+        AlarmService.cancel(blockID: action.id.uuidString)
+
         Haptics.success()
         try? modelContext.save()
+
+        // Keep the ambient surfaces honest: the widget's now/next and the Live
+        // Activity should reflect that this block is no longer open work.
+        WidgetSnapshotWriter.write(context: modelContext)
+        #if os(iOS)
+        WidgetCenter.shared.reloadAllTimelines()
+        #endif
+        if let plan = action.plan {
+            LiveActivityService.refresh(for: plan.actions ?? [], on: plan.date)
+        }
+
         dismiss()
     }
 

@@ -1,10 +1,17 @@
 import SwiftUI
 
+extension Notification.Name {
+    /// Posted by the Cmd-K "New Capture" command so the root window can present the
+    /// capture sheet from anywhere in the app.
+    static let macNewCapture = Notification.Name("ambidash.mac.newCapture")
+}
+
 /// The mac-native shell: a `NavigationSplitView` with a permanent sidebar
 /// (Dashboard / Today / Goals / Reflect / Mentor / Settings) and a detail pane.
 /// This replaces the iOS bottom `TabView` — bottom tabs are not a macOS idiom.
 struct MacRootView: View {
     @Environment(ThemeManager.self) private var tm
+    @State private var showCapture = false
 
     enum Section: String, CaseIterable, Identifiable, Hashable {
         case dashboard, today, goals, reflect, mentor, settings
@@ -48,6 +55,14 @@ struct MacRootView: View {
         } detail: {
             detail(for: selection ?? .dashboard)
                 .background(theme.bg)
+        }
+        // Cmd-K "New Capture" → present the universal capture sheet from anywhere.
+        .sheet(isPresented: $showCapture) {
+            MacCaptureSheet()
+                .environment(tm)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .macNewCapture)) { _ in
+            showCapture = true
         }
     }
 

@@ -48,6 +48,18 @@ struct AmbidashMacApp: App {
         ])
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
+        .commands {
+            // CAPTURE everywhere — a global Cmd-K "New Capture" so the universal dump
+            // (design principle #4) is one keystroke away from any screen, mirroring
+            // the always-accessible Capture pill on iOS. The command posts a
+            // notification the root window observes to present the capture sheet.
+            CommandGroup(after: .newItem) {
+                Button("New Capture") {
+                    NotificationCenter.default.post(name: .macNewCapture, object: nil)
+                }
+                .keyboardShortcut("k", modifiers: .command)
+            }
+        }
 
         Settings {
             MacSettingsView()
