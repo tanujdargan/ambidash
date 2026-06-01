@@ -2,3 +2,6 @@
 ambidash.xcodeproj/xcuserdata/
 DerivedData/
 build/
+
+# Xcode user UI state (should never be tracked)
+*.xcuserstate

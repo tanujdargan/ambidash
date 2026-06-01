@@ -200,7 +200,14 @@ struct ClosingRitualSheet: View {
     @ViewBuilder
     private func feltSection(_ t: ResolvedTheme) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionLabel(title: "What felt good / hard")
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                SectionLabel(title: "What felt good / hard")
+                Spacer(minLength: 8)
+                // PHOTO-OF-NOTES — attach a photo of notes; on-device OCR offers its text.
+                ReflectionPhotoButton(text: $feltNote, reflection: resolveReflection)
+                // VOICE DICTATION — on-device mic streams speech into the felt-note.
+                DictationMicButton(text: $feltNote)
+            }
             Text("One line, if you want it. Optional.")
                 .font(.system(size: 11))
                 .foregroundStyle(t.faint)
@@ -211,6 +218,9 @@ struct ClosingRitualSheet: View {
                 .foregroundStyle(feltNote.isEmpty ? t.faint : t.ink2)
                 .lineLimit(1...4)
                 .padding(.top, 2)
+            // PHOTO-OF-NOTES — thumbnails of photos attached to today's reflection.
+            ReflectionPhotoStrip(reflection: todayReflection)
+                .padding(.top, 4)
             t.hair.frame(height: 0.5).padding(.top, 4)
         }
         .padding(16)
@@ -223,7 +233,14 @@ struct ClosingRitualSheet: View {
     @ViewBuilder
     private func oneThingSection(_ r: ClosingRitualService.Recap, _ t: ResolvedTheme) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(title: "Tomorrow's one thing")
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                SectionLabel(title: "Tomorrow's one thing")
+                Spacer(minLength: 8)
+                // PHOTO-OF-NOTES — attach a photo of notes; on-device OCR offers its text.
+                ReflectionPhotoButton(text: $oneThingText, reflection: resolveReflection)
+                // VOICE DICTATION — on-device mic streams speech into the one-thing field.
+                DictationMicButton(text: $oneThingText)
+            }
             Text("If only one thing happens tomorrow, what should it be?")
                 .font(.system(size: 13, design: .serif))
                 .foregroundStyle(t.ink)
@@ -305,6 +322,16 @@ struct ClosingRitualSheet: View {
     }
 
     // MARK: - Load + Save
+
+    /// Resolves today's reflection for photo attachment, creating + inserting it if absent
+    /// (so a photo can be attached before "Done" persists the rest). Idempotent.
+    private func resolveReflection() -> Reflection {
+        if let existing = todayReflection { return existing }
+        let r = Reflection()
+        modelContext.insert(r)
+        try? modelContext.save()
+        return r
+    }
 
     private func loadIfNeeded() {
         guard !didLoad else { return }
