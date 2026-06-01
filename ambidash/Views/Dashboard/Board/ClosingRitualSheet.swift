@@ -31,6 +31,7 @@ struct ClosingRitualSheet: View {
     @State private var oneThingText: String = ""
     @State private var oneThingActionID: UUID? = nil
     @State private var didLoad = false
+    @FocusState private var noteFocused: Bool
 
     private var calendar: Calendar { .current }
 
@@ -71,6 +72,7 @@ struct ClosingRitualSheet: View {
                     .padding(.top, 8)
                     .padding(.bottom, 28)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
             .navigationTitle("Close the day")
             .navigationBarTitleDisplayMode(.inline)
@@ -83,6 +85,10 @@ struct ClosingRitualSheet: View {
                     Button("Done") { save(); dismiss() }
                         .fontWeight(.semibold)
                         .foregroundStyle(t.accent)
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { noteFocused = false }
                 }
             }
         }
@@ -218,6 +224,7 @@ struct ClosingRitualSheet: View {
                 .foregroundStyle(feltNote.isEmpty ? t.faint : t.ink2)
                 .lineLimit(1...4)
                 .padding(.top, 2)
+                .focused($noteFocused)
             // PHOTO-OF-NOTES — thumbnails of photos attached to today's reflection.
             ReflectionPhotoStrip(reflection: todayReflection)
                 .padding(.top, 4)
@@ -271,6 +278,7 @@ struct ClosingRitualSheet: View {
                 .font(.system(size: 14))
                 .foregroundStyle(oneThingText.isEmpty ? t.faint : t.ink)
                 .lineLimit(1...3)
+                .focused($noteFocused)
                 .padding(10)
                 .background(t.sunken.opacity(0.4))
                 .clipShape(RoundedRectangle(cornerRadius: 10))

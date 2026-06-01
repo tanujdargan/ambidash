@@ -32,6 +32,7 @@ struct BlockLogSheet: View {
     @State private var energy: Int = 0            // 0 = not reported
     @State private var actualMinutes: Int
     @State private var note: String = ""
+    @FocusState private var noteFocused: Bool
 
     /// W4 — when opened from the primary "Partly" affordance on Today, the sheet
     /// pre-selects `.partial` (and a sensible half-duration) so the partial
@@ -72,6 +73,7 @@ struct BlockLogSheet: View {
                     .padding(.horizontal, 22)
                     .padding(.top, 14)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
             .navigationTitle("How'd that go?")
             .navigationBarTitleDisplayMode(.inline)
@@ -82,6 +84,10 @@ struct BlockLogSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Log") { save() }
                         .fontWeight(.semibold)
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { noteFocused = false }
                 }
             }
         }
@@ -207,6 +213,7 @@ struct BlockLogSheet: View {
                 .font(.system(size: 14))
                 .foregroundStyle(t.ink)
                 .lineLimit(1...3)
+                .focused($noteFocused)
                 .padding(12)
                 .background(t.sunken.opacity(0.5))
                 .clipShape(RoundedRectangle(cornerRadius: 10))

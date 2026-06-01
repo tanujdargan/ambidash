@@ -11,6 +11,7 @@ struct IdentityView: View {
     @State private var location = ""
     @State private var tagline = ""
     @State private var showAssessment = false
+    @FocusState private var fieldFocused: Bool
 
     private var profile: UserProfile? { profiles.first }
 
@@ -46,10 +47,10 @@ struct IdentityView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        UnderlineField(label: "Name", value: $name)
-                        UnderlineField(label: "Age", value: $age, suffix: "yrs", keyboard: .numberPad)
-                        UnderlineField(label: "Where you live", value: $location)
-                        UnderlineField(label: "What you do, in three words", value: $tagline)
+                        UnderlineField(label: "Name", value: $name, focused: $fieldFocused)
+                        UnderlineField(label: "Age", value: $age, suffix: "yrs", keyboard: .numberPad, focused: $fieldFocused)
+                        UnderlineField(label: "Where you live", value: $location, focused: $fieldFocused)
+                        UnderlineField(label: "What you do, in three words", value: $tagline, focused: $fieldFocused)
                     }
                     .padding(.horizontal, 22)
                     .padding(.top, 22)
@@ -80,6 +81,12 @@ struct IdentityView: View {
                 .disabled(!isValid)
             }
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { fieldFocused = false }
+            }
+        }
         .navigationBarBackButtonHidden()
         .navigationDestination(isPresented: $showAssessment) {
             AssessmentFlowView()
@@ -106,6 +113,7 @@ private struct UnderlineField: View {
     @Binding var value: String
     var suffix: String? = nil
     var keyboard: UIKeyboardType = .default
+    var focused: FocusState<Bool>.Binding
 
     var body: some View {
         let t = tm.resolved
@@ -124,6 +132,7 @@ private struct UnderlineField: View {
                 .foregroundStyle(t.ink)
                 .keyboardType(keyboard)
                 .autocorrectionDisabled()
+                .focused(focused)
 
             t.rule.frame(height: 1)
         }

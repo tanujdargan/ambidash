@@ -36,6 +36,11 @@ struct SettingsView: View {
     /// Focus for the numberPad Age field, so the keyboard toolbar Done can resign
     /// it (numberPad has no return key).
     @FocusState private var ageFocused: Bool
+    /// Real integration permission state for the Integrations rows (loaded in `.task`),
+    /// so Apple Health / Calendar reflect actual authorization instead of a hardcoded
+    /// "Connected".
+    @State private var healthAuthorized = false
+    @State private var calendarAuthorized = false
 
     private var profile: UserProfile? { profiles.first }
 
@@ -225,9 +230,20 @@ struct SettingsView: View {
                         Text("Apple Health")
                             .foregroundStyle(t.ink)
                         Spacer()
-                        Text("Connected")
+                        if healthAuthorized {
+                            Text("Connected")
+                                .font(.caption)
+                                .foregroundStyle(t.ok)
+                        } else {
+                            Button("Connect") {
+                                Task {
+                                    _ = await HealthKitService.shared.requestAuthorization()
+                                    healthAuthorized = await HealthKitService.shared.isAuthorized()
+                                }
+                            }
                             .font(.caption)
-                            .foregroundStyle(t.ok)
+                            .foregroundStyle(t.accent)
+                        }
                     }
 
                     HStack {
@@ -236,9 +252,20 @@ struct SettingsView: View {
                         Text("Calendar")
                             .foregroundStyle(t.ink)
                         Spacer()
-                        Text("Connected")
+                        if calendarAuthorized {
+                            Text("Connected")
+                                .font(.caption)
+                                .foregroundStyle(t.ok)
+                        } else {
+                            Button("Connect") {
+                                Task {
+                                    _ = await EventKitService.shared.requestCalendarAccess()
+                                    calendarAuthorized = EventKitService.shared.isCalendarAuthorized
+                                }
+                            }
                             .font(.caption)
-                            .foregroundStyle(t.ok)
+                            .foregroundStyle(t.accent)
+                        }
                     }
 
                     HStack {
@@ -344,6 +371,10 @@ struct SettingsView: View {
             }
             .scrollContentBackground(.hidden)
             .background(t.bg)
+            .task {
+                healthAuthorized = await HealthKitService.shared.isAuthorized()
+                calendarAuthorized = EventKitService.shared.isCalendarAuthorized
+            }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
