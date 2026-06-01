@@ -33,6 +33,21 @@ final class HealthKitService {
         }
     }
 
+    /// Best-effort authorization signal for the Settings row. HealthKit deliberately
+    /// keeps READ permission opaque (`authorizationStatus(for:)` only reflects WRITE
+    /// sharing), so we ask whether the system would still need to PROMPT for our read
+    /// types: `.unnecessary` means the user has already responded (granted or denied
+    /// per-type) → treat as connected; otherwise it's not yet set up.
+    func isAuthorized() async -> Bool {
+        guard isAvailable else { return false }
+        do {
+            let status = try await store.statusForAuthorizationRequest(toShare: [], read: readTypes)
+            return status == .unnecessary
+        } catch {
+            return false
+        }
+    }
+
     func fetchSleepHours(for date: Date) async -> Double {
         let sleepType = HKCategoryType(.sleepAnalysis)
         let (start, end) = dayBounds(for: date)

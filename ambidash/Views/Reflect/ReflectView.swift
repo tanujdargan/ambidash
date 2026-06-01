@@ -7,11 +7,16 @@ struct ReflectView: View {
     @Query(sort: \DailyPlan.date, order: .reverse) private var plans: [DailyPlan]
     @Query(sort: \Reflection.date, order: .reverse) private var reflections: [Reflection]
     @Query(sort: \IntegrationSnapshot.date, order: .reverse) private var snapshots: [IntegrationSnapshot]
+    @Query private var profiles: [UserProfile]
 
     @State private var selectedTab = 0
     @State private var q1Text = ""
     @State private var q2Text = ""
     @State private var q3Text = ""
+    @FocusState private var reflectionFocused: Bool
+    /// Tracks a "Send to Mentor" round-trip so the primary button can show progress
+    /// and not double-fire.
+    @State private var isSendingToMentor = false
     /// CLOSING RITUAL — presents the gentle end-of-day flow (also reachable from the
     /// dashboard "Close the Day" component + the evening notification).
     @State private var showClosingRitual = false
@@ -27,6 +32,8 @@ struct ReflectView: View {
     private var todaySnapshot: IntegrationSnapshot? {
         snapshots.first
     }
+
+    private var profile: UserProfile? { profiles.first }
 
     var body: some View {
         let t = tm.resolved
@@ -114,21 +121,24 @@ struct ReflectView: View {
                                     hint: "Not what was on the list. What you did.",
                                     text: $q1Text,
                                     reflection: resolveReflection,
-                                    photoReflection: todayReflection)
+                                    photoReflection: todayReflection,
+                                    focused: $reflectionFocused)
                                     .fadeSlideIn(delay: 0.2)
                                 ReflectionQuestion(number: 2,
                                     question: "Where did the time you can't account for go?",
                                     hint: "Approximate is fine.",
                                     text: $q2Text,
                                     reflection: resolveReflection,
-                                    photoReflection: todayReflection)
+                                    photoReflection: todayReflection,
+                                    focused: $reflectionFocused)
                                     .fadeSlideIn(delay: 0.3)
                                 ReflectionQuestion(number: 3,
                                     question: "What is one thing tomorrow's you will need from tonight's you?",
                                     hint: "",
                                     text: $q3Text,
                                     reflection: resolveReflection,
-                                    photoReflection: todayReflection)
+                                    photoReflection: todayReflection,
+                                    focused: $reflectionFocused)
                                     .fadeSlideIn(delay: 0.4)
                             }
                             .padding(.horizontal, 22)
@@ -145,15 +155,23 @@ struct ReflectView: View {
                             HStack(spacing: 10) {
                                 PillButton(label: "Save quietly") { saveReflection() }
                                 Spacer()
-                                PillButton(label: "Send to Mentor", primary: true) { saveReflection() }
+                                PillButton(label: isSendingToMentor ? "Sending…" : "Send to Mentor", primary: true) { sendToMentor() }
                             }
+                            .disabled(isSendingToMentor)
                             .padding(.horizontal, 22)
                             .padding(.top, 18)
                             .fadeSlideIn(delay: 0.5)
                         }
                         .padding(.bottom, 24)
                     }
+                    .scrollDismissesKeyboard(.interactively)
                     .background(t.bg)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") { reflectionFocused = false }
+                        }
+                    }
                 } else if selectedTab == 1 {
                     WeeklyReviewView()
                 } else if selectedTab == 2 {
@@ -209,6 +227,54 @@ struct ReflectView: View {
             await SyncService.syncReflectionToCloud(mood: "", blockers: [], text: combined)
         }
     }
+
+    /// Saves the reflection, then sends it to the mentor as a `user` letter and
+    /// appends M.'s reply — mirroring MentorView.sendReply so "Send to Mentor"
+    /// actually starts a two-way exchange instead of silently saving.
+    private func sendToMentor() {
+        guard !isSendingToMentor else { return }
+        saveReflection()
+
+        let combined = [q1Text, q2Text, q3Text]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n\n")
+        guard !combined.isEmpty else { return }
+
+        reflectionFocused = false
+        let userLetter = MentorFeedback(role: "user", content: combined, trigger: "reflection")
+        modelContext.insert(userLetter)
+        try? modelContext.save()
+
+        let goals = profile?.goals ?? []
+        let snap = todaySnapshot
+        let actions = (todayPlan?.actions ?? [])
+
+        isSendingToMentor = true
+        Haptics.light()
+        Task {
+            defer { isSendingToMentor = false }
+            // Only attempt an AI reply when AI is reachable; the user's letter still
+            // stands on its own otherwise.
+            guard AIConfig.isConfigured || SupabaseService.shared.isAuthenticated else { return }
+            do {
+                let replyContent = try await AIService.generateMentorReply(
+                    userMessage: combined,
+                    goals: goals,
+                    snapshot: snap,
+                    todaysActions: actions
+                )
+                let cleaned = replyContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !cleaned.isEmpty else { return }
+                let mentorLetter = MentorFeedback(role: "mentor", content: cleaned, trigger: "reflection")
+                modelContext.insert(mentorLetter)
+                try? modelContext.save()
+                Haptics.success()
+            } catch {
+                ErrorLogger.log(error, context: "ReflectView.sendToMentor")
+            }
+        }
+    }
 }
 
 private struct ReflectionQuestion: View {
@@ -221,6 +287,8 @@ private struct ReflectionQuestion: View {
     let reflection: () -> Reflection
     /// The current reflection (if any) whose photo thumbnails to show under this field.
     let photoReflection: Reflection?
+    /// Shared focus state so the parent's keyboard "Done" toolbar can dismiss any field.
+    var focused: FocusState<Bool>.Binding
 
     var body: some View {
         let t = tm.resolved
@@ -261,6 +329,7 @@ private struct ReflectionQuestion: View {
                 .padding(.leading, 28)
                 .padding(.top, 10)
                 .lineLimit(2...6)
+                .focused(focused)
 
             // PHOTO-OF-NOTES — thumbnails of photos attached to this reflection.
             ReflectionPhotoStrip(reflection: photoReflection)

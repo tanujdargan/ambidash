@@ -35,14 +35,15 @@ struct QuickCaptureSheet: View {
                         .font(.system(size: 13))
                         .foregroundStyle(t.muted)
 
+                    // Multiline capture: a vertical-axis TextField inserts a newline on
+                    // return (it ignores submitLabel/onSubmit), so the keyboard Capture
+                    // button below is the explicit submit path for the burst-dump flow.
                     TextField("", text: $text, axis: .vertical)
                         .font(.system(size: 16))
                         .foregroundStyle(t.ink)
                         .tint(t.accent)
                         .lineLimit(1...6)
                         .focused($fieldFocused)
-                        .submitLabel(.send)
-                        .onSubmit(captureCurrent)
                         .padding(14)
                         .background(t.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -95,6 +96,11 @@ struct QuickCaptureSheet: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Capture", action: captureCurrent)
+                        .disabled(!canCapture)
                 }
             }
         }
