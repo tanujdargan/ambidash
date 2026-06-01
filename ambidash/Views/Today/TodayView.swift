@@ -145,6 +145,7 @@ struct TodayView: View {
             Image(systemName: "ellipsis.circle")
                 .foregroundStyle(t.ink)
         }
+        .accessibilityLabel("Plan options")
     }
 
     // MARK: - Plan Content

@@ -75,6 +75,7 @@ struct ReflectionPhotoStrip: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(photo.recognizedText.isEmpty ? "Photo of notes" : "Photo of notes with recognized text")
     }
 
     @ViewBuilder
