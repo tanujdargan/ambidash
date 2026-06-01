@@ -47,7 +47,7 @@ struct InsightCardView: View {
                     .foregroundStyle(t.ink)
             }
 
-            if AIConfig.isConfigured && insight == nil && !isLoading {
+            if (AIConfig.isConfigured || SupabaseService.shared.isAuthenticated) && insight == nil && !isLoading {
                 HStack(spacing: 8) {
                     PillButton(label: "Ask Mentor", primary: true) {
                         Task { await fetchInsight() }
@@ -64,7 +64,7 @@ struct InsightCardView: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
         .accessibilityLabel("Mentor insight: \(insight ?? localInsight)")
         .task {
-            if AIConfig.isConfigured && !hasAttempted {
+            if (AIConfig.isConfigured || SupabaseService.shared.isAuthenticated) && !hasAttempted {
                 await fetchInsight()
             }
         }

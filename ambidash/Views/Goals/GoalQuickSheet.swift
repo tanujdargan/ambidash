@@ -23,6 +23,7 @@ struct GoalQuickSheet: View {
 
     var body: some View {
         let t = tm.resolved
+        ScrollView {
         VStack(alignment: .leading, spacing: 0) {
             // Handle
             RoundedRectangle(cornerRadius: 2)
@@ -174,6 +175,8 @@ struct GoalQuickSheet: View {
             .padding(.bottom, 8)
             .fadeSlideIn(delay: 0.2)
         }
+        }
+        .scrollDismissesKeyboard(.interactively)
         .background(t.bg)
         // Allow growing to large so the details editor + keyboard have room.
         .presentationDetents(editingDetails ? [.large] : [.medium, .large])

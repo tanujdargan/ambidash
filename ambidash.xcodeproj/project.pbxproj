@@ -97,7 +97,6 @@
 		45AB36FF749D3D7BBE534CBF /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3CDF2192AEB9764B867246 /* NetworkMonitor.swift */; };
 		4600F92FD020F93D80F43B0A /* DictationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A088EBE00A51577CCE5A0AB4 /* DictationService.swift */; };
 		4669AF4D42EFE3C7C2B722AD /* GoalDeclarationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83302B08A2C9BF4EA6CE66ED /* GoalDeclarationView.swift */; };
-		486BCE0D12B5DB253DFD1595 /* FocusGuardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDB2D5CC80B55EA184C74EC /* FocusGuardView.swift */; };
 		487BFA8F01B0508E77C123DC /* ClosingRitualSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC61B30F854A3E0EE1EDACC /* ClosingRitualSheet.swift */; };
 		48E39F1A3AF81C5EBCCAD294 /* BlockAlarmIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A395FC25A66E15FAF98AD9 /* BlockAlarmIntents.swift */; };
 		4B97BC6C64F5B1F028B21FF1 /* PatternCheckInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F890667176321970EE56898 /* PatternCheckInService.swift */; };
@@ -137,6 +136,7 @@
 		63999BC3D4D5AE77E4E3D78A /* GoalHorizon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12EBDB103B6522D8960104E /* GoalHorizon.swift */; };
 		647F10F0364BF6EDC85A019B /* CompositeHistoryCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CAE97FA153D60855682189A /* CompositeHistoryCalculator.swift */; };
 		6480F2119430A55DEAC6A3B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CCF9FD3FC9D95230E9390295 /* Assets.xcassets */; };
+		64DEE9CB8FAD963898143A43 /* MacCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB0B9DA6B5B7718B7F5120 /* MacCaptureView.swift */; };
 		659A642826997A2508480486 /* LearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F5C1ECCD414504B91EC33E /* LearningService.swift */; };
 		678CADB641093867EBC4D288 /* PlanBlockAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A95F8F1E41B65F97863892 /* PlanBlockAttributes.swift */; };
 		693CDACD45B1F0C89694331B /* LearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F5C1ECCD414504B91EC33E /* LearningService.swift */; };
@@ -381,6 +381,7 @@
 		123EEB502AB3E114F68D5EAF /* BlockLogSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockLogSheet.swift; sourceTree = "<group>"; };
 		13A395FC25A66E15FAF98AD9 /* BlockAlarmIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockAlarmIntents.swift; sourceTree = "<group>"; };
 		162774D4D8DE5F7E36A479E7 /* AddComponentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddComponentSheet.swift; sourceTree = "<group>"; };
+		17CB0B9DA6B5B7718B7F5120 /* MacCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacCaptureView.swift; sourceTree = "<group>"; };
 		17DE822F12A7371D5F89D6D6 /* BoardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTemplate.swift; sourceTree = "<group>"; };
 		182A26D142678147B1F2B091 /* PulseScoreCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseScoreCalculatorTests.swift; sourceTree = "<group>"; };
 		19579A5BD33622DC6BC2FCF5 /* GoalStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStripView.swift; sourceTree = "<group>"; };
@@ -552,7 +553,6 @@
 		D7A70CD8711EDE905721F05A /* ReflectionPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionPhoto.swift; sourceTree = "<group>"; };
 		D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseScoreCalculator.swift; sourceTree = "<group>"; };
 		D9170D019CD2C5BDB5180723 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
-		DCDB2D5CC80B55EA184C74EC /* FocusGuardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusGuardView.swift; sourceTree = "<group>"; };
 		DD50806910EA1F0536613A9C /* CoreAssessmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreAssessmentTests.swift; sourceTree = "<group>"; };
 		DE95BEBDD012D7AFC4BFEE10 /* OnboardingCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCompleteView.swift; sourceTree = "<group>"; };
 		E27F9C408203AE8B7971906E /* ambidash-mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ambidash-mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -593,6 +593,7 @@
 		07A7647CA5FA50E716563CE9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				17CB0B9DA6B5B7718B7F5120 /* MacCaptureView.swift */,
 				C9D7E7914F967EB876BACDE5 /* MacComponents.swift */,
 				D75F4CEBFD96B0E1ADBDD364 /* MacDashboardView.swift */,
 				AC28EFE86848BE025DEC6036 /* MacGoalsView.swift */,
@@ -639,14 +640,6 @@
 				8F3398562C23BA55AF8165BB /* SettingsView.swift */,
 			);
 			path = Settings;
-			sourceTree = "<group>";
-		};
-		224817C439C9D1B2D755EBBE /* FocusGuard */ = {
-			isa = PBXGroup;
-			children = (
-				DCDB2D5CC80B55EA184C74EC /* FocusGuardView.swift */,
-			);
-			path = FocusGuard;
 			sourceTree = "<group>";
 		};
 		26AB357E15C09823B6F61870 /* Today */ = {
@@ -775,7 +768,6 @@
 				EB8AB6B613C1E35A8C681943 /* LaunchScreen.swift */,
 				82B9268A9C60AC26337D41D1 /* Auth */,
 				CC7D77DED9CB521CAA213F2C /* Dashboard */,
-				224817C439C9D1B2D755EBBE /* FocusGuard */,
 				56A532DC9C35D2764CB9FDDF /* Goals */,
 				A6E7D0918853BEE75263AE8E /* Mentor */,
 				CB1B2886C9F39F6F403E1C5C /* Onboarding */,
@@ -1266,6 +1258,7 @@
 				693CDACD45B1F0C89694331B /* LearningService.swift in Sources */,
 				F8B3C73F5D49CE60A66EBA32 /* LifeDimension.swift in Sources */,
 				E2F1B4C0EA305406F5BA09A5 /* LiveActivityService.swift in Sources */,
+				64DEE9CB8FAD963898143A43 /* MacCaptureView.swift in Sources */,
 				3636875B629012392C61976E /* MacComponents.swift in Sources */,
 				A4903B662EFD1781358A5847 /* MacDashboardView.swift in Sources */,
 				086C9A549E30CE15A8D05B39 /* MacGoalsView.swift in Sources */,
@@ -1389,7 +1382,6 @@
 				60F320D28189038F7CE3571E /* ErrorLogger.swift in Sources */,
 				99AB9A98DA6890C879766A36 /* EventKitService.swift in Sources */,
 				90331D5D5B12AB3244A23809 /* FirstLetterView.swift in Sources */,
-				486BCE0D12B5DB253DFD1595 /* FocusGuardView.swift in Sources */,
 				8210EF3C5B9FC215EF15759F /* FocusSessionComponent.swift in Sources */,
 				43C66A078BB6B2275E2E6792 /* FocusSoundService.swift in Sources */,
 				1F8A1E1EA102D6C80718A641 /* Goal.swift in Sources */,
@@ -1570,7 +1562,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ambidash-widget/ambidash-widget.entitlements";
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 30;
 				INFOPLIST_FILE = "ambidash-widget/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1607,7 +1599,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ambidash/ambidash.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 30;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ambidash/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AmbiDash;
@@ -1661,7 +1653,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ambidash/ambidash.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 30;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ambidash/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = AmbiDash;
@@ -1721,7 +1713,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ambidash-widget/ambidash-widget.entitlements";
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 30;
 				INFOPLIST_FILE = "ambidash-widget/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

@@ -179,15 +179,36 @@ struct ResolvedTheme {
 
     /// Heading font (serif-family display text) sized + weighted per typography.
     /// `size` is the editorial baseline; modern/technical scale it down slightly.
+    /// The base point size is run through Dynamic Type metrics so headings respond
+    /// to the user's text-size setting (no-op on platforms without UIFontMetrics).
     func heading(_ size: CGFloat) -> Font {
-        .system(size: size + typography.headingSizeDelta, weight: typography.headingWeight, design: typography.headingDesign)
+        let base = size + typography.headingSizeDelta
+        return .system(size: Self.scaledSize(base, relativeTo: .title2), weight: typography.headingWeight, design: typography.headingDesign)
     }
 
     /// Body font (running prose) using the typography's body design + size scale.
     /// Pass the editorial baseline `size`; modern/technical shift it via bodySize.
+    /// The base point size is run through Dynamic Type metrics so body text responds
+    /// to the user's text-size setting (no-op on platforms without UIFontMetrics).
     func body(_ baseline: CGFloat = 15) -> Font {
-        let scaled = baseline + (typography.bodySize - 15)
-        return .system(size: scaled, weight: .regular, design: typography.bodyDesign)
+        let base = baseline + (typography.bodySize - 15)
+        return .system(size: Self.scaledSize(base, relativeTo: .body), weight: .regular, design: typography.bodyDesign)
+    }
+
+    /// Scales a fixed point size by the current Dynamic Type setting so fonts built
+    /// from a raw `size:` still honor the user's accessibility text-size preference.
+    /// On platforms without `UIFontMetrics` this returns the base size unchanged.
+    private static func scaledSize(_ base: CGFloat, relativeTo textStyle: Font.TextStyle) -> CGFloat {
+        #if os(iOS)
+        let uiStyle: UIFont.TextStyle
+        switch textStyle {
+        case .title2: uiStyle = .title2
+        default: uiStyle = .body
+        }
+        return UIFontMetrics(forTextStyle: uiStyle).scaledValue(for: base)
+        #else
+        return base
+        #endif
     }
 }
 

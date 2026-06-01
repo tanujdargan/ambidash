@@ -64,7 +64,7 @@ targets:
         INFOPLIST_KEY_NSCameraUsageDescription: "ambidash uses the camera so you can snap a photo of your handwritten or printed notes and have the text read into your reflection. The photo is processed on-device and never uploaded."
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "ambidash reads a photo you pick so it can extract the text from your notes into your reflection. The photo is processed on-device and never uploaded."
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "12"
+        CURRENT_PROJECT_VERSION: "30"
         INFOPLIST_KEY_CFBundleDisplayName: "AmbiDash"
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.lifestyle"
         # CFBundleURLTypes (the ambidash:// deep-link scheme) is declared in the
@@ -186,7 +186,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ambidash.app.widget
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "12"
+        CURRENT_PROJECT_VERSION: "30"
     # App Group so the widget's UserDefaults(suiteName: "group.com.ambidash.app")
     # (WidgetSharedData) shares the app<->widget channel the Live Activity / tap-to-log
     # inbox features rely on. Without it the suite store is unusable on a real device

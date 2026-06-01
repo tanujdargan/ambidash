@@ -37,6 +37,10 @@ struct MentorView: View {
     /// #8 — shown briefly after a reply is saved but no mentor response can be
     /// generated (no API key + not signed in), so the send doesn't fail silently.
     @State private var noReplyNote = false
+    /// Shown briefly when a reply WAS attempted (authenticated or BYOK) but the
+    /// generation failed (edge function/network/decode error, or an empty reply),
+    /// so an authenticated user isn't left staring at an answer that never arrives.
+    @State private var replyFailedNote = false
     /// Focus for the reply composer, so the keyboard toolbar's Done can resign it
     /// and entering the composer can auto-focus the field.
     @FocusState private var composerFocused: Bool
@@ -101,6 +105,20 @@ struct MentorView: View {
                                     Image(systemName: "info.circle")
                                         .foregroundStyle(t.muted)
                                     Text("Your letter is saved, but M. can't reply until you add an Anthropic API key in Settings → AI Configuration.")
+                                        .font(.system(size: 13, design: .serif))
+                                        .italic()
+                                        .foregroundStyle(t.muted)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.top, 4)
+                                .fadeSlideIn(delay: 0)
+                            }
+
+                            if replyFailedNote {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "info.circle")
+                                        .foregroundStyle(t.muted)
+                                    Text("Your letter is saved, but M. couldn't reply right now — try again in a moment.")
                                         .font(.system(size: 13, design: .serif))
                                         .italic()
                                         .foregroundStyle(t.muted)
@@ -360,6 +378,9 @@ struct MentorView: View {
 
         replyText = ""
         isSendingReply = true
+        // Clear any prior transient notes for this fresh attempt.
+        noReplyNote = false
+        replyFailedNote = false
         Haptics.light()
 
         let goals = profile?.goals ?? []
@@ -392,14 +413,28 @@ struct MentorView: View {
                     todaysActions: actions
                 )
                 let cleaned = replyContent.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !cleaned.isEmpty else { return }
+                guard !cleaned.isEmpty else {
+                    showReplyFailedNote()
+                    return
+                }
                 let mentorLetter = MentorFeedback(role: "mentor", content: cleaned, trigger: "manual_reply")
                 modelContext.insert(mentorLetter)
                 try? modelContext.save()
                 Haptics.success()
             } catch {
                 ErrorLogger.log(error, context: "MentorView.sendReply")
+                showReplyFailedNote()
             }
+        }
+    }
+
+    /// Surface a transient note when an attempted reply failed (edge function/
+    /// network/decode error, or an empty reply), then auto-dismiss it.
+    @MainActor private func showReplyFailedNote() {
+        withAnimation { replyFailedNote = true }
+        Task {
+            try? await Task.sleep(for: .seconds(6))
+            withAnimation { replyFailedNote = false }
         }
     }
 }

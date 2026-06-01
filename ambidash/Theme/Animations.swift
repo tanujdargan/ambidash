@@ -14,12 +14,18 @@ struct StaggeredAppear: ViewModifier {
     func body(content: Content) -> some View {
         content
             .opacity(appeared ? 1 : 0)
-            .offset(y: appeared ? 0 : 12)
+            // Honor Reduce Motion: skip the slide entirely so nothing auto-animates.
+            .offset(y: (appeared || MotionPreference.prefersReducedMotion) ? 0 : 12)
             .task {
                 guard !appeared else { return }
+                // When Reduce Motion is on, snap to the resting state with no slide.
+                guard !MotionPreference.prefersReducedMotion else {
+                    appeared = true
+                    return
+                }
                 let delay = Double(index) * 0.04
                 try? await Task.sleep(for: .seconds(delay))
-                withAnimation(.ambidashSpring) {
+                withAnimation(MotionPreference.animation(.ambidashSpring)) {
                     appeared = true
                 }
             }
@@ -54,13 +60,19 @@ struct FadeSlideIn: ViewModifier {
     func body(content: Content) -> some View {
         content
             .opacity(appeared ? 1 : 0)
-            .offset(y: appeared ? 0 : 20)
+            // Honor Reduce Motion: skip the slide entirely so nothing auto-animates.
+            .offset(y: (appeared || MotionPreference.prefersReducedMotion) ? 0 : 20)
             .task {
                 guard !appeared else { return }
+                // When Reduce Motion is on, snap to the resting state with no slide.
+                guard !MotionPreference.prefersReducedMotion else {
+                    appeared = true
+                    return
+                }
                 if delay > 0 {
                     try? await Task.sleep(for: .seconds(delay))
                 }
-                withAnimation(.ambidashSlow) {
+                withAnimation(MotionPreference.animation(.ambidashSlow)) {
                     appeared = true
                 }
             }

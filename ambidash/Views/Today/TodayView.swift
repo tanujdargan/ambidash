@@ -145,6 +145,7 @@ struct TodayView: View {
             Image(systemName: "ellipsis.circle")
                 .foregroundStyle(t.ink)
         }
+        .accessibilityLabel("Plan options")
     }
 
     // MARK: - Plan Content
@@ -1007,8 +1008,11 @@ struct TodayView: View {
             tomorrowPlan.actionCount = (tomorrowPlan.actions ?? []).count
         }
 
-        // Retire the original on today's plan.
-        action.statusRaw = "skipped"
+        // Retire the original on today's plan. Route through the lifecycle contract
+        // (statusRaw="skipped" + lifecycleRaw="abandoned") so CarryOverService.isUnfinished
+        // excludes it — a raw statusRaw write would leave lifecycleRaw="pending" and the
+        // moved action would be re-carried a second time on the next plan generation.
+        action.applyLifecycle(.abandoned)
         // Silence its reminder chain — it's rolling forward, not happening now.
         NotificationService.cancelReminderChain(blockID: action.id.uuidString)
         try? modelContext.save()

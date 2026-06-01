@@ -8,6 +8,18 @@ final class EventKitService {
 
     private let store = EKEventStore()
 
+    /// Real calendar authorization state for the Settings row. Reads the system's
+    /// `EKEventStore.authorizationStatus(for: .event)`; both full and write-only access
+    /// count as connected (the app only writes/reads events through `store`).
+    var isCalendarAuthorized: Bool {
+        switch EKEventStore.authorizationStatus(for: .event) {
+        case .fullAccess, .writeOnly, .authorized:
+            return true
+        default:
+            return false
+        }
+    }
+
     func requestCalendarAccess() async -> Bool {
         do {
             return try await store.requestFullAccessToEvents()

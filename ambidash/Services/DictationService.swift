@@ -139,18 +139,26 @@ final class DictationService {
 
     // MARK: - Authorization
 
-    private func requestAuthorization() async -> Bool {
+    /// `nonisolated` is load-bearing: the class is `@MainActor`, so without it the
+    /// trailing completion closures below inherit MainActor isolation. But TCC invokes
+    /// `requestAuthorization`/`requestRecordPermission` completions on an arbitrary
+    /// BACKGROUND queue, and under Swift 6 the runtime's executor check then traps
+    /// (`_swift_task_checkIsolated` → `dispatch_assert_queue_fail`) — a hard SIGTRAP
+    /// crash the moment the user taps the mic. Making the method non-isolated (it
+    /// touches no `self` state) plus `@Sendable` completions keeps the callbacks free
+    /// of MainActor isolation; the `await` resumes the caller back on the MainActor.
+    nonisolated private func requestAuthorization() async -> Bool {
         // Speech recognition authorization.
-        let speechGranted: Bool = await withCheckedContinuation { cont in
-            SFSpeechRecognizer.requestAuthorization { authStatus in
+        let speechGranted: Bool = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            SFSpeechRecognizer.requestAuthorization { @Sendable authStatus in
                 cont.resume(returning: authStatus == .authorized)
             }
         }
         guard speechGranted else { return false }
 
         // Microphone authorization.
-        let micGranted: Bool = await withCheckedContinuation { cont in
-            AVAudioApplication.requestRecordPermission { granted in
+        let micGranted: Bool = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            AVAudioApplication.requestRecordPermission { @Sendable granted in
                 cont.resume(returning: granted)
             }
         }

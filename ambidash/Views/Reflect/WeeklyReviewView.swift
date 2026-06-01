@@ -45,8 +45,17 @@ struct WeeklyReviewView: View {
                         .foregroundStyle(t.ink)
                 }
 
-                // Action completion chart
-                actionChart(t)
+                // Action completion chart + honest mentor note. With no planned
+                // actions this week, a zero bar chart and "0 of 0 days" reads cold
+                // and faintly accusatory — show a calm empty line instead.
+                if weekPlans.flatMap({ $0.actions ?? [] }).isEmpty {
+                    Text("No days planned this week yet — your honest charts will fill in as you go.")
+                        .font(t.body(15))
+                        .italic()
+                        .foregroundStyle(t.muted)
+                } else {
+                    actionChart(t)
+                }
 
                 // Sleep trend chart
                 if !weekSnapshots.isEmpty {
@@ -59,11 +68,13 @@ struct WeeklyReviewView: View {
                 // Forward planning: set next week's commitments (closes the loop).
                 planThisWeekSection(t)
 
-                // Mentor note
-                MentorNote(
-                    text: "You finished what you started on \(weekPlans.filter { plan in (plan.actions ?? []).allSatisfy { $0.statusRaw == "done" } }.count) of \(weekPlans.count) days. Patterns are more honest than intentions.",
-                    signature: "M."
-                )
+                // Mentor note — only meaningful once there's a week of data.
+                if !weekPlans.flatMap({ $0.actions ?? [] }).isEmpty {
+                    MentorNote(
+                        text: "You finished what you started on \(weekPlans.filter { plan in (plan.actions ?? []).allSatisfy { $0.statusRaw == "done" } }.count) of \(weekPlans.count) days. Patterns are more honest than intentions.",
+                        signature: "M."
+                    )
+                }
             }
             .padding(.horizontal, 22)
             .padding(.top, 6)

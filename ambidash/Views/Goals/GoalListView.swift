@@ -61,6 +61,7 @@ struct GoalListView: View {
                         Image(systemName: "plus")
                             .foregroundStyle(t.ink)
                     }
+                    .accessibilityLabel("Add goal")
                 }
             }
             .sheet(isPresented: $showAddGoal) {

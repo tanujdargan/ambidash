@@ -16,7 +16,7 @@ enum GoalHealthService {
         case .needsAttention:
             return "No progress in \(days) days"
         case .slipping:
-            return "Neglected for \(days) days"
+            return "Resting for \(days) day\(days == 1 ? "" : "s")"
         case .paused:
             return "Paused"
         }

@@ -319,7 +319,7 @@ struct GoalDetailView: View {
         switch variance {
         case .ahead: return "Ahead"
         case .onTrack: return "On pace"
-        case .behind: return "Behind"
+        case .behind: return "Not yet"
         }
     }
 

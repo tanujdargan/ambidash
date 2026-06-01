@@ -182,6 +182,20 @@ enum DisruptionService {
 
     // MARK: - Importance (no migration: derived, not stored)
 
+    /// The deterministic marker stamped on the protected "one thing" block when it's
+    /// pinned from last night's reflection (see PlanGenerator.oneThingAction /
+    /// TodayView.pinnedOneThing). Kept in sync with that literal — it has no goalID,
+    /// so without this marker its derived importance is 0 and it would be lost in a
+    /// tie. Detecting it lets us give it a floor above ordinary zero-score work.
+    static let oneThingScheduleCue = "Your one thing — first"
+
+    /// Whether `action` is the protected, pinned "one most-important thing" block.
+    /// Identified by its deterministic scheduleCue marker so it's recognised even
+    /// when it has no resolvable goal (goalID == nil → importance otherwise 0).
+    static func isProtectedOneThing(_ action: PlannedAction) -> Bool {
+        action.anchorKind == .goalWork && action.scheduleCue == oneThingScheduleCue
+    }
+
     /// Importance score for a goal-work action — higher is more important. There is
     /// NO stored priority field on PlannedAction, so we DERIVE one from existing
     /// signals so "preserve the ONE most-important thing" needs no migration:
@@ -195,6 +209,11 @@ enum DisruptionService {
     static func importance(of action: PlannedAction, goals: [Goal], today: Date = .now) -> Double {
         guard action.anchorKind == .goalWork else { return 0 }
         var score = 0.0
+        // The pinned "one thing" is the user's explicit most-important pick. It often
+        // has no resolvable goal (goalID == nil), which would otherwise leave it at 0
+        // and lose the protection to an arbitrary tie-break. Floor it above ordinary
+        // goal-work so "protect the ONE thing" actually protects it.
+        if isProtectedOneThing(action) { score += 1000 }
         let goal = action.goalID.flatMap { id in goals.first(where: { $0.id == id }) }
         if let goal {
             // priority: 0 is top. Map to a descending bonus (cap so it dominates gently).
@@ -223,7 +242,18 @@ enum DisruptionService {
     static func mostImportant(among actions: [PlannedAction], goals: [Goal], today: Date = .now) -> PlannedAction? {
         actions
             .filter { $0.anchorKind == .goalWork && !isSettled($0) }
-            .max(by: { importance(of: $0, goals: goals, today: today) < importance(of: $1, goals: goals, today: today) })
+            // Highest importance wins; ties break DETERMINISTICALLY on the earliest
+            // time slot (then a stable id), so the protected pick is never the
+            // order-dependent "last element" `max(by:)` returns for all-equal scores.
+            .min(by: { lhs, rhs in
+                let li = importance(of: lhs, goals: goals, today: today)
+                let ri = importance(of: rhs, goals: goals, today: today)
+                if li != ri { return li > ri }
+                let ls = DailyTimeline.minutes(from: lhs.timeSlot) ?? Int.max
+                let rs = DailyTimeline.minutes(from: rhs.timeSlot) ?? Int.max
+                if ls != rs { return ls < rs }
+                return lhs.id.uuidString < rhs.id.uuidString
+            })
     }
 
     // MARK: - Building the diff
