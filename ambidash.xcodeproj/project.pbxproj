@@ -136,6 +136,7 @@
 		63999BC3D4D5AE77E4E3D78A /* GoalHorizon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12EBDB103B6522D8960104E /* GoalHorizon.swift */; };
 		647F10F0364BF6EDC85A019B /* CompositeHistoryCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CAE97FA153D60855682189A /* CompositeHistoryCalculator.swift */; };
 		6480F2119430A55DEAC6A3B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CCF9FD3FC9D95230E9390295 /* Assets.xcassets */; };
+		64DEE9CB8FAD963898143A43 /* MacCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CB0B9DA6B5B7718B7F5120 /* MacCaptureView.swift */; };
 		659A642826997A2508480486 /* LearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F5C1ECCD414504B91EC33E /* LearningService.swift */; };
 		678CADB641093867EBC4D288 /* PlanBlockAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00A95F8F1E41B65F97863892 /* PlanBlockAttributes.swift */; };
 		693CDACD45B1F0C89694331B /* LearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F5C1ECCD414504B91EC33E /* LearningService.swift */; };
@@ -380,6 +381,7 @@
 		123EEB502AB3E114F68D5EAF /* BlockLogSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockLogSheet.swift; sourceTree = "<group>"; };
 		13A395FC25A66E15FAF98AD9 /* BlockAlarmIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockAlarmIntents.swift; sourceTree = "<group>"; };
 		162774D4D8DE5F7E36A479E7 /* AddComponentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddComponentSheet.swift; sourceTree = "<group>"; };
+		17CB0B9DA6B5B7718B7F5120 /* MacCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacCaptureView.swift; sourceTree = "<group>"; };
 		17DE822F12A7371D5F89D6D6 /* BoardTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTemplate.swift; sourceTree = "<group>"; };
 		182A26D142678147B1F2B091 /* PulseScoreCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseScoreCalculatorTests.swift; sourceTree = "<group>"; };
 		19579A5BD33622DC6BC2FCF5 /* GoalStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStripView.swift; sourceTree = "<group>"; };
@@ -591,6 +593,7 @@
 		07A7647CA5FA50E716563CE9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				17CB0B9DA6B5B7718B7F5120 /* MacCaptureView.swift */,
 				C9D7E7914F967EB876BACDE5 /* MacComponents.swift */,
 				D75F4CEBFD96B0E1ADBDD364 /* MacDashboardView.swift */,
 				AC28EFE86848BE025DEC6036 /* MacGoalsView.swift */,
@@ -1255,6 +1258,7 @@
 				693CDACD45B1F0C89694331B /* LearningService.swift in Sources */,
 				F8B3C73F5D49CE60A66EBA32 /* LifeDimension.swift in Sources */,
 				E2F1B4C0EA305406F5BA09A5 /* LiveActivityService.swift in Sources */,
+				64DEE9CB8FAD963898143A43 /* MacCaptureView.swift in Sources */,
 				3636875B629012392C61976E /* MacComponents.swift in Sources */,
 				A4903B662EFD1781358A5847 /* MacDashboardView.swift in Sources */,
 				086C9A549E30CE15A8D05B39 /* MacGoalsView.swift in Sources */,

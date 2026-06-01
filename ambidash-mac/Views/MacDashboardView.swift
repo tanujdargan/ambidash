@@ -56,6 +56,11 @@ struct MacDashboardView: View {
                 compositeBreakdown(theme)
             }
 
+            // CAPTURE (design principle #4) — the universal dump + triage inbox, the
+            // app's most-validated feature. Surfaced high so it's the first thing
+            // reachable, mirroring its prominence on iOS.
+            MacCaptureCard()
+
             // Per-dimension scores; click any row to reveal its breakdown.
             MacCard("Dimensions") {
                 ForEach(LifeDimension.allCases, id: \.self) { dim in

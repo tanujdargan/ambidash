@@ -58,22 +58,25 @@ enum CarryOverService {
     ///
     /// Idempotent: skips any source action whose work is already represented in
     /// `todayPlan` by a clone carried from the same prior date with the same
-    /// title, so a regenerate or a repeat call won't pile up duplicates.
+    /// IDENTITY, so a regenerate or a repeat call won't pile up duplicates.
     /// Does NOT save.
     static func carryForward(into todayPlan: DailyPlan, from priorPlan: DailyPlan, context: ModelContext) {
         let priorDate = priorPlan.date
 
-        // Titles already carried from this prior date into today's plan — the
-        // idempotency guard. `carriedOverFrom` is the marker; title disambiguates
-        // distinct unfinished items that share the same source date.
-        let alreadyCarriedTitles = Set(
+        // Identities already carried from this prior date into today's plan — the
+        // idempotency guard. `carriedOverFrom` is the marker; a COMPOSITE of
+        // (title, goalID, timeSlot) disambiguates distinct unfinished items that
+        // share a title (the planner emits shared templated titles like "Workout
+        // session" across goals) so two genuinely-different blocks both roll forward
+        // and neither loses its goal lineage / milestone link.
+        let alreadyCarried = Set(
             (todayPlan.actions ?? [])
                 .filter { $0.carriedOverFrom == priorDate }
-                .map(\.title)
+                .map(Self.carryKey)
         )
 
         for source in unfinishedActions(from: priorPlan) {
-            guard !alreadyCarriedTitles.contains(source.title) else { continue }
+            guard !alreadyCarried.contains(Self.carryKey(source)) else { continue }
 
             let clone = PlannedAction(
                 title: source.title,
@@ -100,6 +103,15 @@ enum CarryOverService {
 
             todayPlan.actionCount = (todayPlan.actions ?? []).count
         }
+    }
+
+    /// Composite identity for the carry-over idempotency guard: (title, goalID,
+    /// timeSlot). A clone preserves all three from its source, so a source's key
+    /// equals the clone's — a repeat call still skips it — while two distinct items
+    /// that merely share a title no longer collapse into one.
+    private static func carryKey(_ action: PlannedAction) -> String {
+        let goal = action.goalID?.uuidString ?? "—"
+        return "\(action.title)\u{1F}\(goal)\u{1F}\(action.timeSlot)"
     }
 
     // MARK: - Gentle review (the 3-option "still want this?" — keep / later / let go)
