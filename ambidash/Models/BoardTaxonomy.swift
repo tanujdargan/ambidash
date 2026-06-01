@@ -119,4 +119,18 @@ enum CardSize: String, CaseIterable, Codable, Hashable {
     case medium
     case large
     case full
+
+    /// Fraction of the available board width this size occupies. Drives a VISIBLE
+    /// resize: a `small` card sits at half width, `full` spans the band. The band is a
+    /// single-column LazyVStack, so smaller sizes leading-align and leave breathing
+    /// room on the right rather than re-flowing into columns (kept intentionally
+    /// simple + predictable for Swift 6 / CloudKit-safe layout).
+    var widthFraction: CGFloat {
+        switch self {
+        case .small: 0.55
+        case .medium: 0.72
+        case .large: 0.88
+        case .full: 1.0
+        }
+    }
 }

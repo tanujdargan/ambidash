@@ -109,10 +109,11 @@ struct CaptureInboxComponent: View {
                     .foregroundStyle(t.faint)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Inbox is clear.")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(t.body(13))
+                        .fontWeight(.medium)
                         .foregroundStyle(t.ink)
                     Text("Tap to dump a thought — sort it later, or never.")
-                        .font(.system(size: 11))
+                        .font(t.body(11))
                         .foregroundStyle(t.muted)
                 }
                 Spacer(minLength: 0)
@@ -146,7 +147,7 @@ private struct CaptureInboxRow: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(item.text)
-                        .font(.system(size: 14))
+                        .font(t.body(14))
                         .foregroundStyle(t.ink)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)

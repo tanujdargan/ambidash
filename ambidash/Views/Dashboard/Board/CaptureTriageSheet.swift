@@ -57,7 +57,7 @@ struct CaptureTriageSheet: View {
         VStack(alignment: .leading, spacing: 6) {
             SectionLabel(title: "You captured")
             Text(item.text)
-                .font(.system(size: 19, weight: .regular, design: .serif))
+                .font(t.heading(19))
                 .foregroundStyle(t.ink)
                 .lineSpacing(3)
         }

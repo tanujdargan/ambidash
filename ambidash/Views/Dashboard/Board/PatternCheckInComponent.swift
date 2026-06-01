@@ -70,7 +70,7 @@ struct PatternCheckInComponent: View {
             header(insight, t)
 
             Text(warmedBody.isEmpty ? insight.body : warmedBody)
-                .font(.system(size: 13))
+                .font(t.body(13))
                 .foregroundStyle(t.ink)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -96,7 +96,8 @@ struct PatternCheckInComponent: View {
                 .font(.system(size: 12))
                 .foregroundStyle(t.accent)
             Text(insight.title)
-                .font(.system(size: 13, weight: .semibold))
+                .font(t.body(13))
+                .fontWeight(.semibold)
                 .foregroundStyle(t.ink)
             Spacer(minLength: 4)
             // A quiet "not now" — dismiss without answering; comes back another day.
@@ -154,7 +155,7 @@ struct PatternCheckInComponent: View {
                 .font(.system(size: 13))
                 .foregroundStyle(t.accent)
             Text(text)
-                .font(.system(size: 12))
+                .font(t.body(12))
                 .foregroundStyle(t.muted)
             Spacer(minLength: 0)
         }

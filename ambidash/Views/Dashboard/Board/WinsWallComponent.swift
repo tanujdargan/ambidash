@@ -44,7 +44,7 @@ struct WinsWallComponent: View {
             showWeek = true
             Haptics.light()
         } label: {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: t.space.component) {
                 HStack(alignment: .firstTextBaseline) {
                     SectionLabel(title: "Wins")
                     Spacer()
@@ -54,7 +54,7 @@ struct WinsWallComponent: View {
                 }
 
                 Text(WinsService.headline(count: wins.count, days: 7))
-                    .font(.system(size: 16, weight: tm.typography.serifWeight, design: .serif))
+                    .font(t.heading(16))
                     .foregroundStyle(t.ink)
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -62,10 +62,10 @@ struct WinsWallComponent: View {
 
                 if previewWins.isEmpty {
                     Text("Do one real thing today — partials count — and it shows up right here.")
-                        .font(.system(size: 11))
+                        .font(t.body(11))
                         .foregroundStyle(t.muted)
                 } else {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: t.space.tight) {
                         ForEach(previewWins) { item in
                             winRow(item, t)
                         }
@@ -107,7 +107,7 @@ struct WinsWallComponent: View {
                 .font(.system(size: 13))
                 .foregroundStyle(t.accent)
             Text(item.title)
-                .font(.system(size: 13))
+                .font(t.body(13))
                 .foregroundStyle(t.ink2)
                 .lineLimit(1)
             Spacer(minLength: 4)

@@ -58,7 +58,7 @@ struct BlockLogSheet: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         Text(action.title)
-                            .font(.system(size: 20, weight: .regular, design: .serif))
+                            .font(t.heading(20))
                             .foregroundStyle(t.ink)
                             .padding(.top, 6)
 

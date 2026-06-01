@@ -572,7 +572,8 @@ private struct TimelineBlockRow: View {
                     .frame(width: 16)
 
                 Text(block.action.title)
-                    .font(.system(size: 14, weight: status == .current ? .semibold : .regular))
+                    .font(t.body(14))
+                    .fontWeight(status == .current ? .semibold : .regular)
                     .foregroundStyle(titleColor(t, status: status))
                     .lineLimit(2)
                     .strikethrough(block.action.statusRaw == "done", color: t.faint)
@@ -796,7 +797,7 @@ private struct TimelineBlockDetailSheet: View {
                                     .foregroundStyle(t.muted)
                             }
                             Text(action.title)
-                                .font(.system(size: 22, weight: .regular, design: .serif))
+                                .font(t.heading(22))
                                 .foregroundStyle(t.ink)
                         }
 
@@ -809,7 +810,7 @@ private struct TimelineBlockDetailSheet: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 SectionLabel(title: "Why")
                                 Text(action.whyReasoning)
-                                    .font(.system(size: 15, design: .serif))
+                                    .font(t.heading(15))
                                     .italic()
                                     .foregroundStyle(t.ink2)
                                     .lineSpacing(3)

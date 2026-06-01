@@ -99,7 +99,7 @@ struct DisruptionDiffSheet: View {
                     .foregroundStyle(t.muted)
             }
             Text(warmedRationale.isEmpty ? diff.rationale : warmedRationale)
-                .font(.system(size: 18, design: .serif))
+                .font(t.heading(18))
                 .foregroundStyle(t.ink)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
@@ -145,7 +145,7 @@ struct DisruptionDiffSheet: View {
                             .font(.system(size: 16))
                             .foregroundStyle(t.accent)
                         Text(p.title)
-                            .font(.system(size: 20, weight: .regular, design: .serif))
+                            .font(t.heading(20))
                             .foregroundStyle(t.ink)
                     }
                     Text(p.toSlot.isEmpty ? "Anytime that works" : "Around \(p.toSlot)")
@@ -159,7 +159,7 @@ struct DisruptionDiffSheet: View {
                 .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.accent.opacity(0.4), lineWidth: 1))
             } else {
                 Text("Nothing pressing right now. Rest is allowed.")
-                    .font(.system(size: 16, design: .serif))
+                    .font(t.heading(16))
                     .foregroundStyle(t.ink)
             }
             Button {
@@ -178,7 +178,7 @@ struct DisruptionDiffSheet: View {
     private func calmEmpty(_ t: ResolvedTheme) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Your day's already light.")
-                .font(.system(size: 17, design: .serif))
+                .font(t.heading(17))
                 .foregroundStyle(t.ink)
             Text("There's nothing to reshuffle — what's left already fits. Take the breath.")
                 .font(.system(size: 13))

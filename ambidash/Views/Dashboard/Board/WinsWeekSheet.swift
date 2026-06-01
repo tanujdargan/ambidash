@@ -77,7 +77,7 @@ struct WinsWeekSheet: View {
                 .tracking(2)
                 .foregroundStyle(t.muted)
             Text(WinsService.headline(count: wins.count, days: 7))
-                .font(.system(size: 24, weight: tm.typography.serifWeight, design: .serif))
+                .font(t.heading(24))
                 .tracking(-0.3)
                 .lineSpacing(2)
                 .foregroundStyle(t.ink)

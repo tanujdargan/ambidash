@@ -68,7 +68,7 @@ struct ScoreBreakdownCard: View {
         }
 
         Text("The composite is the plain average of all six dimension scores — no weighting. Tap any dimension above its arc gauge to see how that number is built.")
-            .font(.system(size: 13, design: .serif))
+            .font(t.body(13))
             .foregroundStyle(t.ink2)
             .lineSpacing(3)
 
@@ -110,12 +110,12 @@ struct ScoreBreakdownCard: View {
 
         if !detail.hasGoals {
             Text("No active goals in \(dim.fullName) yet, so this dimension defaults to a neutral 50. Add a goal here to make this score real.")
-                .font(.system(size: 13, design: .serif))
+                .font(t.body(13))
                 .foregroundStyle(t.ink2)
                 .lineSpacing(3)
         } else {
             Text("Each goal scores on recency (a neglect band by days since progress). Measurable goals blend that band 50/50 with how far they've climbed toward target. The dimension is the average of those goal scores.")
-                .font(.system(size: 13, design: .serif))
+                .font(t.body(13))
                 .foregroundStyle(t.ink2)
                 .lineSpacing(3)
 
@@ -124,7 +124,7 @@ struct ScoreBreakdownCard: View {
                 ForEach(detail.goalLines) { line in
                     VStack(alignment: .leading, spacing: 3) {
                         Text(line.title)
-                            .font(.system(size: 14, weight: .regular, design: .serif))
+                            .font(t.heading(14))
                             .foregroundStyle(t.ink)
                         Text(line.explanation)
                             .font(.system(size: 11, design: .monospaced))

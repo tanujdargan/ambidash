@@ -139,7 +139,7 @@ struct FocusSessionComponent: View {
                 focusOnBlockCard(t, block: next, headline: "Get a head start")
             } else {
                 Text("Pick a length and settle into one thing. No streak, no pressure — just a calm timer.")
-                    .font(.system(size: 12))
+                    .font(t.body(12))
                     .foregroundStyle(t.muted)
             }
 
@@ -190,7 +190,8 @@ struct FocusSessionComponent: View {
                 HStack(spacing: 8) {
                     Image(systemName: "target").font(.system(size: 13))
                     Text(block.action.title)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(t.body(15))
+                        .fontWeight(.semibold)
                         .lineLimit(2)
                     Spacer(minLength: 4)
                     Text(remainingLabel(for: block))
@@ -250,7 +251,8 @@ struct FocusSessionComponent: View {
         VStack(alignment: .leading, spacing: 16) {
             // What we're focusing on.
             Text(focusTitle)
-                .font(.system(size: 15, weight: .semibold))
+                .font(t.body(15))
+                .fontWeight(.semibold)
                 .foregroundStyle(t.ink)
                 .lineLimit(2)
 
@@ -427,10 +429,11 @@ struct FocusSessionComponent: View {
                     .foregroundStyle(t.ok)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("That's a focused stretch.")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(t.body(15))
+                        .fontWeight(.semibold)
                         .foregroundStyle(t.ink)
                     Text(completionSubtitle)
-                        .font(.system(size: 12))
+                        .font(t.body(12))
                         .foregroundStyle(t.muted)
                 }
                 Spacer(minLength: 0)
