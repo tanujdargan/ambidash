@@ -79,7 +79,6 @@ enum BoardTemplate {
     static func placements(for id: BoardTemplateID) -> [ComponentPlacement] {
         switch id {
         case .calm:
-            let today3 = ComponentConfig.encode(ComponentConfig.Today(rowCount: 3))
             return [
                 // Quiet hero: one pulse + who today is shaping you into.
                 ComponentPlacement(.compositeScore, .top, .full),
