@@ -198,6 +198,29 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 dynamic categories: the Categories component shows goals grouped into
+    /// categories DERIVED from their domains (seeded goals span Body + Craft) with
+    /// a subgoal count.
+    func testGoalCategoriesComponent() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+
+        let categories = app.otherElements["component.categories"]
+        let scrollView = app.scrollViews["dashboard.scroll"].exists
+            ? app.scrollViews["dashboard.scroll"] : app.scrollViews.firstMatch
+        var scrolls = 0
+        while !categories.exists && scrolls < 6 {
+            scrollView.swipeUp(velocity: .fast)
+            scrolls += 1
+        }
+        Thread.sleep(forTimeInterval: 0.5)
+        snap("goal-categories-component")
+        XCTAssertTrue(categories.exists, "Categories component not found on the board")
+        // Two derived categories from the seeded goals (Body & Health, Craft & Career).
+        XCTAssertTrue(app.staticTexts["Craft & Career"].exists, "Derived 'Craft & Career' category not shown")
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 sticky secondary goals: the Sticky Notes component (placed high in the
     /// .balanced board) shows the seeded pinned goal as a glanceable note card.
     func testStickyGoalsComponent() throws {
