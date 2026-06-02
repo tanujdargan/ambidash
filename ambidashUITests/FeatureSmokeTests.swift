@@ -214,6 +214,34 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 mentor invite: tapping "Invite & connect" opens the invite sheet with a
+    /// generated code + QR; pasting a code connects (stored locally).
+    func testMentorInvite() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.mentor")
+
+        let inviteButton = app.buttons["mentor.inviteButton"]
+        XCTAssertTrue(inviteButton.waitForExistence(timeout: 6), "Invite button not found")
+        inviteButton.tap()
+
+        let sheet = app.otherElements["mentor.inviteSheet"]
+        XCTAssertTrue(sheet.waitForExistence(timeout: 5), "Invite sheet did not open")
+        let code = app.staticTexts["mentor.inviteCode"]
+        XCTAssertTrue(code.waitForExistence(timeout: 3), "Generated invite code not shown")
+        snap("mentor-invite-sheet")
+
+        // Connect with a pasted code — must persist + not crash.
+        let field = app.textFields["mentor.connectField"]
+        if field.waitForExistence(timeout: 3) {
+            field.tap()
+            field.typeText("AMBI-TEST01\n")   // \n submits → connect() (keyboard covers the button)
+            XCTAssertTrue(app.staticTexts["mentor.connectedState"].waitForExistence(timeout: 4),
+                          "Connected state not shown after entering a code")
+            snap("mentor-connected")
+        }
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 goal-tied vitals: the Goal Vitals component shows each goal's status
     /// straight up (seeded goals = one On Track, one Needs Time).
     func testGoalVitalsComponent() throws {

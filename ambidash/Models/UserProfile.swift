@@ -20,6 +20,13 @@ final class UserProfile {
     var mentorOptInRaw: String = "none"
     /// Days of progress toward unlocking the ability to become a mentor (target 30).
     var mentorProgressDays: Int = 0
+    /// This user's own shareable invite code (a UUID, generated lazily). Someone you
+    /// invite scans/pastes it to connect. Cross-device sync of the link needs a
+    /// backend (future) — for now the code + QR generate and the connect flow works
+    /// locally on each device.
+    var mentorInviteCode: String = ""
+    /// The peer code this user accepted (empty = not connected to anyone yet).
+    var connectedPeerCode: String = ""
 
     @Relationship(deleteRule: .cascade) var coreAssessment: CoreAssessment?
     @Relationship(deleteRule: .cascade) var workStylePreference: WorkStylePreference?
