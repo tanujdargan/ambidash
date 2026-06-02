@@ -171,6 +171,14 @@ struct GoalQuickSheet: View {
                     try? modelContext.save()
                     dismiss()
                 }
+
+                // v4: pin/unpin to the always-visible Sticky Notes surface.
+                GhostButton(label: goal.isSticky ? "Unpin sticky note" : "Pin as sticky note") {
+                    Haptics.light()
+                    goal.isSticky.toggle()
+                    try? modelContext.save()
+                }
+                .accessibilityIdentifier("goal.toggleSticky")
             }
             .padding(.horizontal, 22)
             .padding(.top, 20)

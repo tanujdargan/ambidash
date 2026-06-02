@@ -174,6 +174,17 @@ enum ComponentRegistry {
             isSingleton: true
         ),
         ComponentDescriptor(
+            kind: .stickyGoals,
+            title: "Sticky Notes",
+            sfSymbol: "pin",
+            category: .goals,
+            blurb: "Pinned goals kept always-visible but glanceable — a sticky note for what matters.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
             kind: .captureInbox,
             title: "Capture Inbox",
             sfSymbol: "tray",
@@ -277,6 +288,8 @@ enum ComponentRegistry {
             TodayProgressComponent(boardData: boardData)
         case .weekAhead:
             WeekAheadComponent()
+        case .stickyGoals:
+            StickyGoalsComponent()
         case .captureInbox:
             // The one inherently-dynamic component: it owns a small @Query for the
             // recent inbox (mutated by quick-add/triage), so it is intentionally NOT

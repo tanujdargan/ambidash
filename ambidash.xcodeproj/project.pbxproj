@@ -44,6 +44,7 @@
 		20A331A3AEA8C04740E70C84 /* ComponentConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D94CF5AC1025AC1F5DE1FD /* ComponentConfig.swift */; };
 		2146EDB97577C876C323D1E5 /* BoardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31BBFF23E2302CE4CF47C6DC /* BoardData.swift */; };
 		2200D05DA1B93A702178200C /* GoalProgressTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B73B908D3586F0C284753C /* GoalProgressTracker.swift */; };
+		224F29A87E2AA3E9697FE87B /* StickyGoalsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A102E946259DD3A97B988D94 /* StickyGoalsComponent.swift */; };
 		23D30FEF3895CE79E050A119 /* IntegrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A33E9CED2D0772100C550 /* IntegrationManager.swift */; };
 		247F60C26A311B7EB35AB895 /* ReflectionPhotoStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05149A5C3B4408B8911385E6 /* ReflectionPhotoStrip.swift */; };
 		24FDA9B6ABFF5CB69741C235 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE9BC2C6D2DB031A788193C /* AIService.swift */; };
@@ -501,6 +502,7 @@
 		9EE9BC2C6D2DB031A788193C /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIService.swift; sourceTree = "<group>"; };
 		9F25BD1C79A41FD3D12A25FC /* FirstLetterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstLetterView.swift; sourceTree = "<group>"; };
 		A088EBE00A51577CCE5A0AB4 /* DictationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationService.swift; sourceTree = "<group>"; };
+		A102E946259DD3A97B988D94 /* StickyGoalsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickyGoalsComponent.swift; sourceTree = "<group>"; };
 		A144C194003E0432B867973D /* LogProgressSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogProgressSheet.swift; sourceTree = "<group>"; };
 		A28E88B33A2DF877FBC2E57E /* Streak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Streak.swift; sourceTree = "<group>"; };
 		A3AFDDC2F74A33BC395F2031 /* AmbidashWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashWidget.swift; sourceTree = "<group>"; };
@@ -1010,6 +1012,7 @@
 				26F7DA613305CB4B07A7D39D /* FocusSoundService.swift */,
 				08E79A880B760BC35A3F1457 /* PatternCheckInComponent.swift */,
 				6C0A6D257402FC4E1C367568 /* QuickCaptureSheet.swift */,
+				A102E946259DD3A97B988D94 /* StickyGoalsComponent.swift */,
 				54A1CF6FEB17DC015D9048A4 /* TodayProgressComponent.swift */,
 				F9B38BAC024E5DE9049499A0 /* WeekAheadComponent.swift */,
 				07B2E9178E05F3E2E66CA515 /* WinsWallComponent.swift */,
@@ -1483,6 +1486,7 @@
 				B6E9C6D6FB4AA5469EF277BA /* SlotScheduler.swift in Sources */,
 				0E52B9416614A9425F2A8FBE /* SnapshotBuilder.swift in Sources */,
 				E60C26D269DEF64410700B52 /* SpotlightService.swift in Sources */,
+				224F29A87E2AA3E9697FE87B /* StickyGoalsComponent.swift in Sources */,
 				DD346661F70EA3838978CC92 /* Streak.swift in Sources */,
 				FA51486D160E2D60E98F332C /* StreakService.swift in Sources */,
 				636A5873CB39E24586D37034 /* SubscriptionService.swift in Sources */,

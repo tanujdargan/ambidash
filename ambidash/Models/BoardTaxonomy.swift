@@ -26,6 +26,9 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// v4 — a 1–7 day look-ahead: upcoming days with their dated milestone
     /// deadlines, so "midterm in 2 days" is visible before it arrives.
     case weekAhead
+    /// v4 — a "sticky note" surface: pinned (isSticky) goals kept always-visible
+    /// but glanceable, for must-not-forget goals that aren't top priority.
+    case stickyGoals
     /// Design principle #3 — TODAY as a vertical, duration-sized block timeline
     /// (fixed anchors / routines / goal-work woven into one column). Current block
     /// highlighted with a live remaining-time countdown; past blocks fade via the

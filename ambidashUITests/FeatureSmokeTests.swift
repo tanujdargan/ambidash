@@ -198,6 +198,27 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 sticky secondary goals: the Sticky Notes component (placed high in the
+    /// .balanced board) shows the seeded pinned goal as a glanceable note card.
+    func testStickyGoalsComponent() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+
+        let sticky = app.otherElements["component.stickyGoals"]
+        let scrollView = app.scrollViews["dashboard.scroll"].exists
+            ? app.scrollViews["dashboard.scroll"] : app.scrollViews.firstMatch
+        var scrolls = 0
+        while !sticky.exists && scrolls < 6 {
+            scrollView.swipeUp(velocity: .fast)
+            scrolls += 1
+        }
+        Thread.sleep(forTimeInterval: 0.5)
+        snap("sticky-goals-component")
+        XCTAssertTrue(sticky.exists, "Sticky Notes component not found on the board")
+        XCTAssertTrue(app.staticTexts["Run a 5K"].exists, "Seeded pinned goal not shown in Sticky Notes")
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 1–7 day view: the Week Ahead component (seeded into the .balanced board)
     /// renders the next-7-days look-ahead with the seeded "Midterm" deadline.
     func testWeekAheadComponent() throws {
