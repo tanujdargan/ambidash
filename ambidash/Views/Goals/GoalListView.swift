@@ -250,7 +250,7 @@ struct GoalListView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(t.muted)
             Text(domain.dimension.displayName)
-                .font(.system(size: 13, weight: .medium, design: .serif))
+                .font(t.heading(13))
                 .foregroundStyle(t.ink)
             Text("\(goals.count)")
                 .font(.system(size: 10, design: .monospaced))
@@ -398,7 +398,7 @@ struct GoalListView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(retired ? t.faint : t.muted)
                 Text(goal.title)
-                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .font(t.heading(17))
                     .strikethrough(retired, color: t.faint)
                     .foregroundStyle(retired ? t.faint : t.ink)
             }

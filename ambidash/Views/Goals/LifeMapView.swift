@@ -75,7 +75,7 @@ struct LifeMapView: View {
                 .foregroundStyle(t.muted)
 
             Text("Everything, at once.")
-                .font(.system(size: 28, weight: .regular, design: .serif))
+                .font(t.heading(28))
                 .tracking(-0.3)
                 .foregroundStyle(t.ink)
         }
@@ -166,7 +166,7 @@ struct LifeMapView: View {
         VStack(alignment: .leading, spacing: 6) {
             if goals.isEmpty {
                 Text("—")
-                    .font(.system(size: 14, design: .serif))
+                    .font(t.body(14))
                     .foregroundStyle(t.faint)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 2)
@@ -219,7 +219,7 @@ private struct GoalCellChip: View {
                     .padding(.top, 5)
 
                 Text(goal.title)
-                    .font(.system(size: 12, weight: .regular, design: .serif))
+                    .font(theme.body(12))
                     .foregroundStyle(theme.ink)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)

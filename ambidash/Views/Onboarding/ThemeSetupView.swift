@@ -17,7 +17,7 @@ struct ThemeSetupView: View {
                                 .foregroundStyle(t.muted)
 
                             Text("Make it yours.")
-                                .font(.system(size: 32, weight: .regular, design: .serif))
+                                .font(t.heading(32))
                                 .tracking(-0.3)
                                 .foregroundStyle(t.ink)
                         }
@@ -99,7 +99,7 @@ struct ThemeSetupView: View {
                                             Spacer()
 
                                             Text("Aa")
-                                                .font(.system(size: 16, design: typo == .technical ? .monospaced : .serif))
+                                                .font(.system(size: 16, design: typo.headingDesign))
                                                 .foregroundStyle(t.muted)
                                         }
                                         .padding(.horizontal, 16)

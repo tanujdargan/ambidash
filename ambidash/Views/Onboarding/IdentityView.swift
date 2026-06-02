@@ -38,7 +38,7 @@ struct IdentityView: View {
 
                 // Heading
                 Text("I want to know who you are, not what you do.")
-                    .font(.system(size: 26, weight: .regular, design: .serif))
+                    .font(t.heading(26))
                     .tracking(-0.2)
                     .lineSpacing(2)
                     .foregroundStyle(t.ink)
@@ -128,7 +128,7 @@ private struct UnderlineField: View {
                 }
             }
             TextField("", text: $value)
-                .font(.system(size: 18, weight: .regular, design: .serif))
+                .font(t.heading(18))
                 .foregroundStyle(t.ink)
                 .keyboardType(keyboard)
                 .autocorrectionDisabled()

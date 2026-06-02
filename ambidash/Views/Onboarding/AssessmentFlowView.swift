@@ -71,7 +71,7 @@ struct AssessmentFlowView: View {
                                     .tracking(1.6)
                                     .foregroundStyle(t.muted)
                                 Text("There are no right answers. Honest ones become a better mirror.")
-                                    .font(.system(size: 14, design: .serif))
+                                    .font(t.body(14))
                                     .italic()
                                     .lineSpacing(2)
                                     .foregroundStyle(t.ink2)

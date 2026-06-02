@@ -35,7 +35,7 @@ struct GoalDeclarationView: View {
                                 .foregroundStyle(t.muted)
 
                             Text("Which areas of life matter most right now?")
-                                .font(.system(size: 24, weight: .regular, design: .serif))
+                                .font(t.heading(24))
                                 .tracking(-0.2)
                                 .lineSpacing(2)
                                 .foregroundStyle(t.ink)

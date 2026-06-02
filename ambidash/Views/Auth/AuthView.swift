@@ -30,7 +30,7 @@ struct AuthView: View {
                     .fadeSlideIn(delay: 0.2)
 
                 Text("A quiet instrument for an ambitious life.")
-                    .font(.system(size: 32, weight: .regular, design: .serif))
+                    .font(t.heading(32))
                     .tracking(-0.6)
                     .lineSpacing(2)
                     .foregroundStyle(t.ink)

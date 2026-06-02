@@ -40,7 +40,7 @@ struct AddGoalView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             SectionLabel(title: "Goal")
                             TextField("What do you want to achieve?", text: $title)
-                                .font(.system(size: 18, weight: .regular, design: .serif))
+                                .font(t.heading(18))
                                 .foregroundStyle(t.ink)
                             t.rule.frame(height: 1)
                         }

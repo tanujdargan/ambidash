@@ -32,7 +32,7 @@ struct GoalDetailView: View {
                         }
 
                         Text(goal.title)
-                            .font(.system(size: 28, weight: .regular, design: .serif))
+                            .font(t.heading(28))
                             .tracking(-0.3)
                             .foregroundStyle(t.ink)
 
@@ -237,7 +237,7 @@ struct GoalDetailView: View {
             if editingDetails {
                 TextEditor(text: $detailsDraft)
                     .focused($detailsFocused)
-                    .font(.system(size: 14, design: .serif))
+                    .font(t.body(14))
                     .foregroundStyle(t.ink)
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: 88, maxHeight: 140)
@@ -262,7 +262,7 @@ struct GoalDetailView: View {
                 }
             } else {
                 Text(goal.details.isEmpty ? "No details yet — tap + to describe how you'll do this." : goal.details)
-                    .font(.system(size: 14, design: .serif))
+                    .font(t.body(14))
                     .italic(!goal.details.isEmpty)
                     .foregroundStyle(goal.details.isEmpty ? t.faint : t.ink2)
                     .lineSpacing(3)
@@ -314,7 +314,7 @@ struct GoalDetailView: View {
                         HStack(spacing: 8) {
                             StatusDot(status: milestone.status)
                             Text(milestone.title)
-                                .font(.system(size: 13, weight: .regular, design: .serif))
+                                .font(t.body(13))
                                 .foregroundStyle(t.ink2)
                                 .lineLimit(1)
                             Spacer()

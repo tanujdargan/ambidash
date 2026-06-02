@@ -126,7 +126,7 @@ private struct PhotoPreviewSheet: View {
                                     .tracking(1.5)
                                     .foregroundStyle(t.muted)
                                 Text(photo.recognizedText)
-                                    .font(.system(size: 14, design: .serif))
+                                    .font(t.body(14))
                                     .foregroundStyle(t.ink2)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .textSelection(.enabled)

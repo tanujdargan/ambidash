@@ -61,7 +61,7 @@ struct QuarterlyReviewView: View {
                 HStack(spacing: 8) {
                     Circle().fill(goal.horizon.dotColor).frame(width: 6, height: 6)
                     Text(goal.title)
-                        .font(.system(size: 16, weight: .regular, design: .serif))
+                        .font(t.heading(16))
                         .foregroundStyle(t.ink)
                         .lineLimit(1)
                     Spacer()
@@ -95,7 +95,7 @@ struct QuarterlyReviewView: View {
             HStack(spacing: 8) {
                 StatusDot(status: milestone.status)
                 Text(milestone.title)
-                    .font(.system(size: 13, weight: .regular, design: .serif))
+                    .font(t.body(13))
                     .foregroundStyle(t.ink2)
                     .lineLimit(2)
                 Spacer()

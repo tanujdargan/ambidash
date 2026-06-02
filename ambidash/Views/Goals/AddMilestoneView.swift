@@ -51,7 +51,7 @@ struct AddMilestoneView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             SectionLabel(title: "Checkpoint")
                             TextField("What outcome marks this checkpoint?", text: $title)
-                                .font(.system(size: 18, weight: .regular, design: .serif))
+                                .font(t.heading(18))
                                 .foregroundStyle(t.ink)
                             t.rule.frame(height: 1)
                         }
@@ -74,7 +74,7 @@ struct AddMilestoneView: View {
                                     .font(.system(size: 11, design: .monospaced))
                                     .foregroundStyle(t.faint)
                                 Text(parent.title)
-                                    .font(.system(size: 12, weight: .regular, design: .serif))
+                                    .font(t.body(12))
                                     .foregroundStyle(t.muted)
                                     .lineLimit(1)
                             }

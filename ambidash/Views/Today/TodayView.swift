@@ -217,7 +217,7 @@ struct TodayView: View {
             }
 
             Text(action.title)
-                .font(.system(size: 20, weight: .regular, design: .serif))
+                .font(t.heading(20))
                 .foregroundStyle(t.ink)
 
             cueTargetLine(action, t: t)
@@ -282,7 +282,7 @@ struct TodayView: View {
                 .foregroundStyle(t.ok)
 
             Text("Day complete.")
-                .font(.system(size: 22, weight: .regular, design: .serif))
+                .font(t.heading(22))
                 .foregroundStyle(t.ink)
 
             Text("\(doneCount) done · \(skippedCount) skipped")
@@ -291,7 +291,7 @@ struct TodayView: View {
 
             if skippedCount == 0 {
                 Text("You finished everything you planned. Notice that.")
-                    .font(.system(size: 14, design: .serif))
+                    .font(t.body(14))
                     .italic()
                     .foregroundStyle(t.ink2)
                     .multilineTextAlignment(.center)
@@ -354,7 +354,7 @@ struct TodayView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(action.title)
-                        .font(.system(size: isStructure ? 14 : 15, weight: .regular, design: .serif))
+                        .font(t.body(isStructure ? 14 : 15))
                         .strikethrough(isPast, color: t.faint)
                         .foregroundStyle(isPast ? t.muted : (isStructure ? t.ink2 : t.ink))
 
@@ -575,7 +575,7 @@ struct TodayView: View {
 
             VStack(spacing: 8) {
                 Text("No plan for today.")
-                    .font(.system(size: 22, weight: .regular, design: .serif))
+                    .font(t.heading(22))
                     .foregroundStyle(t.ink)
 
                 Text("Generate one from your goals — it takes a few seconds.")
@@ -1129,7 +1129,7 @@ private struct AddActionSheet: View {
                         VStack(alignment: .leading, spacing: 6) {
                             SectionLabel(title: "Action")
                             TextField("What will you do?", text: $title)
-                                .font(.system(size: 18, weight: .regular, design: .serif))
+                                .font(t.heading(18))
                                 .foregroundStyle(t.ink)
                             t.rule.frame(height: 1)
                         }
@@ -1263,7 +1263,7 @@ private struct RescheduleSheet: View {
                     VStack(alignment: .leading, spacing: 6) {
                         SectionLabel(title: "Action")
                         Text(action.title)
-                            .font(.system(size: 18, weight: .regular, design: .serif))
+                            .font(t.heading(18))
                             .foregroundStyle(t.ink)
                     }
 
@@ -1339,7 +1339,7 @@ private struct SkipReasonSheet: View {
                         VStack(alignment: .leading, spacing: 6) {
                             SectionLabel(title: "Skipping")
                             Text(action.title)
-                                .font(.system(size: 18, weight: .regular, design: .serif))
+                                .font(t.heading(18))
                                 .foregroundStyle(t.ink)
                         }
 
