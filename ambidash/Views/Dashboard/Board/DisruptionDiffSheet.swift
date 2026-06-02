@@ -222,8 +222,7 @@ struct DisruptionDiffSheet: View {
                     .background(t.accent)
                     .clipShape(RoundedRectangle(cornerRadius: 13))
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
             .padding(.horizontal, 22)
             .padding(.bottom, 8)
         }
@@ -248,8 +247,7 @@ struct DisruptionDiffSheet: View {
             .overlay(RoundedRectangle(cornerRadius: 11).stroke(t.hair, lineWidth: 0.5))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     // MARK: - Logic
@@ -404,8 +402,7 @@ private struct DiffRow: View {
             .opacity(entry.kind == .dropped ? 0.7 : 1)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(a11y)
         .accessibilityHint(editable ? "Double tap to change keep, move, or roll forward." : "")

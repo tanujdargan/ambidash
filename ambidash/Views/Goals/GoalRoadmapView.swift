@@ -186,8 +186,7 @@ struct GoalRoadmapView: View {
             .padding(.vertical, 12)
             .overlay(alignment: .bottom) { HairlineRule() }
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     /// A thin track + fill at the checkpoint's percentComplete, mirroring

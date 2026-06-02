@@ -48,6 +48,18 @@ struct ScalePress: ViewModifier {
     }
 }
 
+struct ScalePressButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.ambidashSnap, value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == ScalePressButtonStyle {
+    static var scalePress: ScalePressButtonStyle { .init() }
+}
+
 struct FadeSlideIn: ViewModifier {
     @State private var appeared = false
     let delay: Double

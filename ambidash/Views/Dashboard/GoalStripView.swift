@@ -16,8 +16,7 @@ struct GoalStripView: View {
                     } label: {
                         GoalChip(goal: goal)
                     }
-                    .buttonStyle(.plain)
-                    .scaleOnPress()
+                    .buttonStyle(.scalePress)
                 }
             }
             .padding(.horizontal, 22)

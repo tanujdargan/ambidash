@@ -148,8 +148,7 @@ struct BoardSetupView: View {
             )
             .contentShape(RoundedRectangle(cornerRadius: 16))
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(id.displayName) template\(id == .calm ? ", recommended" : "")\(isSelected ? ", selected" : ""). \(id.blurb)")
     }
@@ -190,8 +189,7 @@ struct BoardSetupView: View {
                 .background(t.accent)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .padding(.top, 4)
         .accessibilityLabel("Apply the \(selected.displayName) template")
     }

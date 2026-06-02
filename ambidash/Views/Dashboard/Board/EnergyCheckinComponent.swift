@@ -93,8 +93,7 @@ struct EnergyCheckinComponent: View {
                     )
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .scaleOnPress()
+                .buttonStyle(.scalePress)
                 .accessibilityLabel(level.label)
             }
         }

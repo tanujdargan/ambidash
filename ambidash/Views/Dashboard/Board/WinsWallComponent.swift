@@ -92,8 +92,7 @@ struct WinsWallComponent: View {
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .sheet(isPresented: $showWeek) {
             WinsWeekSheet().environment(tm)
         }

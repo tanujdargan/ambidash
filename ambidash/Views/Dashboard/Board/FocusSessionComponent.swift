@@ -171,8 +171,7 @@ struct FocusSessionComponent: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .scaleOnPress()
+                .buttonStyle(.scalePress)
             }
         }
     }
@@ -213,8 +212,7 @@ struct FocusSessionComponent: View {
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(t.accent.opacity(0.4), lineWidth: 1))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     @ViewBuilder
@@ -238,8 +236,7 @@ struct FocusSessionComponent: View {
                 )
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .accessibilityLabel("\(minutes) minute focus")
         .accessibilityAddTraits(on ? .isSelected : [])
     }
@@ -341,8 +338,7 @@ struct FocusSessionComponent: View {
                 .overlay(RoundedRectangle(cornerRadius: 11).stroke(t.hair, lineWidth: 0.5))
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
 
             if let line = aiCheckinLine {
                 HStack(spacing: 6) {
@@ -378,8 +374,7 @@ struct FocusSessionComponent: View {
             )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     @ViewBuilder
@@ -410,8 +405,7 @@ struct FocusSessionComponent: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
         }
         #else
         EmptyView()
@@ -456,8 +450,7 @@ struct FocusSessionComponent: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
         }
     }
 

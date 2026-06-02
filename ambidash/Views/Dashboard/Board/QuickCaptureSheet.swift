@@ -81,8 +81,7 @@ struct QuickCaptureSheet: View {
                                 .background(canCapture ? AnyShapeStyle(t.accent) : AnyShapeStyle(t.surface))
                                 .clipShape(Capsule())
                         }
-                        .buttonStyle(.plain)
-                        .scaleOnPress()
+                        .buttonStyle(.scalePress)
                         .disabled(!canCapture)
                         .accessibilityLabel("Capture thought")
                     }

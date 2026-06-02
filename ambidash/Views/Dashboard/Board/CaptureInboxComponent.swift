@@ -90,8 +90,7 @@ struct CaptureInboxComponent: View {
                     .background(t.sunken.opacity(0.6))
                     .clipShape(Circle())
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
             .accessibilityLabel("Quick capture")
         }
     }
@@ -170,8 +169,7 @@ private struct CaptureInboxRow: View {
             .overlay(RoundedRectangle(cornerRadius: 11).stroke(t.hair.opacity(0.6), lineWidth: 0.5))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(item.text), captured \(relativeTime). Tap to triage.")
     }
