@@ -48,28 +48,8 @@ struct AmbidashApp: App {
                     }
                 }
         }
-        .modelContainer(for: [
-            UserProfile.self,
-            CoreAssessment.self,
-            WorkStylePreference.self,
-            UserPreferences.self,
-            Goal.self,
-            DomainAssessment.self,
-            GoalProgress.self,
-            Streak.self,
-            IntegrationSnapshot.self,
-            DailyPlan.self,
-            PlannedAction.self,
-            Reflection.self,
-            ReflectionPhoto.self,
-            MentorFeedback.self,
-            ProgressLog.self,
-            Milestone.self,
-            Board.self,
-            BoardComponent.self,
-            CaptureItem.self,
-            ActualEvent.self,
-            EnergyCheckin.self,
-        ])
+        // Two-store container: synced for authored data, LOCAL-ONLY for HealthKit-
+        // derived IntegrationSnapshot (never syncs to iCloud). See AppModelContainer.
+        .modelContainer(AppModelContainer.shared)
     }
 }

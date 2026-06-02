@@ -23,29 +23,8 @@ struct AmbidashMacApp: App {
                 .preferredColorScheme(themeManager.isDark ? .dark : .light)
                 .frame(minWidth: 900, minHeight: 600)
         }
-        .modelContainer(for: [
-            UserProfile.self,
-            CoreAssessment.self,
-            WorkStylePreference.self,
-            UserPreferences.self,
-            Goal.self,
-            DomainAssessment.self,
-            GoalProgress.self,
-            Streak.self,
-            IntegrationSnapshot.self,
-            DailyPlan.self,
-            PlannedAction.self,
-            Reflection.self,
-            ReflectionPhoto.self,
-            MentorFeedback.self,
-            ProgressLog.self,
-            Milestone.self,
-            Board.self,
-            BoardComponent.self,
-            CaptureItem.self,
-            ActualEvent.self,
-            EnergyCheckin.self,
-        ])
+        // Shared two-store container: synced data + LOCAL-ONLY health store.
+        .modelContainer(AppModelContainer.shared)
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
         .commands {

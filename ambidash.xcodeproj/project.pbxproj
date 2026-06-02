@@ -56,6 +56,7 @@
 		2684893969864CE3F31D9723 /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC183A57A063887061AA22C /* NotionService.swift */; };
 		275B6E00406F18ECBF29EA34 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0078242D4C8C835AAF607D /* PaywallView.swift */; };
 		279AED51D78C3B22AD2285D1 /* CarryOverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF9029A4FA5B65A6C5FA5FC /* CarryOverService.swift */; };
+		279F21FAB703538024EEE7E3 /* AppModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7C188AFF408966F6890106 /* AppModelContainer.swift */; };
 		2808079C5A85336AED273C59 /* IntegrationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */; };
 		2880D8C9B0DFD81D7A0BC080 /* ErrorLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2599FAF6B43DF69E00217AC5 /* ErrorLogger.swift */; };
 		28B7169F9E05496CAD5473FA /* GoalHorizon.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12EBDB103B6522D8960104E /* GoalHorizon.swift */; };
@@ -329,6 +330,7 @@
 		FA51486D160E2D60E98F332C /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D85C97171671F9FEA4F482F /* StreakService.swift */; };
 		FBD234A9A2322D2DD3F4AF0F /* SnapshotBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671B9B4705A3549951558745 /* SnapshotBuilder.swift */; };
 		FD27BB8BD3EF324D0AEEF1A9 /* ProgressLogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA329791FE7B1832BECE426 /* ProgressLogService.swift */; };
+		FE79A716495B8B9549BEF488 /* AppModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7C188AFF408966F6890106 /* AppModelContainer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -478,6 +480,7 @@
 		7CB408A2165C1E61E569D13C /* EventKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventKitService.swift; sourceTree = "<group>"; };
 		7D1EA91E8A3918D1CE6FFBFA /* OnboardingFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowTests.swift; sourceTree = "<group>"; };
 		7D6C36A3D54170C8BFF96FFE /* ClosingRitualComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosingRitualComponent.swift; sourceTree = "<group>"; };
+		7D7C188AFF408966F6890106 /* AppModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelContainer.swift; sourceTree = "<group>"; };
 		7E8D5D18B848C42FE57ED1AF /* FocusSessionComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSessionComponent.swift; sourceTree = "<group>"; };
 		7ED83FA257C1D0AE6515DFC4 /* MentorFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentorFeedback.swift; sourceTree = "<group>"; };
 		807163D3523A51DB7F3CAD31 /* DataExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportService.swift; sourceTree = "<group>"; };
@@ -893,6 +896,7 @@
 			isa = PBXGroup;
 			children = (
 				557698237B86451559706D44 /* AmbidashApp.swift */,
+				7D7C188AFF408966F6890106 /* AppModelContainer.swift */,
 				E4F4231A3DF75758EE3BA8D1 /* MainTabView.swift */,
 				C0205626D0E49EFB6245E424 /* NotificationDelegate.swift */,
 				72A308453BB4EB34BA47F56D /* RootView.swift */,
@@ -1244,6 +1248,7 @@
 				1EAE90BD244A4564596F49BA /* AmbidashMacApp.swift in Sources */,
 				B64C162C60CD1C2E3767BB14 /* AmbidashTheme.swift in Sources */,
 				83D6C91C65761BD0A3C9EDDF /* Animations.swift in Sources */,
+				279F21FAB703538024EEE7E3 /* AppModelContainer.swift in Sources */,
 				B9DB8595528C4D1C2048CDFD /* AssessmentQuestion.swift in Sources */,
 				B06FED2A974D322A1B55BEA5 /* Board.swift in Sources */,
 				937F4A9FCC63B60DB6A52BA4 /* BoardComponent.swift in Sources */,
@@ -1363,6 +1368,7 @@
 				D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */,
 				331B02D2EB6C3B1FFF162090 /* AmbidashTheme.swift in Sources */,
 				07F0190AA9EF5596705D5782 /* Animations.swift in Sources */,
+				FE79A716495B8B9549BEF488 /* AppModelContainer.swift in Sources */,
 				1BA8B68F4A3816AFDA505B61 /* AssessmentFlowView.swift in Sources */,
 				F1806EB4832A5DECBD2DE525 /* AssessmentQuestion.swift in Sources */,
 				6ED1E00B86F4364ACC9479EC /* AssessmentQuestionView.swift in Sources */,
