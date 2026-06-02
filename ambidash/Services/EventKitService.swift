@@ -89,4 +89,46 @@ final class EventKitService {
             return 0
         }
     }
+
+    // MARK: - Writes (v4 calendar integration)
+
+    /// Adds a reminder for a goal to the user's default Reminders list. Requests
+    /// access first (idempotent). Returns false if access is denied or the save
+    /// fails — callers fire-and-forget and never block goal creation on this.
+    @discardableResult
+    func addGoalReminder(title: String, notes: String? = nil, due: Date? = nil) async -> Bool {
+        guard await requestRemindersAccess() else { return false }
+        let reminder = EKReminder(eventStore: store)
+        reminder.title = title
+        reminder.notes = notes
+        reminder.calendar = store.defaultCalendarForNewReminders()
+        if let due {
+            reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day], from: due)
+        }
+        do {
+            try store.save(reminder, commit: true)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Adds a timed event to the user's default calendar (for scheduled plan
+    /// blocks / dated milestones). Requests access first (idempotent).
+    @discardableResult
+    func addEvent(title: String, start: Date, durationMinutes: Int, notes: String? = nil) async -> Bool {
+        guard await requestCalendarAccess() else { return false }
+        let event = EKEvent(eventStore: store)
+        event.title = title
+        event.notes = notes
+        event.startDate = start
+        event.endDate = start.addingTimeInterval(TimeInterval(max(durationMinutes, 5) * 60))
+        event.calendar = store.defaultCalendarForNewEvents
+        do {
+            try store.save(event, span: .thisEvent, commit: true)
+            return true
+        } catch {
+            return false
+        }
+    }
 }

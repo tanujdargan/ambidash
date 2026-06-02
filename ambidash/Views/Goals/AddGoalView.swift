@@ -6,6 +6,9 @@ struct AddGoalView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(ThemeManager.self) private var tm
     @Query private var profiles: [UserProfile]
+    /// v4 calendar integration: when on, a newly-added goal also drops a reminder
+    /// into the user's Reminders so the goal "goes to the calendar" automatically.
+    @AppStorage("calendar_sync_enabled") private var calendarSyncEnabled = false
 
     @State private var title = ""
     @State private var subtitle = ""
@@ -365,6 +368,15 @@ struct AddGoalView: View {
         modelContext.insert(goal)
         goal.profile = profile
         try? modelContext.save()
+
+        // v4: mirror the goal into the user's Reminders so it "goes to the calendar"
+        // automatically. Fire-and-forget — never blocks or fails goal creation; the
+        // service requests Reminders access on first use.
+        if calendarSyncEnabled {
+            let reminderTitle = goal.title
+            let reminderNotes = goal.subtitle.isEmpty ? nil : goal.subtitle
+            Task { await EventKitService.shared.addGoalReminder(title: reminderTitle, notes: reminderNotes) }
+        }
 
         let questions = DomainAssessmentQuestions.questions(for: selectedDomain)
         if !questions.isEmpty {
