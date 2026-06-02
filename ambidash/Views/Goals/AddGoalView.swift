@@ -328,7 +328,17 @@ struct AddGoalView: View {
     }
 
     private func addGoal() {
-        guard let profile else { return }
+        // If no UserProfile exists yet (e.g. the "I've been here before" skip
+        // before any iCloud sync), create one on the spot rather than silently
+        // no-op'ing — otherwise tapping Add does nothing and the sheet just sits.
+        let profile: UserProfile
+        if let existing = self.profile {
+            profile = existing
+        } else {
+            let created = UserProfile(name: "", age: 0)
+            modelContext.insert(created)
+            profile = created
+        }
         Haptics.success()
         let priority = (profile.goals?.count ?? 0) + 1
         let goal = Goal(title: title, domain: selectedDomain, priority: priority)

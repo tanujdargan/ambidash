@@ -39,6 +39,11 @@ struct GoalDeclarationView: View {
                                 .tracking(-0.2)
                                 .lineSpacing(2)
                                 .foregroundStyle(t.ink)
+
+                            Text("Just to orient you — you'll name your actual goals next. Nothing here is locked in.")
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundStyle(t.muted)
+                                .lineSpacing(2)
                         }
                         .padding(.horizontal, 22)
                         .padding(.top, 8)
@@ -106,8 +111,6 @@ struct GoalDeclarationView: View {
                 }
                 .padding(.horizontal, 22)
                 .padding(.bottom, 24)
-                .opacity(selectedDomains.isEmpty ? 0.4 : 1)
-                .disabled(selectedDomains.isEmpty)
             }
         }
         .navigationBarBackButtonHidden()

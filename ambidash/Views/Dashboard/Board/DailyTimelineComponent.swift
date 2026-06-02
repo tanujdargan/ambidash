@@ -88,6 +88,7 @@ struct DailyTimelineComponent: View {
         .onAppear {
             now = .now
             maybeOfferGentleCheckin()
+            consumePendingGentleAction()
         }
         .sheet(item: $selected) { action in
             TimelineBlockDetailSheet(action: action)
@@ -147,6 +148,26 @@ struct DailyTimelineComponent: View {
         // A short delay so it lands as a calm Notification-Center nudge, not an
         // instant interruption. NotificationService clamps it to the waking window.
         NotificationService.scheduleGentleCheckin(after: 60)
+    }
+
+    /// Consume-once read of a gentle-check-in action the user tapped from a
+    /// notification ("I feel better" / "Move my plan" / "Just one thing"). Before
+    /// this, `PendingGentleAction.take()` had NO caller, so the buttons stored a
+    /// marker that was never read — the promised re-plan never ran. Routing all
+    /// three into the existing disruption re-plan diff (which already exposes the
+    /// keep/move/defer + "one thing now" triage) makes them do real work.
+    private func consumePendingGentleAction() {
+        #if os(iOS)
+        guard boardData.todayPlan != nil, !blocks.isEmpty else { return }
+        guard let pending = PendingGentleAction.take() else { return }
+        switch pending {
+        case .restorePlan, .replan:
+            disruptionTrigger = .manual
+        case .triage:
+            // Surface the overwhelmed / "collapse to one thing" framing.
+            disruptionTrigger = .missedBlocks(count: 1)
+        }
+        #endif
     }
 
     private static func gentleCheckinDayKey(for date: Date) -> String {
