@@ -174,6 +174,7 @@
 		87C3AE7CC9AF7F96FCA6BA0C /* GoalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DE6A075761C5F7C13EF2BE1 /* GoalDetailView.swift */; };
 		8946EBF76629A49997E1B9D0 /* NotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0205626D0E49EFB6245E424 /* NotificationDelegate.swift */; };
 		8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F3135818AB6A21667C3011 /* TodayView.swift */; };
+		8A642DB2F97CD8D373DAE942 /* MentorProgramCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96F3193CB5FB5C37DDC5EA3 /* MentorProgramCard.swift */; };
 		8C3D770ACB5C7B6CEB33465F /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550FF629879641F39F8E0B88 /* DeepLink.swift */; };
 		8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED6CAF811845880023A84FC /* LifeDimension.swift */; };
 		8D706478F0DD849D4FA50D0F /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB77796CED406ECEB71F9B1D /* UserProfile.swift */; };
@@ -579,6 +580,7 @@
 		E54C8F7D558E93707C5C545A /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
 		E54E8038A777D762B36F892A /* ComponentRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentRegistry.swift; sourceTree = "<group>"; };
 		E7F2B2B739FF4A7D8AD0A113 /* DimensionScoreCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DimensionScoreCalculatorTests.swift; sourceTree = "<group>"; };
+		E96F3193CB5FB5C37DDC5EA3 /* MentorProgramCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentorProgramCard.swift; sourceTree = "<group>"; };
 		EB8AB6B613C1E35A8C681943 /* LaunchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		EC0615C9BA08D1862EA6F17C /* GoalRoadmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalRoadmapView.swift; sourceTree = "<group>"; };
 		EC96295D909EDBC3A912D5DE /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
@@ -957,6 +959,7 @@
 		A6E7D0918853BEE75263AE8E /* Mentor */ = {
 			isa = PBXGroup;
 			children = (
+				E96F3193CB5FB5C37DDC5EA3 /* MentorProgramCard.swift */,
 				667F065818028B3C2D921079 /* MentorView.swift */,
 			);
 			path = Mentor;
@@ -1452,6 +1455,7 @@
 				BAC3A3EF7CA11B1D59AA5387 /* LogProgressSheet.swift in Sources */,
 				4E793F43F77306F5E866ABCC /* MainTabView.swift in Sources */,
 				58D8E428D5A2B4FC638FA3C8 /* MentorFeedback.swift in Sources */,
+				8A642DB2F97CD8D373DAE942 /* MentorProgramCard.swift in Sources */,
 				97C1BAFAEF7B9EE9BD0527A0 /* MentorPromptBuilder.swift in Sources */,
 				1880BD72388E65521276FB3A /* MentorView.swift in Sources */,
 				E3BEB3AB363D2DB45B9D1FC4 /* MetricDirection.swift in Sources */,

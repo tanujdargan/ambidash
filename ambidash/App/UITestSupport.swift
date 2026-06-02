@@ -23,6 +23,7 @@ enum UITestSupport {
         if existing.isEmpty {
             let profile = UserProfile(name: "Test", age: 21, lifeStage: "student")
             profile.onboardingComplete = true
+            profile.mentorProgressDays = 12   // 12/30 toward unlocking mentor status
 
             let goal = Goal(title: "Run a 5K", domain: .body, priority: 0)
             goal.isActive = true

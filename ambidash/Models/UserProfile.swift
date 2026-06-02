@@ -12,6 +12,15 @@ final class UserProfile {
     var createdAt: Date = Date()
     var onboardingComplete: Bool = false
 
+    // v4 mentor-system SCAFFOLD (not the full marketplace). Captures the user's own
+    // enrollment state — opt-in mode + progress toward unlocking mentor status. Real
+    // cross-user matching + a mentor/mentee link model + commission billing are
+    // future work. CloudKit-additive (defaulted scalars, no migration).
+    // mentorOptInRaw: "none" | "seekMatch" | "ownMentor"
+    var mentorOptInRaw: String = "none"
+    /// Days of progress toward unlocking the ability to become a mentor (target 30).
+    var mentorProgressDays: Int = 0
+
     @Relationship(deleteRule: .cascade) var coreAssessment: CoreAssessment?
     @Relationship(deleteRule: .cascade) var workStylePreference: WorkStylePreference?
     // FOUNDATION — the user's daily-rhythm preferences ("Your Day"). Optional +
