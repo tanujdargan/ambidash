@@ -20,6 +20,9 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     case identityLine
     case reflectionPrompt
     case streaks
+    /// v4 — a completion/progress surface: how many of today's blocks are done,
+    /// with a progress ring. The "dopamine hit" of marking things complete.
+    case todayProgress
     /// Design principle #3 — TODAY as a vertical, duration-sized block timeline
     /// (fixed anchors / routines / goal-work woven into one column). Current block
     /// highlighted with a live remaining-time countdown; past blocks fade via the

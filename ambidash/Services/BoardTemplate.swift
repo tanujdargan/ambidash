@@ -99,6 +99,7 @@ enum BoardTemplate {
                 ComponentPlacement(.compositeScore, .top, .full),
                 ComponentPlacement(.captureInbox, .body, .full),
                 ComponentPlacement(.vitalsGrid, .body, .full),
+                ComponentPlacement(.todayProgress, .body, .full),
                 ComponentPlacement(.dailyTimeline, .body, .full),
                 ComponentPlacement(.latestGoals, .body, .full),
                 ComponentPlacement(.mentorCard, .body, .full),

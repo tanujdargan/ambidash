@@ -152,6 +152,17 @@ enum ComponentRegistry {
             isSingleton: true
         ),
         ComponentDescriptor(
+            kind: .todayProgress,
+            title: "Today's Progress",
+            sfSymbol: "checkmark.circle",
+            category: .daily,
+            blurb: "How many of today's blocks you've finished — the done-count + a progress ring.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
             kind: .captureInbox,
             title: "Capture Inbox",
             sfSymbol: "tray",
@@ -251,6 +262,8 @@ enum ComponentRegistry {
             DailyTimelineComponent(boardData: boardData)
         case .streaks:
             StreaksComponent(boardData: boardData)
+        case .todayProgress:
+            TodayProgressComponent(boardData: boardData)
         case .captureInbox:
             // The one inherently-dynamic component: it owns a small @Query for the
             // recent inbox (mutated by quick-add/triage), so it is intentionally NOT
