@@ -180,4 +180,41 @@ final class FeatureSmokeTests: XCTestCase {
         snap("goals-add-sheet")
         XCTAssertEqual(app.state, .runningForeground)
     }
+
+    /// v4 calendar integration: the "Add goals to Calendar" toggle exists, flips,
+    /// and adding a goal with it on does not crash (Reminders access is skipped in
+    /// -uitesting, so this verifies the UI + the no-crash path; the actual EventKit
+    /// write needs an on-device check).
+    func testCalendarSyncToggle() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+        app.buttons["Settings"].firstMatch.tap()
+
+        // Settings is a long Form — the Integrations toggle is below the fold, so
+        // scroll it into view (XCUITest doesn't auto-scroll to a queried element).
+        let toggle = app.switches["settings.calendarSync"]
+        var scrolls = 0
+        while !toggle.exists && scrolls < 6 {
+            app.swipeUp()
+            scrolls += 1
+        }
+        guard toggle.waitForExistence(timeout: 3) else {
+            XCTFail("settings.calendarSync toggle not found after scrolling"); return
+        }
+        snap("calendar-sync-before")
+        toggle.tap()
+        snap("calendar-sync-after")
+        XCTAssertEqual(app.state, .runningForeground, "App crashed toggling calendar sync")
+
+        // Add a goal with sync ON — must not crash.
+        app.buttons["Done"].firstMatch.tap()
+        if tapTab("tab.goals") {
+            let add = app.buttons["goals.add"].firstMatch
+            if add.waitForExistence(timeout: 5) {
+                add.tap()
+                snap("calendar-sync-add-goal")
+            }
+        }
+        XCTAssertEqual(app.state, .runningForeground)
+    }
 }

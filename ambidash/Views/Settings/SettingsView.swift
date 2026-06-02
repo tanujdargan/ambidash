@@ -13,6 +13,8 @@ struct SettingsView: View {
     @Query private var allSnapshots: [IntegrationSnapshot]
 
     @AppStorage("onboardingComplete") private var onboardingComplete = false
+    /// v4 calendar integration: auto-mirror newly-added goals into Reminders.
+    @AppStorage("calendar_sync_enabled") private var calendarSyncEnabled = false
     @State private var showDeleteConfirmation = false
     @State private var apiKey = ""
     @State private var showNotionSetup = false
@@ -272,6 +274,22 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundStyle(t.accent)
                         }
+                    }
+
+                    Toggle(isOn: $calendarSyncEnabled) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Add goals to Calendar")
+                                .foregroundStyle(t.ink)
+                            Text("New goals drop a reminder so they show up automatically")
+                                .font(.caption)
+                                .foregroundStyle(t.muted)
+                        }
+                    }
+                    .tint(t.accent)
+                    .accessibilityIdentifier("settings.calendarSync")
+                    .onChange(of: calendarSyncEnabled) { _, on in
+                        if on { Task { _ = await EventKitService.shared.requestRemindersAccess() } }
+                        Haptics.selection()
                     }
 
                     HStack {
