@@ -28,6 +28,11 @@ struct AddMilestoneView: View {
     @State private var targetText = ""
     @State private var unitText = ""
 
+    /// Edit-mode completion toggle. Seeded from the editing target; on Save it
+    /// routes through MilestoneProgressService.markComplete / a symmetric reopen so
+    /// completion actually propagates status up the chain (it had no UI before).
+    @State private var isCompleted = false
+
     init(goal: Goal, parent: Milestone? = nil, editing: Milestone? = nil) {
         self.goal = goal
         self.parent = parent
@@ -158,6 +163,23 @@ struct AddMilestoneView: View {
                                 }
                             }
                         }
+
+                        // Completion — only meaningful when editing an existing
+                        // checkpoint. This is the missing affordance: marking done
+                        // routes through MilestoneProgressService on Save so status
+                        // propagates up the chain (and reopening clears it).
+                        if editing != nil {
+                            Toggle(isOn: $isCompleted.animation(.easeInOut(duration: 0.2))) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    SectionLabel(title: "Mark complete")
+                                    Text(isCompleted ? "Done — counts toward the chain above" : "Not done yet")
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .foregroundStyle(t.faint)
+                                }
+                            }
+                            .tint(t.accent)
+                            .onChange(of: isCompleted) { _, _ in Haptics.selection() }
+                        }
                     }
                     .padding(.horizontal, 22)
                     .padding(.top, 16)
@@ -197,6 +219,7 @@ struct AddMilestoneView: View {
                 targetText = MetricFormat.number(tv)
             }
             unitText = editing.unit
+            isCompleted = editing.isCompleted
             return
         }
 
@@ -258,7 +281,16 @@ struct AddMilestoneView: View {
                 editing.currentValue = nil
             }
             editing.unit = trimmedUnit
-            MilestoneProgressService.refreshStatus(of: editing)
+            // Apply the completion toggle through the service so status propagates
+            // up the parent chain (markComplete previously had no caller at all).
+            if isCompleted {
+                MilestoneProgressService.markComplete(editing, context: modelContext)
+            } else {
+                // Symmetric reopen: clear completion, then recompute the chain.
+                editing.completedAt = nil
+                MilestoneProgressService.refreshStatus(of: editing)
+                MilestoneProgressService.propagateStatus(from: editing)
+            }
         } else {
             let milestone = Milestone(
                 title: trimmedTitle,

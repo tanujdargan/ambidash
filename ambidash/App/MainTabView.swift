@@ -61,6 +61,12 @@ struct MainTabView: View {
         .onAppear {
             if let tab = initialTab { selectedTab = tab }
         }
+        // A warm-launch deep link / notification tap updates `initialTab` while
+        // this view is already mounted; onAppear won't re-fire, so apply the new
+        // target here too. Runs before RootView resets deepLinkTab (0.1s delay).
+        .onChange(of: initialTab) { _, newTab in
+            if let newTab { selectedTab = newTab }
+        }
     }
 }
 

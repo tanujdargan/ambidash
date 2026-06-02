@@ -100,6 +100,13 @@ struct AssessmentFlowView: View {
                 PillButton(label: "Skip") {
                     if currentIndex < questions.count - 1 {
                         withAnimation { currentIndex += 1 }
+                    } else {
+                        // On the LAST question Skip must finalize the flow the same
+                        // way Next does — otherwise it's a dead button and Next is
+                        // disabled when unanswered, stranding the user. saveAssessment
+                        // tolerates missing answers via its defaults.
+                        saveAssessment()
+                        showGoalDeclaration = true
                     }
                 }
                 PillButton(label: currentIndex == questions.count - 1 ? "Next" : "Continue", primary: true) {

@@ -8,6 +8,7 @@ struct GoalQuickSheet: View {
     @Bindable var goal: Goal
     @State private var showLogProgress = false
     @State private var showRoadmap = false
+    @State private var showDeleteConfirm = false
     // Inline edit state for goal.details (editable anytime, persists to CloudKit).
     @State private var editingDetails = false
     @State private var detailsDraft = ""
@@ -155,11 +156,12 @@ struct GoalQuickSheet: View {
                         dismiss()
                     }
 
-                    GhostButton(label: "Quietly retire") {
+                    // Pause and "quietly retire" produced the identical isActive=false
+                    // state, so the second action is a real DELETE instead — the only
+                    // way to remove a mistakenly-added goal. Confirmed before deleting.
+                    GhostButton(label: "Delete goal") {
                         Haptics.light()
-                        goal.isActive = false
-                        try? modelContext.save()
-                        dismiss()
+                        showDeleteConfirm = true
                     }
                 }
 
@@ -189,6 +191,17 @@ struct GoalQuickSheet: View {
             NavigationStack {
                 GoalRoadmapView(goal: goal)
             }
+        }
+        .alert("Delete this goal?", isPresented: $showDeleteConfirm) {
+            Button("Delete", role: .destructive) {
+                Haptics.medium()
+                modelContext.delete(goal)
+                try? modelContext.save()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently removes \"\(goal.title)\" and its progress. This cannot be undone.")
         }
     }
 

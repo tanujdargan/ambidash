@@ -4,8 +4,10 @@ import SwiftData
 struct GoalDetailView: View {
     @Environment(ThemeManager.self) private var tm
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @Bindable var goal: Goal
     @State private var showLogProgress = false
+    @State private var showDeleteConfirm = false
     // Inline edit state for goal.details (Phase 2 left details creation-only;
     // this makes it editable anytime, persisting to SwiftData → CloudKit).
     @State private var editingDetails = false
@@ -144,9 +146,11 @@ struct GoalDetailView: View {
                                 try? modelContext.save()
                             }
 
-                            PillButton(label: "Quietly retire") {
-                                goal.isActive = false
-                                try? modelContext.save()
+                            // "Quietly retire" did the same isActive=false as Pause;
+                            // replaced with a real, confirmed delete so a goal can
+                            // actually be removed.
+                            PillButton(label: "Delete goal") {
+                                showDeleteConfirm = true
                             }
                         }
                     }
@@ -190,6 +194,17 @@ struct GoalDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showLogProgress) {
             LogProgressSheet(goal: goal)
+        }
+        .alert("Delete this goal?", isPresented: $showDeleteConfirm) {
+            Button("Delete", role: .destructive) {
+                Haptics.medium()
+                modelContext.delete(goal)
+                try? modelContext.save()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently removes \"\(goal.title)\" and its progress. This cannot be undone.")
         }
     }
 

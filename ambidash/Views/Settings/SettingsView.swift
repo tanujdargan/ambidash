@@ -310,21 +310,16 @@ struct SettingsView: View {
 
                     HStack {
                         Image(systemName: "hourglass")
-                            .foregroundStyle(t.accent)
+                            .foregroundStyle(t.faint)
                         Text("Screen Time")
-                            .foregroundStyle(t.ink)
+                            .foregroundStyle(t.muted)
                         Spacer()
-                        if ScreenTimeService.shared.isAuthorized {
-                            Text("Connected")
-                                .font(.caption)
-                                .foregroundStyle(t.ok)
-                        } else {
-                            Button("Connect") {
-                                Task { await ScreenTimeService.shared.requestAuthorization() }
-                            }
+                        // The Family Controls entitlement isn't granted yet, so the
+                        // integration can't actually authorize or collect data. Show
+                        // an honest "Coming soon" instead of a fake "Connected".
+                        Text("Coming soon")
                             .font(.caption)
-                            .foregroundStyle(t.accent)
-                        }
+                            .foregroundStyle(t.faint)
                     }
                 }
                 .listRowBackground(t.surface)
@@ -394,9 +389,14 @@ struct SettingsView: View {
             .alert("Notion Token", isPresented: $showNotionSetup) {
                 TextField("Paste integration token", text: $notionToken)
                 Button("Save") {
-                    NotionService.shared.setAccessToken(notionToken)
+                    // Guard empty/whitespace so a blank Save doesn't store ""
+                    // (non-nil) and falsely flip the row to "Connected".
+                    let t = notionToken.trimmingCharacters(in: .whitespacesAndNewlines)
+                    notionToken = ""
+                    guard !t.isEmpty else { return }
+                    NotionService.shared.setAccessToken(t)
                 }
-                Button("Cancel", role: .cancel) {}
+                Button("Cancel", role: .cancel) { notionToken = "" }
             } message: {
                 Text("Create an integration at notion.so/my-integrations and paste the token here.")
             }
@@ -497,8 +497,11 @@ struct SettingsView: View {
     /// Persists the entered API key to the keychain (ignoring the masked
     /// placeholder), then masks the field and shows a transient confirmation.
     private func saveApiKey() {
-        guard !apiKey.starts(with: "•"), !apiKey.isEmpty else { return }
-        AIConfig.setApiKey(apiKey)
+        // Trim before saving (matches MacSettingsView): a pasted key with a
+        // leading/trailing space or newline otherwise stores verbatim and 401s.
+        let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.starts(with: "•"), !key.isEmpty else { return }
+        AIConfig.setApiKey(key)
         apiKey = "••••••••"
         Haptics.success()
         withAnimation { apiKeySaved = true }

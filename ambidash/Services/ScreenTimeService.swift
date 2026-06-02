@@ -21,10 +21,11 @@ final class ScreenTimeService {
     }
 
     func requestAuthorization() async -> Bool {
-        // Family Controls authorization requires Apple entitlement approval
-        // Placeholder until entitlement is granted
-        UserDefaults.standard.set(true, forKey: "screentime_authorized")
-        return true
+        // Family Controls authorization requires Apple entitlement approval.
+        // Until that's granted there is no real AuthorizationCenter request to
+        // make, so do NOT flip the authorized flag — that previously made the
+        // Settings row report a fake "Connected" with always-zero data.
+        return false
     }
 
     func fetchTodayScreenTime() async -> ScreenTimeData {
