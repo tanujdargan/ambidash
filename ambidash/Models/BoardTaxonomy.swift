@@ -23,6 +23,9 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// v4 — a completion/progress surface: how many of today's blocks are done,
     /// with a progress ring. The "dopamine hit" of marking things complete.
     case todayProgress
+    /// v4 — a 1–7 day look-ahead: upcoming days with their dated milestone
+    /// deadlines, so "midterm in 2 days" is visible before it arrives.
+    case weekAhead
     /// Design principle #3 — TODAY as a vertical, duration-sized block timeline
     /// (fixed anchors / routines / goal-work woven into one column). Current block
     /// highlighted with a live remaining-time countdown; past blocks fade via the
