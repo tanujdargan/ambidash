@@ -62,6 +62,7 @@ struct GoalListView: View {
                             .foregroundStyle(t.ink)
                     }
                     .accessibilityLabel("Add goal")
+                    .accessibilityIdentifier("goals.add")
                 }
             }
             .sheet(isPresented: $showAddGoal) {

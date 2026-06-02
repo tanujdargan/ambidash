@@ -376,6 +376,7 @@ private struct ReflectionQuestion: View {
                     .alignmentGuide(.firstTextBaseline) { $0[.bottom] }
                 // VOICE DICTATION — on-device mic streams speech into this field.
                 DictationMicButton(text: $text)
+                    .accessibilityIdentifier("reflect.voiceMic")
                     .alignmentGuide(.firstTextBaseline) { $0[.bottom] }
             }
 

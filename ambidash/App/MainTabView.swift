@@ -41,11 +41,11 @@ struct MainTabView: View {
 
             // Custom tab bar
             HStack(spacing: 0) {
-                TabBarButton(icon: "circle.grid.3x3", label: "Vitals", isSelected: selectedTab == 0, theme: t) { selectedTab = 0 }
-                TabBarButton(icon: "clock", label: "Today", isSelected: selectedTab == 1, theme: t) { selectedTab = 1 }
-                TabBarButton(icon: "flag", label: "Goals", isSelected: selectedTab == 2, theme: t) { selectedTab = 2 }
-                TabBarButton(icon: "square.and.pencil", label: "Reflect", isSelected: selectedTab == 3, theme: t) { selectedTab = 3 }
-                TabBarButton(icon: "envelope", label: "Mentor", isSelected: selectedTab == 4, theme: t) { selectedTab = 4 }
+                TabBarButton(icon: "circle.grid.3x3", label: "Vitals", identifier: "tab.dashboard", isSelected: selectedTab == 0, theme: t) { selectedTab = 0 }
+                TabBarButton(icon: "clock", label: "Today", identifier: "tab.today", isSelected: selectedTab == 1, theme: t) { selectedTab = 1 }
+                TabBarButton(icon: "flag", label: "Goals", identifier: "tab.goals", isSelected: selectedTab == 2, theme: t) { selectedTab = 2 }
+                TabBarButton(icon: "square.and.pencil", label: "Reflect", identifier: "tab.reflect", isSelected: selectedTab == 3, theme: t) { selectedTab = 3 }
+                TabBarButton(icon: "envelope", label: "Mentor", identifier: "tab.mentor", isSelected: selectedTab == 4, theme: t) { selectedTab = 4 }
             }
             .padding(.top, 12)
             .padding(.bottom, 6)
@@ -73,6 +73,7 @@ struct MainTabView: View {
 private struct TabBarButton: View {
     let icon: String
     let label: String
+    var identifier: String? = nil
     let isSelected: Bool
     let theme: ResolvedTheme
     let action: () -> Void
@@ -96,6 +97,7 @@ private struct TabBarButton: View {
             .padding(.vertical, 6)
         }
         .accessibilityLabel(label)
+        .accessibilityIdentifier(identifier ?? "")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

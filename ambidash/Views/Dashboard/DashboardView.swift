@@ -130,6 +130,7 @@ struct DashboardView: View {
                     .padding(.top, 6)
                     .padding(.bottom, 100)
                 }
+                .accessibilityIdentifier("dashboard.scroll")
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(item: $scoreBreakdown) { target in
