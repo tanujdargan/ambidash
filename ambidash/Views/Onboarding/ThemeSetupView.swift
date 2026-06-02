@@ -152,7 +152,11 @@ struct ThemeSetupView: View {
 
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Good morning.")
-                                    .font(.system(size: 28, weight: .regular, design: .serif))
+                                    // Use the LIVE typography (not a hardcoded serif) so the
+                                    // preview actually demonstrates the Editorial/Modern/Technical
+                                    // choice — this hardcoded serif is why switching fonts here
+                                    // appeared to "do nothing".
+                                    .font(t.heading(28))
                                     .foregroundStyle(t.ink)
 
                                 Text("42")
