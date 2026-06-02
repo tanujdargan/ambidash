@@ -69,9 +69,11 @@ enum AIService {
         if SupabaseService.shared.isAuthenticated {
             let context: [String: Any] = [
                 "goals": goals.map { goalContext($0, includeID: false) },
+                // PRIVACY: only a coarse rest hint + non-health free-minutes leave the
+                // device — never raw sleep hours, step counts, or screen-time.
                 "snapshot": snapshot.map { [
-                    "sleep_hours": $0.sleepHours, "steps": $0.steps,
-                    "screen_time_hours": $0.screenTimeHours
+                    "rest": $0.restHint,
+                    "free_minutes": $0.calendarFreeMinutes
                 ] } as Any,
             ]
             if let result = await SupabaseService.shared.callMentor(action: "insight", context: context) {
@@ -199,9 +201,11 @@ enum AIService {
         if SupabaseService.shared.isAuthenticated {
             var context: [String: Any] = [
                 "goals": goals.map { goalContext($0, includeID: false) },
+                // PRIVACY: only a coarse rest hint + non-health free-minutes leave the
+                // device — never raw sleep hours, step counts, or screen-time.
                 "snapshot": snapshot.map { [
-                    "sleep_hours": $0.sleepHours, "steps": $0.steps,
-                    "screen_time_hours": $0.screenTimeHours
+                    "rest": $0.restHint,
+                    "free_minutes": $0.calendarFreeMinutes
                 ] } as Any,
                 "user_message": userMessage,
             ]

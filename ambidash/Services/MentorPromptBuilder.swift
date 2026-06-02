@@ -69,11 +69,9 @@ enum MentorPromptBuilder {
         }
 
         if let snap = snapshot {
+            // PRIVACY: only a coarse rest hint + non-health free-time leave the device.
             context += "\nTODAY'S DATA:\n"
-            context += "- Sleep: \(String(format: "%.1f", snap.sleepHours)) hours\n"
-            context += "- Steps: \(snap.steps)\n"
-            context += "- Workouts: \(snap.workoutCount)\n"
-            context += "- Screen time: \(String(format: "%.1f", snap.screenTimeHours)) hours\n"
+            context += "- Rest: \(snap.restHint)\n"
             context += "- Calendar free time: \(snap.calendarFreeMinutes) minutes\n"
         }
 
@@ -192,7 +190,7 @@ enum MentorPromptBuilder {
 
         if let snap = snapshot {
             context += "\nTODAY'S STATE:\n"
-            context += "- Slept \(String(format: "%.1f", snap.sleepHours))h, \(snap.steps) steps, \(snap.calendarFreeMinutes)min free\n"
+            context += "- Rest: \(snap.restHint), \(snap.calendarFreeMinutes)min free\n"
         }
 
         // A2 / #8 — adaptive history + explicit user intent. Folding in what was
@@ -310,7 +308,7 @@ enum MentorPromptBuilder {
         context += forwardSummaryText(goals: goals, todaysActions: todaysActions)
 
         if let snap = snapshot {
-            context += "\nTODAY'S DATA: Sleep \(String(format: "%.1f", snap.sleepHours))h, \(snap.steps) steps, \(snap.calendarFreeMinutes)min free\n"
+            context += "\nTODAY'S DATA: Rest \(snap.restHint), \(snap.calendarFreeMinutes)min free\n"
         }
 
         context += "\nTHE USER WROTE:\n\"\(userMessage)\"\n"

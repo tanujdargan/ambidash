@@ -53,4 +53,14 @@ final class IntegrationSnapshot {
         self.adherenceScore = -1
         self.energyBalance = -2
     }
+
+    /// A COARSE, privacy-safe description of rest. This is the only sleep signal
+    /// allowed to leave the device (e.g. into a cloud LLM prompt) — the raw hour
+    /// count, step count, and screen-time never do.
+    var restHint: String {
+        if sleepHours <= 0 { return "unknown" }
+        if sleepHours < 6 { return "low rest" }
+        if sleepHours <= 7.5 { return "okay rest" }
+        return "well rested"
+    }
 }
