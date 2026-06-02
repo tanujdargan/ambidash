@@ -196,6 +196,17 @@ enum ComponentRegistry {
             isSingleton: true
         ),
         ComponentDescriptor(
+            kind: .wakeAdjust,
+            title: "Wake Check",
+            sfSymbol: "sunrise",
+            category: .daily,
+            blurb: "A gentle nudge to re-adjust when your wake time drifts from your goal.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
             kind: .captureInbox,
             title: "Capture Inbox",
             sfSymbol: "tray",
@@ -303,6 +314,8 @@ enum ComponentRegistry {
             StickyGoalsComponent()
         case .categories:
             GoalCategoriesComponent()
+        case .wakeAdjust:
+            WakeAdjustComponent()
         case .captureInbox:
             // The one inherently-dynamic component: it owns a small @Query for the
             // recent inbox (mutated by quick-add/triage), so it is intentionally NOT

@@ -97,6 +97,7 @@ enum BoardTemplate {
         case .balanced:
             return [
                 ComponentPlacement(.compositeScore, .top, .full),
+                ComponentPlacement(.wakeAdjust, .body, .full),
                 ComponentPlacement(.stickyGoals, .body, .full),
                 ComponentPlacement(.categories, .body, .full),
                 ComponentPlacement(.captureInbox, .body, .full),

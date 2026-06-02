@@ -32,6 +32,9 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// v4 — DYNAMIC categories derived from the user's goals (grouped by domain),
     /// with goal + subgoal counts. Categories emerge from what you're working on.
     case categories
+    /// v4 — a contextual wake-adjust nudge: when actual wake drifts late of the
+    /// target, gently offer to right-size the goal or pull the wind-down earlier.
+    case wakeAdjust
     /// Design principle #3 — TODAY as a vertical, duration-sized block timeline
     /// (fixed anchors / routines / goal-work woven into one column). Current block
     /// highlighted with a live remaining-time countdown; past blocks fade via the

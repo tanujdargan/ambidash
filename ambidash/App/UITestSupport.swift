@@ -42,10 +42,21 @@ enum UITestSupport {
             sub.goal = goal2
             goal2.milestones = [sub]
 
+            // Preferences with a WAKE DRIFT (target 06:00, actually woke 09:00 today)
+            // so the Wake Check nudge has something to surface. lastWakeRecordDay=today
+            // stops WakeTracker from overwriting the seeded actual on launch.
+            let prefs = UserPreferences()
+            prefs.wakeTime = "06:00"
+            prefs.lastActualWakeMinutes = 9 * 60   // 09:00
+            prefs.lastWakeRecordDay = Calendar.current.startOfDay(for: .now)
+            prefs.profile = profile
+            profile.userPreferences = prefs
+
             context.insert(profile)
             context.insert(goal)
             context.insert(goal2)
             context.insert(sub)
+            context.insert(prefs)
             try? context.save()
         }
 
