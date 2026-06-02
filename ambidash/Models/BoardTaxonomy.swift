@@ -35,6 +35,9 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// v4 — a contextual wake-adjust nudge: when actual wake drifts late of the
     /// target, gently offer to right-size the goal or pull the wind-down earlier.
     case wakeAdjust
+    /// v4 — goal-tied vitals: per-goal status (on track / needs time) straight up,
+    /// so the dashboard vitals reflect the actual goals, not abstract scores.
+    case goalVitals
     /// Design principle #3 — TODAY as a vertical, duration-sized block timeline
     /// (fixed anchors / routines / goal-work woven into one column). Current block
     /// highlighted with a live remaining-time countdown; past blocks fade via the

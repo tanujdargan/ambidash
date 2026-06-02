@@ -31,6 +31,7 @@
 		1880BD72388E65521276FB3A /* MentorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667F065818028B3C2D921079 /* MentorView.swift */; };
 		1942167DC682B46176408948 /* DailyTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73728F77ABFF165074EB01CD /* DailyTimeline.swift */; };
 		195D7EC0498D407318DF66F7 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99293D596B35EC9D61FFE9E2 /* Goal.swift */; };
+		1B595ED24AFC8B0A8A708242 /* GoalVitalsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD29A9DE672AB8930EF00CE0 /* GoalVitalsComponent.swift */; };
 		1B9416E7F33F9795521C5481 /* PulseScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */; };
 		1BA8B68F4A3816AFDA505B61 /* AssessmentFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D8C1F4A2DBFE2EA96A5863 /* AssessmentFlowView.swift */; };
 		1C436FB33A6C347E16DDCA29 /* DomainAssessmentQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54A9BFF9287FAC9BE85BE5C /* DomainAssessmentQuestions.swift */; };
@@ -590,6 +591,7 @@
 		F7FD946E1A05C7E29D06CEDF /* V3CaptureWinsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3CaptureWinsTests.swift; sourceTree = "<group>"; };
 		F9029079DA9843B1733B7A26 /* SkipAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipAnalysisService.swift; sourceTree = "<group>"; };
 		F9B38BAC024E5DE9049499A0 /* WeekAheadComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekAheadComponent.swift; sourceTree = "<group>"; };
+		FD29A9DE672AB8930EF00CE0 /* GoalVitalsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalVitalsComponent.swift; sourceTree = "<group>"; };
 		FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTests.swift; sourceTree = "<group>"; };
 		FF0078242D4C8C835AAF607D /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
@@ -1019,6 +1021,7 @@
 				7E8D5D18B848C42FE57ED1AF /* FocusSessionComponent.swift */,
 				26F7DA613305CB4B07A7D39D /* FocusSoundService.swift */,
 				9A9358E91CB262DDEB20A4AE /* GoalCategoriesComponent.swift */,
+				FD29A9DE672AB8930EF00CE0 /* GoalVitalsComponent.swift */,
 				08E79A880B760BC35A3F1457 /* PatternCheckInComponent.swift */,
 				6C0A6D257402FC4E1C367568 /* QuickCaptureSheet.swift */,
 				A102E946259DD3A97B988D94 /* StickyGoalsComponent.swift */,
@@ -1430,6 +1433,7 @@
 				A7E80F11D899222A6211EEBC /* GoalStripView.swift in Sources */,
 				25974430D8705F48B6FE9E78 /* GoalType.swift in Sources */,
 				CC30456721EBCFBB6B31F9D0 /* GoalTypeInferenceService.swift in Sources */,
+				1B595ED24AFC8B0A8A708242 /* GoalVitalsComponent.swift in Sources */,
 				F745A6FBBBED0DDA0232652E /* Haptics.swift in Sources */,
 				BF2B0E88429885A88C710E84 /* HardModeService.swift in Sources */,
 				DEC0EC616EA3799B4E2814F5 /* HealthKitService.swift in Sources */,

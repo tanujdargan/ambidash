@@ -35,6 +35,9 @@ enum UITestSupport {
             // surface shows two derived groups and a non-zero subgoal count.
             let goal2 = Goal(title: "Ship the app", domain: .craft, priority: 1)
             goal2.isActive = true
+            // Old progress date → computedStatus = .slipping ("Needs Time"), so Goal
+            // Vitals shows variety (one On Track, one Needs Time) rather than all-green.
+            goal2.lastProgressDate = Calendar.current.date(byAdding: .day, value: -10, to: .now) ?? .now
             goal2.profile = profile
             let sub = Milestone(title: "Beta to 10 users", period: .month,
                                 startDate: .now,
