@@ -110,21 +110,29 @@ final class FeatureSmokeTests: XCTestCase {
         }
         snap("settings-opened")
 
+        // Switch to Editorial, return to the dashboard, and screenshot it — the
+        // DASHBOARD (not Settings, which uses system fonts) is where t.heading/t.body
+        // render, so this is where the font change is actually visible.
         let editorial = app.buttons["typography.editorial"]
-        if editorial.waitForExistence(timeout: 5) {
-            editorial.tap()
-            snap("typography-editorial")
-        } else {
-            XCTFail("typography.editorial option not found")
+        guard editorial.waitForExistence(timeout: 5) else {
+            XCTFail("typography.editorial option not found"); return
         }
+        editorial.tap()
+        snap("typography-editorial-settings")
+        app.buttons["Done"].firstMatch.tap()
+        snap("dashboard-typography-editorial")
 
+        // Now switch to Technical and screenshot the dashboard again, so the two
+        // dashboard shots can be compared to PROVE the heading font actually changes.
+        app.buttons["Settings"].firstMatch.tap()
         let technical = app.buttons["typography.technical"]
-        if technical.waitForExistence(timeout: 3) {
-            technical.tap()
-            snap("typography-technical")
-        } else {
-            XCTFail("typography.technical option not found")
+        guard technical.waitForExistence(timeout: 3) else {
+            XCTFail("typography.technical option not found"); return
         }
+        technical.tap()
+        snap("typography-technical-settings")
+        app.buttons["Done"].firstMatch.tap()
+        snap("dashboard-typography-technical")
         XCTAssertEqual(app.state, .runningForeground)
     }
 
@@ -134,7 +142,9 @@ final class FeatureSmokeTests: XCTestCase {
         tapTab("tab.reflect")
         snap("reflect-opened")
 
-        let mic = app.buttons["reflect.voiceMic"]
+        // .firstMatch — ReflectView has three reflection questions, each with its
+        // own mic, so the identifier resolves to multiple elements.
+        let mic = app.buttons["reflect.voiceMic"].firstMatch
         if mic.waitForExistence(timeout: 5) {
             mic.tap()
         } else {
@@ -153,11 +163,19 @@ final class FeatureSmokeTests: XCTestCase {
         tapTab("tab.goals")
         snap("goals-opened")
 
-        let add = app.buttons["goals.add"]
+        // Try the identifier first; fall back to label/nav-bar queries since toolbar
+        // "+" buttons can surface under different element collections.
+        let add = app.buttons["goals.add"].firstMatch
+        let addByLabel = app.buttons["Add goal"].firstMatch
+        let navAdd = app.navigationBars.buttons["goals.add"].firstMatch
         if add.waitForExistence(timeout: 5) {
             add.tap()
+        } else if addByLabel.exists {
+            addByLabel.tap()
+        } else if navAdd.exists {
+            navAdd.tap()
         } else {
-            XCTFail("goals.add button not found")
+            XCTFail("goals add button not found (tried goals.add / 'Add goal' / nav bar)")
         }
         snap("goals-add-sheet")
         XCTAssertEqual(app.state, .runningForeground)
