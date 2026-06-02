@@ -35,6 +35,8 @@ struct RootView: View {
             // TEST-ONLY: seed a deterministic profile + sample goal so the seeded
             // MainTabView branch has data. Gated inside seedIfNeeded; inert normally.
             UITestSupport.seedIfNeeded(modelContext)
+            // v4: record today's actual wake time on first open (idempotent per day).
+            WakeTracker.recordIfNeeded(modelContext)
             supabase.restoreSession()
         }
         .onChange(of: deepLinkTab) { _, newTab in

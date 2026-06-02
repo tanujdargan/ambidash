@@ -18,6 +18,13 @@ final class UserPreferences {
     var wakeTime: String = "07:00"
     var sleepTime: String = "23:30"
 
+    // v4 wake-adjust workflow: the actual wake time (minute-of-day) detected the
+    // first time the app was opened today, vs the `wakeTime` target above. When the
+    // two drift apart the app gently offers to re-adjust the goal or the wind-down.
+    // CloudKit-additive (defaulted scalar + optional date, no migration).
+    var lastActualWakeMinutes: Int = -1   // -1 = not recorded yet
+    var lastWakeRecordDay: Date? = nil
+
     // Meal anchors.
     var breakfastTime: String = "08:00"
     var lunchTime: String = "13:00"

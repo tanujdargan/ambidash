@@ -198,6 +198,26 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 goal-workflows: the Wake Check nudge appears when actual wake (seeded
+    /// 09:00) drifts late of the goal (seeded 06:00), offering adjust actions.
+    func testWakeAdjustComponent() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+
+        let wake = app.otherElements["component.wakeAdjust"]
+        let scrollView = app.scrollViews["dashboard.scroll"].exists
+            ? app.scrollViews["dashboard.scroll"] : app.scrollViews.firstMatch
+        var scrolls = 0
+        while !wake.exists && scrolls < 6 {
+            scrollView.swipeUp(velocity: .fast)
+            scrolls += 1
+        }
+        Thread.sleep(forTimeInterval: 0.5)
+        snap("wake-adjust-component")
+        XCTAssertTrue(wake.exists, "Wake Check nudge not shown despite seeded wake drift")
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 dynamic categories: the Categories component shows goals grouped into
     /// categories DERIVED from their domains (seeded goals span Body + Craft) with
     /// a subgoal count.
