@@ -41,10 +41,12 @@ enum UITestSupport {
         // smoke tests. Guarded on hasActiveBoard so it's robust even when app data
         // persisted from an earlier run already has a (board-less) profile.
         // .balanced gives a varied component set (score, vitals, goals, nudge, today).
-        if !BoardSeeder.hasActiveBoard(in: context) {
-            _ = BoardSeeder.seed(template: .balanced, in: context)
-            try? context.save()
-        }
+        // ALWAYS replace the board (not just when absent): the SwiftData store can
+        // persist across app uninstalls, so a board seeded by an EARLIER build would
+        // be missing newly-added template components. Replacing every -uitesting
+        // launch keeps the board in lock-step with the current .balanced template.
+        _ = BoardSeeder.replaceActiveBoard(with: .balanced, in: context)
+        try? context.save()
 
         // A small daily plan (2 of 3 done) so completion/progress surfaces have real
         // data — the Today's Progress ring shows 67% instead of an empty state.
@@ -59,6 +61,17 @@ enum UITestSupport {
             plan.actions = [a1, a2, a3]
             context.insert(plan)
             [a1, a2, a3].forEach { context.insert($0) }
+            try? context.save()
+        }
+
+        // A dated milestone 2 days out so the Week Ahead look-ahead shows a real
+        // deadline ("Midterm" under Tomorrow+1) rather than an all-empty week.
+        let milestones = (try? context.fetch(FetchDescriptor<Milestone>())) ?? []
+        if milestones.isEmpty {
+            let cal = Calendar.current
+            let due = cal.date(byAdding: .day, value: 2, to: cal.startOfDay(for: .now)) ?? .now
+            let m = Milestone(title: "Midterm", period: .week, startDate: .now, endDate: due)
+            context.insert(m)
             try? context.save()
         }
     }

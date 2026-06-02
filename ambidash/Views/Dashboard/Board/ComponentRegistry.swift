@@ -163,6 +163,17 @@ enum ComponentRegistry {
             isSingleton: true
         ),
         ComponentDescriptor(
+            kind: .weekAhead,
+            title: "Week Ahead",
+            sfSymbol: "calendar",
+            category: .daily,
+            blurb: "The next 7 days with their dated milestone deadlines — see what's coming.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
             kind: .captureInbox,
             title: "Capture Inbox",
             sfSymbol: "tray",
@@ -264,6 +275,8 @@ enum ComponentRegistry {
             StreaksComponent(boardData: boardData)
         case .todayProgress:
             TodayProgressComponent(boardData: boardData)
+        case .weekAhead:
+            WeekAheadComponent()
         case .captureInbox:
             // The one inherently-dynamic component: it owns a small @Query for the
             // recent inbox (mutated by quick-add/triage), so it is intentionally NOT

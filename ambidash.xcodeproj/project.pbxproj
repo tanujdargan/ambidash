@@ -275,6 +275,7 @@
 		D0B137D8E649D45138E4154B /* PlanGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF13B66F23BBABD3F2AD0064 /* PlanGenerator.swift */; };
 		D177003BD44273FF31AE79B0 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA9719BC37AA893113307C /* Haptics.swift */; };
 		D29275578C1D0BFEF474BCC2 /* AdherenceFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF28852C75C8C75695C04385 /* AdherenceFormat.swift */; };
+		D37E58D308A7473AC19324C6 /* WeekAheadComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B38BAC024E5DE9049499A0 /* WeekAheadComponent.swift */; };
 		D3D00C97CE252AAFFE9F4B1C /* DimensionScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F2B2B739FF4A7D8AD0A113 /* DimensionScoreCalculatorTests.swift */; };
 		D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 557698237B86451559706D44 /* AmbidashApp.swift */; };
 		D73E7004A0C92336896B24BE /* EnergyCheckinComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54EC269745FD894B292207A /* EnergyCheckinComponent.swift */; };
@@ -579,6 +580,7 @@
 		F5F622E2B5F7A018C1B3EA3C /* GoalHealthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalHealthService.swift; sourceTree = "<group>"; };
 		F7FD946E1A05C7E29D06CEDF /* V3CaptureWinsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3CaptureWinsTests.swift; sourceTree = "<group>"; };
 		F9029079DA9843B1733B7A26 /* SkipAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipAnalysisService.swift; sourceTree = "<group>"; };
+		F9B38BAC024E5DE9049499A0 /* WeekAheadComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekAheadComponent.swift; sourceTree = "<group>"; };
 		FEC7C1D2348F9C0FA3C57D9C /* GoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTests.swift; sourceTree = "<group>"; };
 		FF0078242D4C8C835AAF607D /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
@@ -1009,6 +1011,7 @@
 				08E79A880B760BC35A3F1457 /* PatternCheckInComponent.swift */,
 				6C0A6D257402FC4E1C367568 /* QuickCaptureSheet.swift */,
 				54A1CF6FEB17DC015D9048A4 /* TodayProgressComponent.swift */,
+				F9B38BAC024E5DE9049499A0 /* WeekAheadComponent.swift */,
 				07B2E9178E05F3E2E66CA515 /* WinsWallComponent.swift */,
 				A91F697489DC7FDEFF473D8C /* WinsWeekSheet.swift */,
 			);
@@ -1493,6 +1496,7 @@
 				BDECD238E88E23BB5E5B0B20 /* UITestSupport.swift in Sources */,
 				AD91C75EE8B68DBE2C181383 /* UserPreferences.swift in Sources */,
 				BF7B417354D625B13969A6E5 /* UserProfile.swift in Sources */,
+				D37E58D308A7473AC19324C6 /* WeekAheadComponent.swift in Sources */,
 				CDFB2414F93CEF8289BFFE1C /* WeeklyPlanService.swift in Sources */,
 				3F0A99685AE6C9DB9DCE79E2 /* WeeklyReviewView.swift in Sources */,
 				51F95F75A464BD2C74FB13FC /* WelcomeView.swift in Sources */,

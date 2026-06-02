@@ -198,6 +198,29 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 1–7 day view: the Week Ahead component (seeded into the .balanced board)
+    /// renders the next-7-days look-ahead with the seeded "Midterm" deadline.
+    func testWeekAheadComponent() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+
+        let weekAhead = app.otherElements["component.weekAhead"]
+        // Scroll until the seeded "Midterm" deadline is actually hittable (fully
+        // on-screen) so the proof screenshot clearly shows the look-ahead with data.
+        let midterm = app.staticTexts["Midterm"]
+        let scrollView = app.scrollViews.firstMatch
+        var scrolls = 0
+        while !midterm.isHittable && scrolls < 10 {
+            if scrollView.exists { scrollView.swipeUp(velocity: .fast) } else { app.swipeUp(velocity: .fast) }
+            scrolls += 1
+        }
+        Thread.sleep(forTimeInterval: 0.6)   // let the scroll settle before capturing
+        snap("week-ahead-component")
+        XCTAssertTrue(weekAhead.exists, "Week Ahead component not found on the board")
+        XCTAssertTrue(midterm.exists, "Seeded 'Midterm' deadline not shown in Week Ahead")
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 calendar integration: the "Add goals to Calendar" toggle exists, flips,
     /// and adding a goal with it on does not crash (Reminders access is skipped in
     /// -uitesting, so this verifies the UI + the no-crash path; the actual EventKit
