@@ -125,8 +125,7 @@ struct BoardView: View {
                     .clipShape(Capsule())
                     .overlay(Capsule().stroke(t.hair, lineWidth: 0.5))
                 }
-                .buttonStyle(.plain)
-                .scaleOnPress()
+                .buttonStyle(.scalePress)
                 .accessibilityLabel("Capture a thought")
             }
             Spacer()
@@ -142,8 +141,7 @@ struct BoardView: View {
                     .clipShape(Circle())
                     .overlay(Circle().stroke(t.hair, lineWidth: 0.5))
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
             .accessibilityLabel("Add component")
 
             Button {
@@ -162,8 +160,7 @@ struct BoardView: View {
                     .clipShape(Capsule())
                     .overlay(Capsule().stroke(t.hair, lineWidth: editing ? 0 : 0.5))
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
             .accessibilityLabel(editing ? "Done editing board" : "Edit board")
         }
     }
@@ -243,8 +240,7 @@ struct BoardView: View {
                 .overlay(Capsule().stroke(isHard ? t.accent.opacity(0.4) : t.hair, lineWidth: isHard ? 1 : 0.5))
                 .contentShape(Capsule())
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
             .accessibilityLabel(isHard ? "Turn off hard day" : "Mark today as hard")
 
             // Rest-day bank chip (only when there's a day available to spend today).
@@ -266,8 +262,7 @@ struct BoardView: View {
                     .overlay(Capsule().stroke(t.hair, lineWidth: 0.5))
                     .contentShape(Capsule())
                 }
-                .buttonStyle(.plain)
-                .scaleOnPress()
+                .buttonStyle(.scalePress)
                 .accessibilityLabel(RestBankService.chipLabel(prefs))
             }
             Spacer(minLength: 0)

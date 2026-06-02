@@ -592,7 +592,6 @@ struct TodayView: View {
             }
             .padding(.horizontal, 40)
             .disabled(isGenerating)
-            .scaleOnPress()
 
             Spacer(minLength: 80)
         }

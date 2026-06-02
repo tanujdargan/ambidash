@@ -90,8 +90,7 @@ struct ClosingRitualComponent: View {
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .sheet(isPresented: $showRitual) {
             ClosingRitualSheet()
                 .environment(tm)

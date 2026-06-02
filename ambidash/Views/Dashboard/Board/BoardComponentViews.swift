@@ -42,8 +42,7 @@ struct CompositeScoreComponent: View {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Composite score: \(boardData.compositeScore) out of 100. Tap for breakdown.")
     }
@@ -77,8 +76,7 @@ struct VitalsGridComponent: View {
                     )
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .scaleOnPress()
+                .buttonStyle(.scalePress)
                 .staggeredAppear(index: index)
             }
         }
@@ -140,8 +138,7 @@ struct LatestGoalsComponent: View {
                         } label: {
                             LatestGoalCard(goal: goal)
                         }
-                        .buttonStyle(.plain)
-                        .scaleOnPress()
+                        .buttonStyle(.scalePress)
                         .staggeredAppear(index: index)
                     }
                 }

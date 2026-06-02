@@ -125,8 +125,7 @@ struct BlockLogSheet: View {
                             )
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
-                    .scaleOnPress()
+                    .buttonStyle(.scalePress)
                 }
             }
         }
@@ -153,8 +152,7 @@ struct BlockLogSheet: View {
                             .clipShape(RoundedRectangle(cornerRadius: 9))
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
-                    .scaleOnPress()
+                    .buttonStyle(.scalePress)
                     .accessibilityLabel(level.label)
                 }
             }
@@ -170,7 +168,7 @@ struct BlockLogSheet: View {
                     Haptics.light()
                     actualMinutes = max(0, actualMinutes - 5)
                 } label: { stepGlyph("minus", t) }
-                    .buttonStyle(.plain).scaleOnPress()
+                    .buttonStyle(.scalePress)
 
                 Text("\(actualMinutes) min")
                     .font(.system(size: 18, design: .monospaced))
@@ -182,7 +180,7 @@ struct BlockLogSheet: View {
                     Haptics.light()
                     actualMinutes += 5
                 } label: { stepGlyph("plus", t) }
-                    .buttonStyle(.plain).scaleOnPress()
+                    .buttonStyle(.scalePress)
 
                 Spacer(minLength: 0)
 

@@ -370,8 +370,7 @@ struct GoalListView: View {
             } label: {
                 goalRow(goal, dotColor: dotColor, t: t, retired: retired)
             }
-            .buttonStyle(.plain)
-            .scaleOnPress()
+            .buttonStyle(.scalePress)
 
             Button {
                 Haptics.selection()

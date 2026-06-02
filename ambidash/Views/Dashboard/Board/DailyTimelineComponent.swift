@@ -219,8 +219,7 @@ struct DailyTimelineComponent: View {
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(t.hair, lineWidth: 0.5))
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .scaleOnPress()
+                .buttonStyle(.scalePress)
                 .transition(.opacity)
             }
         }
@@ -243,8 +242,7 @@ struct DailyTimelineComponent: View {
             .clipShape(Capsule())
             .contentShape(Capsule())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     private func autoOfferText(_ trigger: DisruptionService.Trigger) -> String {
@@ -545,8 +543,7 @@ private struct TimelineBlockRow: View {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel(status))
     }
@@ -888,8 +885,7 @@ private struct TimelineBlockDetailSheet: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
-                        .scaleOnPress()
+                        .buttonStyle(.scalePress)
 
                         // ZERO-GUILT one-tap lifecycle actions. Only meaningful before
                         // the block is done; hidden once completed. All non-punitive.
@@ -972,8 +968,7 @@ private struct TimelineBlockDetailSheet: View {
                         )
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
-                    .scaleOnPress()
+                    .buttonStyle(.scalePress)
                     .accessibilityLabel("\(mode.label) reminder")
                     .accessibilityAddTraits(on ? .isSelected : [])
                 }
@@ -1081,8 +1076,7 @@ private struct TimelineBlockDetailSheet: View {
             .overlay(RoundedRectangle(cornerRadius: 11).stroke(t.hair, lineWidth: 0.5))
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     /// Save the lifecycle mutation and dismiss the sheet calmly. The soft actions

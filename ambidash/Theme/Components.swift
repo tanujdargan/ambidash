@@ -92,7 +92,7 @@ struct PrimaryButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .accessibilityHint("Double tap to activate")
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 }
 
@@ -143,7 +143,7 @@ struct PillButton: View {
                 )
         }
         .accessibilityAddTraits(.isButton)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 }
 

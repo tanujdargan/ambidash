@@ -101,7 +101,7 @@ struct MentorView: View {
                             if !isWriting {
                                 writePrompt(t)
                                     .fadeSlideIn(delay: 0.3)
-                                    .scaleOnPress()
+                                    .buttonStyle(.scalePress)
                             } else {
                                 replyComposer(t)
                             }

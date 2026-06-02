@@ -325,8 +325,7 @@ struct ClosingRitualSheet: View {
             )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     // MARK: - Load + Save

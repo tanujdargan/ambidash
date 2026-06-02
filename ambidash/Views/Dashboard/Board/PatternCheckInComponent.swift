@@ -139,8 +139,7 @@ struct PatternCheckInComponent: View {
                         )
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .scaleOnPress()
+                .buttonStyle(.scalePress)
                 .accessibilityLabel(choice.label)
             }
         }

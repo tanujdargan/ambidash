@@ -163,8 +163,7 @@ struct CaptureTriageSheet: View {
             )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .scaleOnPress()
+        .buttonStyle(.scalePress)
     }
 
     // MARK: - Suggestion plumbing
