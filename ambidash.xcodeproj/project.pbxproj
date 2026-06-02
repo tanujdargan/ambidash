@@ -299,6 +299,7 @@
 		E60C26D269DEF64410700B52 /* SpotlightService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB03EA1DBE1EACA2A5DD05D /* SpotlightService.swift */; };
 		E68DEF617D671FC1F3132BC6 /* MetricDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FBB260644DD3DA4C763D0BC /* MetricDirection.swift */; };
 		E74D04063D5E1D100D7AA634 /* StreakService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D85C97171671F9FEA4F482F /* StreakService.swift */; };
+		E77A3AD3B77AFF53A4B88D9C /* GoalCategoriesComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9358E91CB262DDEB20A4AE /* GoalCategoriesComponent.swift */; };
 		E789BA48813E30592AF8C0EF /* DisruptionPhrasing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30F0FF8D6314B45E775B260 /* DisruptionPhrasing.swift */; };
 		E7FE6684DF3B4750C014E936 /* AddComponentSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162774D4D8DE5F7E36A479E7 /* AddComponentSheet.swift */; };
 		E804F699AB0F44A1058EF01B /* WinsWallComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B2E9178E05F3E2E66CA515 /* WinsWallComponent.swift */; };
@@ -493,6 +494,7 @@
 		98498452A2F2F63ADC06CEB6 /* ScreenTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeService.swift; sourceTree = "<group>"; };
 		98A43853C2967CC34AAA86A7 /* Reflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reflection.swift; sourceTree = "<group>"; };
 		99293D596B35EC9D61FFE9E2 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
+		9A9358E91CB262DDEB20A4AE /* GoalCategoriesComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalCategoriesComponent.swift; sourceTree = "<group>"; };
 		9B26456D2D9B440851DB3422 /* CaptureTriageSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureTriageSheet.swift; sourceTree = "<group>"; };
 		9C021C6BA0035EF371FB2BDF /* V3DateMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3DateMathTests.swift; sourceTree = "<group>"; };
 		9C1D64BB0837A1295A3AFDF8 /* Products.storekit */ = {isa = PBXFileReference; path = Products.storekit; sourceTree = "<group>"; };
@@ -1010,6 +1012,7 @@
 				A54EC269745FD894B292207A /* EnergyCheckinComponent.swift */,
 				7E8D5D18B848C42FE57ED1AF /* FocusSessionComponent.swift */,
 				26F7DA613305CB4B07A7D39D /* FocusSoundService.swift */,
+				9A9358E91CB262DDEB20A4AE /* GoalCategoriesComponent.swift */,
 				08E79A880B760BC35A3F1457 /* PatternCheckInComponent.swift */,
 				6C0A6D257402FC4E1C367568 /* QuickCaptureSheet.swift */,
 				A102E946259DD3A97B988D94 /* StickyGoalsComponent.swift */,
@@ -1402,6 +1405,7 @@
 				8210EF3C5B9FC215EF15759F /* FocusSessionComponent.swift in Sources */,
 				43C66A078BB6B2275E2E6792 /* FocusSoundService.swift in Sources */,
 				1F8A1E1EA102D6C80718A641 /* Goal.swift in Sources */,
+				E77A3AD3B77AFF53A4B88D9C /* GoalCategoriesComponent.swift in Sources */,
 				4669AF4D42EFE3C7C2B722AD /* GoalDeclarationView.swift in Sources */,
 				87C3AE7CC9AF7F96FCA6BA0C /* GoalDetailView.swift in Sources */,
 				05C34778BE561C1120E5EDB6 /* GoalDomain.swift in Sources */,

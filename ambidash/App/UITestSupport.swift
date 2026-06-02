@@ -31,8 +31,21 @@ enum UITestSupport {
             goal.profile = profile
             profile.goals = [goal]
 
+            // A 2nd goal in a DIFFERENT domain (+ a subgoal) so the dynamic Categories
+            // surface shows two derived groups and a non-zero subgoal count.
+            let goal2 = Goal(title: "Ship the app", domain: .craft, priority: 1)
+            goal2.isActive = true
+            goal2.profile = profile
+            let sub = Milestone(title: "Beta to 10 users", period: .month,
+                                startDate: .now,
+                                endDate: Calendar.current.date(byAdding: .day, value: 14, to: .now) ?? .now)
+            sub.goal = goal2
+            goal2.milestones = [sub]
+
             context.insert(profile)
             context.insert(goal)
+            context.insert(goal2)
+            context.insert(sub)
             try? context.save()
         }
 
@@ -66,9 +79,11 @@ enum UITestSupport {
         }
 
         // A dated milestone 2 days out so the Week Ahead look-ahead shows a real
-        // deadline ("Midterm" under Tomorrow+1) rather than an all-empty week.
+        // deadline ("Midterm") rather than an all-empty week. Guard on the absence of
+        // a "Midterm" specifically — other seeds (e.g. goal2's subgoal) also create
+        // milestones, so an `isEmpty` guard would wrongly skip this one.
         let milestones = (try? context.fetch(FetchDescriptor<Milestone>())) ?? []
-        if milestones.isEmpty {
+        if !milestones.contains(where: { $0.title == "Midterm" }) {
             let cal = Calendar.current
             let due = cal.date(byAdding: .day, value: 2, to: cal.startOfDay(for: .now)) ?? .now
             let m = Milestone(title: "Midterm", period: .week, startDate: .now, endDate: due)

@@ -98,6 +98,7 @@ enum BoardTemplate {
             return [
                 ComponentPlacement(.compositeScore, .top, .full),
                 ComponentPlacement(.stickyGoals, .body, .full),
+                ComponentPlacement(.categories, .body, .full),
                 ComponentPlacement(.captureInbox, .body, .full),
                 ComponentPlacement(.vitalsGrid, .body, .full),
                 ComponentPlacement(.todayProgress, .body, .full),
