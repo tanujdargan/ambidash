@@ -314,7 +314,7 @@ struct ReflectView: View {
             Image(systemName: "info.circle")
                 .foregroundStyle(t.muted)
             Text(text)
-                .font(.system(size: 13, design: .serif))
+                .font(t.body(13))
                 .italic()
                 .foregroundStyle(t.muted)
         }
@@ -366,7 +366,7 @@ private struct ReflectionQuestion: View {
                     .frame(width: 18)
 
                 Text(question)
-                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .font(t.heading(17))
                     .foregroundStyle(t.ink)
 
                 Spacer(minLength: 8)
@@ -389,7 +389,7 @@ private struct ReflectionQuestion: View {
             }
 
             TextField("tap to write…", text: $text, axis: .vertical)
-                .font(.system(size: 14, design: .serif))
+                .font(t.body(14))
                 .italic()
                 .lineSpacing(3)
                 .foregroundStyle(text.isEmpty ? t.faint : t.ink2)

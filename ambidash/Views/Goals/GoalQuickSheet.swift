@@ -46,7 +46,7 @@ struct GoalQuickSheet: View {
                 }
 
                 Text(goal.title)
-                    .font(.system(size: 24, weight: .regular, design: .serif))
+                    .font(t.heading(24))
                     .tracking(-0.3)
                     .foregroundStyle(t.ink)
 
@@ -239,7 +239,7 @@ struct GoalQuickSheet: View {
             if editingDetails {
                 TextEditor(text: $detailsDraft)
                     .focused($detailsFocused)
-                    .font(.system(size: 13, design: .serif))
+                    .font(t.body(13))
                     .foregroundStyle(t.ink)
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: 70, maxHeight: 110)
@@ -264,7 +264,7 @@ struct GoalQuickSheet: View {
                 }
             } else {
                 Text(goal.details.isEmpty ? "No details yet — tap + to describe how you'll do this." : goal.details)
-                    .font(.system(size: 13, design: .serif))
+                    .font(t.body(13))
                     .italic(!goal.details.isEmpty)
                     .foregroundStyle(goal.details.isEmpty ? t.faint : t.ink2)
                     .lineSpacing(2)

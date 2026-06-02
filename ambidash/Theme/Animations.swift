@@ -33,22 +33,17 @@ struct StaggeredAppear: ViewModifier {
 }
 
 struct ScalePress: ViewModifier {
-    @State private var isPressed = false
+    @GestureState private var pressing = false
 
     func body(content: Content) -> some View {
         content
-            .scaleEffect(isPressed ? 0.97 : 1.0)
-            .animation(.ambidashSnap, value: isPressed)
-            // A non-zero activation threshold is essential: a 0-distance drag gesture
-            // would claim the touch immediately and run simultaneously with the parent
-            // ScrollView's pan, so the ScrollView would never receive a drag started
-            // over a card — the board would only scroll from empty gaps. With an 8pt
-            // minimum, a vertical pan is yielded to the ScrollView (scroll wins) and
-            // the press-scale only fires for near-stationary touches.
+            .scaleEffect(pressing ? 0.97 : 1.0)
+            .animation(.ambidashSnap, value: pressing)
             .simultaneousGesture(
-                DragGesture(minimumDistance: 8)
-                    .onChanged { _ in isPressed = true }
-                    .onEnded { _ in isPressed = false }
+                LongPressGesture(minimumDuration: 99)
+                    .updating($pressing) { _, state, _ in
+                        state = true
+                    }
             )
     }
 }

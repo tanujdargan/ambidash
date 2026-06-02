@@ -102,7 +102,7 @@ struct MonthlyReviewView: View {
 
                 if goals.isEmpty {
                     Text("No active goals to commit to yet.")
-                        .font(.system(size: 13, design: .serif))
+                        .font(t.body(13))
                         .italic()
                         .foregroundStyle(t.muted)
                 } else {
@@ -122,7 +122,7 @@ struct MonthlyReviewView: View {
             HStack(spacing: 8) {
                 Circle().fill(goal.horizon.dotColor).frame(width: 6, height: 6)
                 Text(goal.title)
-                    .font(.system(size: 14, weight: .regular, design: .serif))
+                    .font(t.body(14))
                     .foregroundStyle(t.ink)
                     .lineLimit(1)
                 Spacer()
@@ -133,7 +133,7 @@ struct MonthlyReviewView: View {
 
             if let milestone {
                 Text(milestone.title)
-                    .font(.system(size: 12, design: .serif))
+                    .font(t.body(12))
                     .italic()
                     .foregroundStyle(t.ink2)
                     .lineLimit(2)

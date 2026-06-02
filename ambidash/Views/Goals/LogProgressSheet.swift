@@ -40,7 +40,7 @@ struct LogProgressSheet: View {
                     }
 
                     Text(goal.title)
-                        .font(.system(size: 24, weight: .regular, design: .serif))
+                        .font(t.heading(24))
                         .tracking(-0.3)
                         .foregroundStyle(t.ink)
                 }

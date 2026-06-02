@@ -66,7 +66,9 @@ final class DictationService {
     /// Begins a fresh dictation session. Requests Speech + Microphone authorization
     /// gently (only here, on first tap). Safe to call when already recording (no-op).
     func start() async {
-        guard status != .recording else { return }
+        guard status == .idle || status == .denied || status == .unavailable
+                || { if case .error = status { return true }; return false }()
+        else { return }
         transcript = ""
 
         status = .requestingPermission
@@ -196,6 +198,9 @@ final class DictationService {
 
         let inputNode = audioEngine.inputNode
         let format = inputNode.outputFormat(forBus: 0)
+        guard format.channelCount > 0 else {
+            throw DictationError.recognizerUnavailable
+        }
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             self?.sfRequest?.append(buffer)
         }
@@ -318,6 +323,9 @@ private final class ModernDictationSession {
 
         let inputNode = engine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
+        guard recordingFormat.channelCount > 0 else {
+            throw DictationError.recognizerUnavailable
+        }
         let converter = AVAudioConverter(from: recordingFormat, to: analyzerFormat)
 
         // The tap fires on a realtime audio thread. Capture ONLY Sendable values

@@ -36,7 +36,7 @@ struct WelcomeView: View {
                         .fadeSlideIn(delay: 0.2)
 
                     Text("A quiet instrument for an ambitious life.")
-                        .font(.system(size: 38, weight: .regular, design: .serif))
+                        .font(t.heading(38))
                         .tracking(-0.6)
                         .lineSpacing(2)
                         .foregroundStyle(t.ink)

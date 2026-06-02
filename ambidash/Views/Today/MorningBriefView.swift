@@ -35,7 +35,7 @@ struct MorningBriefView: View {
 
                 // Greeting
                 Text("Good morning.\nOne question first.")
-                    .font(.system(size: 32, weight: .regular, design: .serif))
+                    .font(t.heading(32))
                     .tracking(-0.3)
                     .lineSpacing(2)
                     .foregroundStyle(t.ink)
@@ -47,7 +47,7 @@ struct MorningBriefView: View {
                         // Mentor question card
                         VStack(alignment: .leading, spacing: 14) {
                             Text("Of the things you said mattered most this week — which one are you postponing today?")
-                                .font(.system(size: 19, weight: .regular, design: .serif))
+                                .font(t.heading(19))
                                 .italic()
                                 .lineSpacing(4)
                                 .foregroundStyle(t.ink)

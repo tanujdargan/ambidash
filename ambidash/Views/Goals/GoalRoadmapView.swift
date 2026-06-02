@@ -79,7 +79,7 @@ struct GoalRoadmapView: View {
             }
 
             Text(goal.title)
-                .font(.system(size: 28, weight: .regular, design: .serif))
+                .font(t.heading(28))
                 .tracking(-0.3)
                 .foregroundStyle(t.ink)
 
@@ -143,7 +143,7 @@ struct GoalRoadmapView: View {
                 HStack(spacing: 8) {
                     StatusDot(status: milestone.status)
                     Text(milestone.title)
-                        .font(.system(size: 16, weight: .regular, design: .serif))
+                        .font(t.heading(16))
                         .foregroundStyle(milestone.isCompleted ? t.muted : t.ink)
                         .strikethrough(milestone.isCompleted, color: t.faint)
                         .multilineTextAlignment(.leading)
@@ -239,7 +239,7 @@ struct GoalRoadmapView: View {
     private func emptyState(_ t: ResolvedTheme) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("No checkpoints yet.")
-                .font(.system(size: 20, weight: .regular, design: .serif))
+                .font(t.heading(20))
                 .foregroundStyle(t.ink)
             Text("Let the mentor break this goal into a chain, or add the first checkpoint yourself.")
                 .font(.system(size: 13))
