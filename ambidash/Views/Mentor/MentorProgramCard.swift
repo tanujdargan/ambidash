@@ -11,6 +11,7 @@ struct MentorProgramCard: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var profile: UserProfile
 
+    @State private var showInvite = false
     private let mentorTarget = 30
 
     private var progress: Double {
@@ -33,6 +34,26 @@ struct MentorProgramCard: View {
                 optInRow("ownMentor", "Share with my own mentor", "square.and.arrow.up", t)
                 optInRow("none", "Not now", "moon.zzz.fill", t)
             }
+
+            // Generate a shareable code / connect with someone.
+            Button {
+                Haptics.light()
+                showInvite = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: profile.connectedPeerCode.isEmpty ? "qrcode" : "checkmark.circle.fill")
+                        .font(.system(size: 13))
+                    Text(profile.connectedPeerCode.isEmpty ? "Invite & connect" : "Connected — manage")
+                        .font(.system(size: 14, weight: .medium))
+                }
+                .foregroundStyle(t.accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 11)
+                .background(t.accentSoft)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("mentor.inviteButton")
 
             t.hair.frame(height: 0.5).padding(.vertical, 2)
 
@@ -72,6 +93,9 @@ struct MentorProgramCard: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("mentor.program")
+        .sheet(isPresented: $showInvite) {
+            MentorInviteSheet(profile: profile).environment(tm)
+        }
     }
 
     @ViewBuilder
