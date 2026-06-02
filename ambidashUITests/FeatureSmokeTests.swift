@@ -198,6 +198,28 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 goal-tied vitals: the Goal Vitals component shows each goal's status
+    /// straight up (seeded goals = one On Track, one Needs Time).
+    func testGoalVitalsComponent() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+
+        let vitals = app.otherElements["component.goalVitals"]
+        let scrollView = app.scrollViews["dashboard.scroll"].exists
+            ? app.scrollViews["dashboard.scroll"] : app.scrollViews.firstMatch
+        var scrolls = 0
+        while !vitals.exists && scrolls < 6 {
+            scrollView.swipeUp(velocity: .fast)
+            scrolls += 1
+        }
+        Thread.sleep(forTimeInterval: 0.5)
+        snap("goal-vitals-component")
+        XCTAssertTrue(vitals.exists, "Goal Vitals component not found on the board")
+        XCTAssertTrue(app.staticTexts["ON TRACK"].exists, "On Track status not shown")
+        XCTAssertTrue(app.staticTexts["NEEDS TIME"].exists, "Needs Time status not shown")
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 goal-workflows: the Wake Check nudge appears when actual wake (seeded
     /// 09:00) drifts late of the goal (seeded 06:00), offering adjust actions.
     func testWakeAdjustComponent() throws {
