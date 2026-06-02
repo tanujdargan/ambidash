@@ -26,6 +26,7 @@ enum UITestSupport {
 
             let goal = Goal(title: "Run a 5K", domain: .body, priority: 0)
             goal.isActive = true
+            goal.isSticky = true   // so the Sticky Notes surface shows a pinned goal
             goal.subtitle = "Sample goal seeded for UI tests"
             goal.profile = profile
             profile.goals = [goal]

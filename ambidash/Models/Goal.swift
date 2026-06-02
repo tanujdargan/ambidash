@@ -11,6 +11,10 @@ final class Goal {
     var createdAt: Date = Date()
     var lastProgressDate: Date = Date()
     var isActive: Bool = false
+    /// v4 — a "sticky note" goal: pinned to an always-visible, glanceable surface so
+    /// a must-not-forget but not-top-priority goal stays in view. CloudKit-additive
+    /// (defaulted scalar, no schema migration).
+    var isSticky: Bool = false
     var horizonRaw: String = GoalHorizon.now.rawValue
     var subtitle: String = ""
     // FOUNDATION — free-text description carrying goal-specific context (e.g.
