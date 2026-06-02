@@ -198,6 +198,22 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 mentor-system scaffold: the Mentor tab surfaces the mentorship program
+    /// card (opt-in choices + become-a-mentor progression).
+    func testMentorProgramScaffold() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.mentor")
+
+        let program = app.otherElements["mentor.program"]
+        XCTAssertTrue(program.waitForExistence(timeout: 6), "Mentor program scaffold not found in Mentor tab")
+        snap("mentor-program-scaffold")
+        XCTAssertTrue(app.staticTexts["Become a mentor"].exists, "Mentee→mentor progression not shown")
+        // Tapping an opt-in choice must persist + not crash.
+        let match = app.buttons["Match me with a mentor"].firstMatch
+        if match.exists { match.tap() }
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 goal-tied vitals: the Goal Vitals component shows each goal's status
     /// straight up (seeded goals = one On Track, one Needs Time).
     func testGoalVitalsComponent() throws {

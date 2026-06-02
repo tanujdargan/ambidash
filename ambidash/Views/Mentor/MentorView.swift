@@ -72,6 +72,12 @@ struct MentorView: View {
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 16) {
+                            // v4 mentor-system scaffold: opt-in + become-a-mentor progression.
+                            if let profile {
+                                MentorProgramCard(profile: profile)
+                                    .fadeSlideIn(delay: 0.05)
+                            }
+
                             // MENTOR REFOCUS — forward breakdown above the thread.
                             if !forwardSummary.isEmpty {
                                 forwardCard(t)
