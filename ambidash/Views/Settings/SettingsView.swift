@@ -124,9 +124,15 @@ struct SettingsView: View {
                         set: { tm.typography = $0; Haptics.selection() }
                     )) {
                         ForEach(ThemeTypography.allCases) { t in
-                            Text(t.displayName).tag(t)
+                            Text(t.displayName)
+                                // "typography.editorial/.modern/.technical" — segmented
+                                // so each option is a directly-tappable button the UI
+                                // tests can find by identifier.
+                                .accessibilityIdentifier("typography.\(t.rawValue)")
+                                .tag(t)
                         }
                     }
+                    .pickerStyle(.segmented)
 
                     Picker("Density", selection: Binding(
                         get: { tm.density },

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("onboardingComplete") private var onboardingComplete = false
     @AppStorage("theme_setup_complete") private var themeSetupComplete = false
     @State private var showLaunch = true
@@ -17,7 +18,7 @@ struct RootView: View {
                 WelcomeView()
             }
 
-            if showLaunch && themeSetupComplete {
+            if showLaunch && themeSetupComplete && !UITestSupport.isActive {
                 LaunchScreen()
                     .transition(.opacity)
                     .zIndex(1)
@@ -31,6 +32,9 @@ struct RootView: View {
             }
         }
         .onAppear {
+            // TEST-ONLY: seed a deterministic profile + sample goal so the seeded
+            // MainTabView branch has data. Gated inside seedIfNeeded; inert normally.
+            UITestSupport.seedIfNeeded(modelContext)
             supabase.restoreSession()
         }
         .onChange(of: deepLinkTab) { _, newTab in

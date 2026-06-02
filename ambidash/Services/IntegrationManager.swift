@@ -18,6 +18,7 @@ final class IntegrationManager {
 
     static var skipPermissions: Bool {
         CommandLine.arguments.contains("--skip-permissions") ||
+        UITestSupport.isActive ||   // UI-test launches must never trigger a system permission dialog (it overlays + blocks the harness)
         UserDefaults.standard.bool(forKey: "skip_permissions")
     }
 

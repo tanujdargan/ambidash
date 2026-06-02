@@ -18,6 +18,16 @@ struct AmbidashApp: App {
             UserDefaults.standard.set(true, forKey: "theme_setup_complete")
             UserDefaults.standard.set(true, forKey: "onboardingComplete")
         }
+        // TEST-ONLY deterministic launch. When the harness passes "-uitesting" we
+        // skip every onboarding gate (theme setup, assessment, goal declaration)
+        // and pin a known typography so UI tests land straight on MainTabView. The
+        // matching UserProfile + sample Goal are seeded into the SwiftData store in
+        // RootView (where the modelContext is available). Inert without the flag.
+        if UITestSupport.isActive {
+            UserDefaults.standard.set(true, forKey: "theme_setup_complete")
+            UserDefaults.standard.set(true, forKey: "onboardingComplete")
+            UserDefaults.standard.set("technical", forKey: "theme_typography")
+        }
     }
 
     var body: some Scene {
