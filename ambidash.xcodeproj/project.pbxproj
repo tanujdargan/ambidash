@@ -215,6 +215,7 @@
 		A9614CDA61B8397844CCA269 /* GoalRoadmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0615C9BA08D1862EA6F17C /* GoalRoadmapView.swift */; };
 		A9B02BD693323253BB211A71 /* CaptureDecomposeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217B1854C18A9F69DF87FE38 /* CaptureDecomposeService.swift */; };
 		AB013006F07E7F0B5B442871 /* ProgressLogSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BC3A06E0B993F7083E54B8 /* ProgressLogSource.swift */; };
+		AB991D7B1DEC4942E8C79637 /* TodayProgressComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A1CF6FEB17DC015D9048A4 /* TodayProgressComponent.swift */; };
 		ABA8A64FD3BF98840F07A44A /* PlannedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A0B36532BE8ECC20CC5C35 /* PlannedAction.swift */; };
 		AC8CB51A57A1D22E29AB818E /* DomainAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A4F1A74BE0216D3C7B2886 /* DomainAssessment.swift */; };
 		AD0EECEFAEE7B5CCC7233D81 /* IntegrationSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A30F431A850B4444C16E78 /* IntegrationSetupView.swift */; };
@@ -425,6 +426,7 @@
 		51A045BE47C090BF8FD0EE66 /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
 		52BC660CF7E679BE4155DD60 /* ActualEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActualEvent.swift; sourceTree = "<group>"; };
 		53C0FC0F75B58F7C4B19324E /* BoardSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSetupView.swift; sourceTree = "<group>"; };
+		54A1CF6FEB17DC015D9048A4 /* TodayProgressComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayProgressComponent.swift; sourceTree = "<group>"; };
 		550FF629879641F39F8E0B88 /* DeepLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLink.swift; sourceTree = "<group>"; };
 		557698237B86451559706D44 /* AmbidashApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashApp.swift; sourceTree = "<group>"; };
 		56C90553BD1F33180D9B0A91 /* GoalProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProgress.swift; sourceTree = "<group>"; };
@@ -1006,6 +1008,7 @@
 				26F7DA613305CB4B07A7D39D /* FocusSoundService.swift */,
 				08E79A880B760BC35A3F1457 /* PatternCheckInComponent.swift */,
 				6C0A6D257402FC4E1C367568 /* QuickCaptureSheet.swift */,
+				54A1CF6FEB17DC015D9048A4 /* TodayProgressComponent.swift */,
 				07B2E9178E05F3E2E66CA515 /* WinsWallComponent.swift */,
 				A91F697489DC7FDEFF473D8C /* WinsWeekSheet.swift */,
 			);
@@ -1485,6 +1488,7 @@
 				F9DEACC546CB90B9E6E34A49 /* SyncService.swift in Sources */,
 				1E736C461ECA535BBE70DB68 /* TargetMath.swift in Sources */,
 				F1C4D073F65A527E6EF02EEF /* ThemeSetupView.swift in Sources */,
+				AB991D7B1DEC4942E8C79637 /* TodayProgressComponent.swift in Sources */,
 				8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */,
 				BDECD238E88E23BB5E5B0B20 /* UITestSupport.swift in Sources */,
 				AD91C75EE8B68DBE2C181383 /* UserPreferences.swift in Sources */,

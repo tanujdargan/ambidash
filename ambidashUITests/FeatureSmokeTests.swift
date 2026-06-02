@@ -181,6 +181,23 @@ final class FeatureSmokeTests: XCTestCase {
         XCTAssertEqual(app.state, .runningForeground)
     }
 
+    /// v4 completion/progress: the Today's Progress component (seeded into the
+    /// .balanced board) renders its done-count + progress ring on the dashboard.
+    func testTodayProgressComponent() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+
+        let progress = app.otherElements["component.todayProgress"]
+        var scrolls = 0
+        while !progress.exists && scrolls < 6 {
+            app.swipeUp()
+            scrolls += 1
+        }
+        snap("today-progress-component")
+        XCTAssertTrue(progress.exists, "Today's Progress component not found on the board")
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
     /// v4 calendar integration: the "Add goals to Calendar" toggle exists, flips,
     /// and adding a goal with it on does not crash (Reminders access is skipped in
     /// -uitesting, so this verifies the UI + the no-crash path; the actual EventKit

@@ -45,5 +45,21 @@ enum UITestSupport {
             _ = BoardSeeder.seed(template: .balanced, in: context)
             try? context.save()
         }
+
+        // A small daily plan (2 of 3 done) so completion/progress surfaces have real
+        // data — the Today's Progress ring shows 67% instead of an empty state.
+        let plans = (try? context.fetch(FetchDescriptor<DailyPlan>())) ?? []
+        if plans.isEmpty {
+            let plan = DailyPlan(date: .now)
+            let a1 = PlannedAction(title: "Morning run", timeSlot: "07:00", duration: 30)
+            let a2 = PlannedAction(title: "Deep work block", timeSlot: "09:00", duration: 90)
+            let a3 = PlannedAction(title: "Read 20 pages", timeSlot: "21:00", duration: 25)
+            a1.applyLifecycle(.done)
+            a2.applyLifecycle(.done)
+            plan.actions = [a1, a2, a3]
+            context.insert(plan)
+            [a1, a2, a3].forEach { context.insert($0) }
+            try? context.save()
+        }
     }
 }
