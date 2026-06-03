@@ -31,6 +31,8 @@ struct TodayView: View {
 
     @State private var isGenerating = false
     @State private var showAddAction = false
+    /// v4 #4/#6 — presents the multi-day Plan Ahead planner.
+    @State private var showPlanAhead = false
     @State private var rescheduleTarget: PlannedAction?
     /// #14 — the action awaiting a skip reason. Presents SkipReasonSheet.
     @State private var skipTarget: PlannedAction?
@@ -75,11 +77,23 @@ struct TodayView: View {
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        Haptics.selection()
+                        showPlanAhead = true
+                    } label: {
+                        Image(systemName: "calendar.day.timeline.left")
+                    }
+                    .accessibilityIdentifier("today.planAhead")
+                }
                 if let plan = todayPlan {
                     ToolbarItem(placement: .topBarTrailing) {
                         planMenu(plan, t: t)
                     }
                 }
+            }
+            .sheet(isPresented: $showPlanAhead) {
+                MultiDayPlannerView()
             }
             .sheet(isPresented: $showAddAction) {
                 if let plan = todayPlan {
