@@ -387,4 +387,41 @@ final class FeatureSmokeTests: XCTestCase {
         }
         XCTAssertEqual(app.state, .runningForeground)
     }
+
+    /// App Limits (Family Controls) — the screen opens from Settings, shows its
+    /// authorize CTA, and surviving the authorize tap (which on the Simulator
+    /// can't really grant Screen Time) without crashing. Real shielding is
+    /// device-only; this verifies the UI + no-crash path.
+    func testAppLimitsScreen() throws {
+        XCTAssertTrue(mainTabsAppeared(), "Main tabs never appeared")
+        tapTab("tab.dashboard")
+        app.buttons["Settings"].firstMatch.tap()
+
+        // Scroll the Integrations → App Limits row into view.
+        let row = app.buttons["settings.appLimits"]
+        var scrolls = 0
+        while !row.exists && scrolls < 8 {
+            app.swipeUp()
+            scrolls += 1
+        }
+        guard row.waitForExistence(timeout: 3) else {
+            XCTFail("settings.appLimits row not found after scrolling"); return
+        }
+        row.tap()
+
+        // The App Limits screen should appear (nav bar title is the stable anchor).
+        let screen = app.navigationBars["App Limits"]
+        XCTAssertTrue(screen.waitForExistence(timeout: 5), "App Limits screen did not open")
+        snap("applimits-opened")
+
+        // Tap the authorize button if present (notDetermined state). On the
+        // Simulator this resolves to the "unavailable" note — must not crash.
+        let authorize = app.buttons["applimits.authorize"]
+        if authorize.waitForExistence(timeout: 2) {
+            authorize.tap()
+            Thread.sleep(forTimeInterval: 1.0)
+            snap("applimits-after-authorize")
+        }
+        XCTAssertEqual(app.state, .runningForeground, "App crashed in App Limits")
+    }
 }
