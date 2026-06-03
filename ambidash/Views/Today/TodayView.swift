@@ -1115,6 +1115,10 @@ private struct AddActionSheet: View {
     @State private var durationMinutes = 30
     @State private var selectedGoalID: UUID?
 
+    /// Mirrors the Settings "Add to Calendar" toggle. When on, a scheduled task
+    /// (one with a time slot) also drops a timed event on the system calendar.
+    @AppStorage("calendar_sync_enabled") private var calendarSyncEnabled = false
+
     private var activeGoals: [Goal] { goals.filter(\.isActive) }
 
     var body: some View {
@@ -1238,6 +1242,16 @@ private struct AddActionSheet: View {
         action.plan = plan
         plan.actionCount = (plan.actions ?? []).count
         try? modelContext.save()
+
+        // v4 #8: a *scheduled* task auto-mirrors onto the calendar so it shows up
+        // alongside everything else. Fire-and-forget, gated by the same toggle as
+        // goal sync; unscheduled tasks (no time slot) are skipped by the service.
+        if calendarSyncEnabled, !action.timeSlot.isEmpty {
+            let title = action.title, slot = action.timeSlot
+            let day = plan.date, dur = action.durationMinutes
+            let notes = resolvedGoal.map { "Ambidash · \($0.title)" }
+            Task { await EventKitService.shared.addScheduledBlock(title: title, on: day, timeSlot: slot, durationMinutes: dur, notes: notes) }
+        }
         dismiss()
     }
 }

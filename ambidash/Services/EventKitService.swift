@@ -113,6 +113,28 @@ final class EventKitService {
         }
     }
 
+    /// Adds a timed calendar event for a *scheduled* plan block. Resolves the
+    /// action's "HH:mm" `timeSlot` against `day`; no-ops (returns false) when the
+    /// slot is empty or unparseable so unscheduled tasks never hit the calendar.
+    /// Fire-and-forget — callers never block task creation on the result.
+    @discardableResult
+    func addScheduledBlock(title: String, on day: Date, timeSlot: String, durationMinutes: Int, notes: String? = nil) async -> Bool {
+        guard let start = Self.resolveStart(on: day, timeSlot: timeSlot) else { return false }
+        return await addEvent(title: title, start: start, durationMinutes: durationMinutes > 0 ? durationMinutes : 30, notes: notes)
+    }
+
+    /// Parses an "HH:mm" slot into a concrete Date on `day`. Returns nil for empty
+    /// or malformed slots, or out-of-range hour/minute — kept static + pure so it's
+    /// trivially unit-testable without touching EventKit.
+    static func resolveStart(on day: Date, timeSlot: String) -> Date? {
+        let parts = timeSlot.split(separator: ":")
+        guard parts.count == 2,
+              let h = Int(parts[0]), let m = Int(parts[1]),
+              (0..<24).contains(h), (0..<60).contains(m) else { return nil }
+        let cal = Calendar.current
+        return cal.date(bySettingHour: h, minute: m, second: 0, of: cal.startOfDay(for: day))
+    }
+
     /// Adds a timed event to the user's default calendar (for scheduled plan
     /// blocks / dated milestones). Requests access first (idempotent).
     @discardableResult

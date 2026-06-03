@@ -278,9 +278,9 @@ struct SettingsView: View {
 
                     Toggle(isOn: $calendarSyncEnabled) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Add goals to Calendar")
+                            Text("Add goals & tasks to Calendar")
                                 .foregroundStyle(t.ink)
-                            Text("New goals drop a reminder so they show up automatically")
+                            Text("New goals drop a reminder; scheduled tasks become timed events — automatically")
                                 .font(.caption)
                                 .foregroundStyle(t.muted)
                         }
@@ -288,7 +288,12 @@ struct SettingsView: View {
                     .tint(t.accent)
                     .accessibilityIdentifier("settings.calendarSync")
                     .onChange(of: calendarSyncEnabled) { _, on in
-                        if on { Task { _ = await EventKitService.shared.requestRemindersAccess() } }
+                        if on {
+                            Task {
+                                _ = await EventKitService.shared.requestRemindersAccess()
+                                _ = await EventKitService.shared.requestCalendarAccess()
+                            }
+                        }
                         Haptics.selection()
                     }
 
