@@ -332,19 +332,21 @@ struct SettingsView: View {
                         }
                     }
 
-                    HStack {
-                        Image(systemName: "hourglass")
-                            .foregroundStyle(t.faint)
-                        Text("Screen Time")
-                            .foregroundStyle(t.muted)
-                        Spacer()
-                        // The Family Controls entitlement isn't granted yet, so the
-                        // integration can't actually authorize or collect data. Show
-                        // an honest "Coming soon" instead of a fake "Connected".
-                        Text("Coming soon")
-                            .font(.caption)
-                            .foregroundStyle(t.faint)
+                    NavigationLink {
+                        AppLimitsView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "hourglass")
+                                .foregroundStyle(t.accent)
+                            Text("App Limits")
+                                .foregroundStyle(t.ink)
+                            Spacer()
+                            Text("Block apps")
+                                .font(.caption)
+                                .foregroundStyle(t.muted)
+                        }
                     }
+                    .accessibilityIdentifier("settings.appLimits")
                 }
                 .listRowBackground(t.surface)
 

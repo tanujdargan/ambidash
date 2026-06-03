@@ -35,6 +35,7 @@
 		1B9416E7F33F9795521C5481 /* PulseScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82CCB659A2B7FAAAADBB3B4 /* PulseScoreCalculator.swift */; };
 		1BA8B68F4A3816AFDA505B61 /* AssessmentFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D8C1F4A2DBFE2EA96A5863 /* AssessmentFlowView.swift */; };
 		1C436FB33A6C347E16DDCA29 /* DomainAssessmentQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54A9BFF9287FAC9BE85BE5C /* DomainAssessmentQuestions.swift */; };
+		1C81300D7F6F362F427348D7 /* AppLimitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F890DD81CF89CD3E5F06AC /* AppLimitsView.swift */; };
 		1D021B706485249780AFBAD5 /* MilestoneProgressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D63E369ECA76257E2E050CE5 /* MilestoneProgressService.swift */; };
 		1DCA7C1EE5FE1186D44D1969 /* CaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA769C3BB42686A987FE9BF /* CaptureService.swift */; };
 		1E736C461ECA535BBE70DB68 /* TargetMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CA38068162063792691849 /* TargetMath.swift */; };
@@ -177,11 +178,13 @@
 		8946EBF76629A49997E1B9D0 /* NotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0205626D0E49EFB6245E424 /* NotificationDelegate.swift */; };
 		8A6263086A34BF80EAFE1BDA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F3135818AB6A21667C3011 /* TodayView.swift */; };
 		8A642DB2F97CD8D373DAE942 /* MentorProgramCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96F3193CB5FB5C37DDC5EA3 /* MentorProgramCard.swift */; };
+		8B584A94734F3085E13F8DF0 /* AppLimitController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976AE8A5D9865EFDA37B7EDA /* AppLimitController.swift */; };
 		8C3D770ACB5C7B6CEB33465F /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550FF629879641F39F8E0B88 /* DeepLink.swift */; };
 		8C8DB641A91C670FC1AA069B /* LifeDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED6CAF811845880023A84FC /* LifeDimension.swift */; };
 		8D706478F0DD849D4FA50D0F /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB77796CED406ECEB71F9B1D /* UserProfile.swift */; };
 		8DDC59758806307690526307 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54C8F7D558E93707C5C545A /* DailyPlan.swift */; };
 		90331D5D5B12AB3244A23809 /* FirstLetterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F25BD1C79A41FD3D12A25FC /* FirstLetterView.swift */; };
+		91F131DAB06BBB1BCCC182DF /* AppLimitController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976AE8A5D9865EFDA37B7EDA /* AppLimitController.swift */; };
 		9251D594277DAA1B97A28E8C /* ReflectionPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A70CD8711EDE905721F05A /* ReflectionPhoto.swift */; };
 		929FBA6FF352C56D34357C6E /* BoardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31BBFF23E2302CE4CF47C6DC /* BoardData.swift */; };
 		92D1B62C710731F9F391EF38 /* PatternCheckInPhrasing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3AAFDE5871F4DD90DC7B49D /* PatternCheckInPhrasing.swift */; };
@@ -416,6 +419,7 @@
 		26CD680AD6A784C9F514B955 /* AmbidashMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashMacApp.swift; sourceTree = "<group>"; };
 		26F7DA613305CB4B07A7D39D /* FocusSoundService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusSoundService.swift; sourceTree = "<group>"; };
 		275890E0203033E28ACC1614 /* WakeTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeTracker.swift; sourceTree = "<group>"; };
+		27F890DD81CF89CD3E5F06AC /* AppLimitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLimitsView.swift; sourceTree = "<group>"; };
 		2A823637E2D93334CD596561 /* ambidash-mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ambidash-mac.entitlements"; sourceTree = "<group>"; };
 		2E269A4E58E5CCE0E4EC2018 /* MacReflectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacReflectView.swift; sourceTree = "<group>"; };
 		302138A5439389021E345CB0 /* V3ConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V3ConfigTests.swift; sourceTree = "<group>"; };
@@ -506,6 +510,7 @@
 		94F0BED7D21FE5BC72E347A5 /* PremiumGateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumGateService.swift; sourceTree = "<group>"; };
 		962DA761E1ACAE2227706D41 /* IntegrationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationSnapshot.swift; sourceTree = "<group>"; };
 		969354CE05500BD43D3877B2 /* ambidash-widget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "ambidash-widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		976AE8A5D9865EFDA37B7EDA /* AppLimitController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLimitController.swift; sourceTree = "<group>"; };
 		98498452A2F2F63ADC06CEB6 /* ScreenTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeService.swift; sourceTree = "<group>"; };
 		98A43853C2967CC34AAA86A7 /* Reflection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reflection.swift; sourceTree = "<group>"; };
 		99293D596B35EC9D61FFE9E2 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
@@ -665,6 +670,7 @@
 		1AB1B0FCEF2902204935DF95 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				27F890DD81CF89CD3E5F06AC /* AppLimitsView.swift */,
 				FF0078242D4C8C835AAF607D /* PaywallView.swift */,
 				77B1C26E403562015848406D /* PreferencesView.swift */,
 				8F3398562C23BA55AF8165BB /* SettingsView.swift */,
@@ -816,6 +822,7 @@
 				80DF9F69EC7D14054E5E4154 /* AIConfig.swift */,
 				9EE9BC2C6D2DB031A788193C /* AIService.swift */,
 				0B36443B8F9E04B08A16907D /* AlarmService.swift */,
+				976AE8A5D9865EFDA37B7EDA /* AppLimitController.swift */,
 				4A6833653282A74A0B2893C6 /* BoardSeeder.swift */,
 				17DE822F12A7371D5F89D6D6 /* BoardTemplate.swift */,
 				217B1854C18A9F69DF87FE38 /* CaptureDecomposeService.swift */,
@@ -1255,6 +1262,7 @@
 				1EAE90BD244A4564596F49BA /* AmbidashMacApp.swift in Sources */,
 				B64C162C60CD1C2E3767BB14 /* AmbidashTheme.swift in Sources */,
 				83D6C91C65761BD0A3C9EDDF /* Animations.swift in Sources */,
+				8B584A94734F3085E13F8DF0 /* AppLimitController.swift in Sources */,
 				279F21FAB703538024EEE7E3 /* AppModelContainer.swift in Sources */,
 				B9DB8595528C4D1C2048CDFD /* AssessmentQuestion.swift in Sources */,
 				B06FED2A974D322A1B55BEA5 /* Board.swift in Sources */,
@@ -1376,6 +1384,8 @@
 				D3F76E3F01CF325030DFCA03 /* AmbidashApp.swift in Sources */,
 				331B02D2EB6C3B1FFF162090 /* AmbidashTheme.swift in Sources */,
 				07F0190AA9EF5596705D5782 /* Animations.swift in Sources */,
+				91F131DAB06BBB1BCCC182DF /* AppLimitController.swift in Sources */,
+				1C81300D7F6F362F427348D7 /* AppLimitsView.swift in Sources */,
 				FE79A716495B8B9549BEF488 /* AppModelContainer.swift in Sources */,
 				1BA8B68F4A3816AFDA505B61 /* AssessmentFlowView.swift in Sources */,
 				F1806EB4832A5DECBD2DE525 /* AssessmentQuestion.swift in Sources */,

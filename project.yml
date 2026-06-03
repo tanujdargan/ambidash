@@ -86,6 +86,9 @@ targets:
         # Self-serve capability — lets gentle now-moment block-start nudges use
         # interruptionLevel .timeSensitive (pierces Focus, NEVER critical).
         com.apple.developer.usernotifications.time-sensitive: true
+        # App Limits — Apple granted the Family Controls (Distribution) entitlement.
+        # Lets the app shield distracting apps via ManagedSettings. Device-only.
+        com.apple.developer.family-controls: true
     dependencies:
       - target: ambidash-widget
         embed: true
