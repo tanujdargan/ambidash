@@ -84,7 +84,7 @@ struct AppLimitsView: View {
                     .background(t.accent)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.scalePress)
             .accessibilityIdentifier("applimits.authorize")
         }
     }
@@ -119,7 +119,7 @@ struct AppLimitsView: View {
                 .background(t.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.scalePress)
             .accessibilityIdentifier("applimits.pickApps")
 
             // Block on/off
@@ -140,7 +140,7 @@ struct AppLimitsView: View {
                         .background(controller.isShielding ? t.danger.opacity(0.12) : t.accent)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.scalePress)
                 .accessibilityIdentifier("applimits.toggleBlock")
             }
 
@@ -158,9 +158,26 @@ struct AppLimitsView: View {
 
     @ViewBuilder
     private func deniedNote(_ t: ResolvedTheme) -> some View {
-        noteCard(t, icon: "xmark.shield", tint: t.danger,
-                 text: "Screen Time access is off. Turn it on in iOS Settings → Screen Time to block apps here.")
-            .accessibilityIdentifier("applimits.denied")
+        VStack(alignment: .leading, spacing: 12) {
+            noteCard(t, icon: "xmark.shield", tint: t.danger,
+                     text: "Screen Time access is off. Turn it on in iOS Settings → Screen Time to block apps here.")
+            #if os(iOS)
+            Button {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                Text("Open Settings")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(t.accent)
+                    .padding(.horizontal, 14).padding(.vertical, 9)
+                    .background(t.accentSoft)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.scalePress)
+            #endif
+        }
+        .accessibilityIdentifier("applimits.denied")
     }
 
     @ViewBuilder

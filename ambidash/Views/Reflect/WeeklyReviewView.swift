@@ -23,12 +23,12 @@ struct WeeklyReviewView: View {
     }
 
     private var weekPlans: [DailyPlan] {
-        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: .now)!
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now.addingTimeInterval(-7 * 86400)
         return plans.filter { $0.date >= weekAgo }
     }
 
     private var weekSnapshots: [IntegrationSnapshot] {
-        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: .now)!
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now.addingTimeInterval(-7 * 86400)
         return snapshots.filter { $0.date >= weekAgo }.sorted { $0.date < $1.date }
     }
 

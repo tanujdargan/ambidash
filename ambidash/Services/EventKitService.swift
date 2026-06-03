@@ -39,7 +39,7 @@ final class EventKitService {
     func fetchTodayEvents() async -> [EKEvent] {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: .now)
-        let end = calendar.date(byAdding: .day, value: 1, to: start)!
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start.addingTimeInterval(86400)
         let predicate = store.predicateForEvents(withStart: start, end: end, calendars: nil)
         return store.events(matching: predicate)
     }

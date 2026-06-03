@@ -24,7 +24,7 @@ struct DashboardView: View {
     private var profile: UserProfile? { profiles.first }
     private var todaySnapshot: IntegrationSnapshot? { snapshots.first }
     private var yesterdaySnapshot: IntegrationSnapshot? {
-        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now) ?? .now.addingTimeInterval(-86400)
         return snapshots.first { Calendar.current.isDate($0.date, inSameDayAs: yesterday) }
     }
 

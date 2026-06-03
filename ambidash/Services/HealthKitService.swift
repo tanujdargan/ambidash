@@ -170,7 +170,7 @@ final class HealthKitService {
     private func dayBounds(for date: Date) -> (Date, Date) {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: date)
-        let end = calendar.date(byAdding: .day, value: 1, to: start)!
+        let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start.addingTimeInterval(86400)
         return (start, end)
     }
 }

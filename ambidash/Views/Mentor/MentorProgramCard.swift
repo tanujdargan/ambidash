@@ -52,7 +52,7 @@ struct MentorProgramCard: View {
                 .background(t.accentSoft)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.scalePress)
             .accessibilityIdentifier("mentor.inviteButton")
 
             t.hair.frame(height: 0.5).padding(.vertical, 2)

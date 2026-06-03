@@ -23,12 +23,12 @@ struct MonthlyReviewView: View {
     }
 
     private var monthPlans: [DailyPlan] {
-        let monthAgo = Calendar.current.date(byAdding: .day, value: -30, to: .now)!
+        let monthAgo = Calendar.current.date(byAdding: .day, value: -30, to: .now) ?? .now.addingTimeInterval(-30 * 86400)
         return plans.filter { $0.date >= monthAgo }
     }
 
     private var monthSnapshots: [IntegrationSnapshot] {
-        let monthAgo = Calendar.current.date(byAdding: .day, value: -30, to: .now)!
+        let monthAgo = Calendar.current.date(byAdding: .day, value: -30, to: .now) ?? .now.addingTimeInterval(-30 * 86400)
         return snapshots.filter { $0.date >= monthAgo }
     }
 

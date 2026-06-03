@@ -34,7 +34,7 @@ final class ObsidianService {
 
             let fm = FileManager.default
             let today = Calendar.current.startOfDay(for: .now)
-            let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: today)!
+            let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: today) ?? today.addingTimeInterval(-7 * 86400)
 
             var totalNotes = 0
             var todayModified = 0

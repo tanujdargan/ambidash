@@ -518,12 +518,13 @@ struct TodayView: View {
 
             // Stacked bar
             GeometryReader { geo in
-                let total = CGFloat(totalPlannedMinutes + unaccounted)
+                let total = max(1, CGFloat(totalPlannedMinutes + unaccounted))
+                let remaining = max(0, totalPlannedMinutes - totalDoneMinutes)
                 HStack(spacing: 0) {
                     t.ink
                         .frame(width: geo.size.width * CGFloat(totalDoneMinutes) / total)
                     t.accent
-                        .frame(width: geo.size.width * CGFloat(totalPlannedMinutes - totalDoneMinutes) / total)
+                        .frame(width: geo.size.width * CGFloat(remaining) / total)
                     t.hair
                         .frame(width: geo.size.width * CGFloat(unaccounted) / total)
                 }
@@ -534,7 +535,7 @@ struct TodayView: View {
             // Legend
             HStack(spacing: 14) {
                 legendDot(color: t.ink, label: "Done · \(totalDoneMinutes)m", t: t)
-                legendDot(color: t.accent, label: "Planned · \(totalPlannedMinutes - totalDoneMinutes)m", t: t)
+                legendDot(color: t.accent, label: "Planned · \(max(0, totalPlannedMinutes - totalDoneMinutes))m", t: t)
                 legendDot(color: t.hair, label: "Free · \(unaccounted)m", t: t)
             }
         }

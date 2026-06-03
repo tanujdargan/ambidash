@@ -47,11 +47,13 @@ struct MentorInviteSheet: View {
                 .font(t.body(13))
                 .foregroundStyle(t.muted)
 
-            Text(profile.mentorInviteCode)
-                .font(.system(size: 22, weight: .semibold, design: .monospaced))
-                .foregroundStyle(t.ink)
-                .textSelection(.enabled)
-                .accessibilityIdentifier("mentor.inviteCode")
+            if !profile.mentorInviteCode.isEmpty {
+                Text(profile.mentorInviteCode)
+                    .font(.system(size: 22, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(t.ink)
+                    .textSelection(.enabled)
+                    .accessibilityIdentifier("mentor.inviteCode")
+            }
 
             if let qr = QRCode.image(from: profile.mentorInviteCode) {
                 qr.resizable()
@@ -125,7 +127,7 @@ struct MentorInviteSheet: View {
 
     private func connect() {
         let code = enteredCode.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !code.isEmpty else { return }
+        guard !code.isEmpty, code != profile.mentorInviteCode else { return }
         Haptics.success()
         profile.connectedPeerCode = code
         try? modelContext.save()
