@@ -287,9 +287,18 @@ private final class ModernDictationSession {
         self.transcriber = transcriber
         self.analyzer = SpeechAnalyzer(modules: [transcriber])
 
-        // Ensure the on-device model asset is installed for this locale.
-        if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
-            try await request.downloadAndInstall()
+        // Ensure the on-device model asset is installed for this locale. Asset
+        // availability/download failures — offline first-use, an unsupported locale,
+        // or (on the Simulator) transcription assets that simply can't be fetched and
+        // report "not subscribed to transcription.<lang>" — are normalized to a clean
+        // `.modelUnavailable`. Without this, AssetInventory's raw error string leaks
+        // through start()'s generic catch into the user-facing alert.
+        do {
+            if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
+                try await request.downloadAndInstall()
+            }
+        } catch {
+            throw DictationError.modelUnavailable
         }
     }
 
