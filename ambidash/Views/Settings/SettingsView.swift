@@ -24,6 +24,11 @@ struct SettingsView: View {
     @State private var importMessage: String?
     /// Presents the board-setup template picker in "customize" (replace) mode.
     @State private var showBoardSetup = false
+    /// v4 #11 — presents the referral / invite-friends screen.
+    @State private var showReferral = false
+    /// The profile passed to ReferralView, resolved (and created if needed) on tap so
+    /// the sheet always has a non-nil profile even before any Save Profile.
+    @State private var referralProfile: UserProfile?
     /// Transient "Saved ✓" confirmation under the Save API Key button.
     @State private var apiKeySaved = false
 
@@ -96,6 +101,39 @@ struct SettingsView: View {
                             dismiss()
                         }
                     }
+                }
+                .listRowBackground(t.surface)
+
+                Section("Invite") {
+                    Button {
+                        Haptics.selection()
+                        if let p = profile {
+                            referralProfile = p
+                        } else {
+                            let created = UserProfile()
+                            modelContext.insert(created)
+                            try? modelContext.save()
+                            referralProfile = created
+                        }
+                        showReferral = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "gift")
+                                .foregroundStyle(t.accent)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Invite friends")
+                                    .foregroundStyle(t.ink)
+                                Text("Ambidash is invite-only — share your code, move up the circle")
+                                    .font(.caption)
+                                    .foregroundStyle(t.muted)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12))
+                                .foregroundStyle(t.faint)
+                        }
+                    }
+                    .accessibilityIdentifier("settings.inviteFriends")
                 }
                 .listRowBackground(t.surface)
 
@@ -452,6 +490,12 @@ struct SettingsView: View {
                     BoardSeeder.replaceActiveBoard(with: template, in: modelContext)
                 }
                 .environment(tm)
+            }
+            .sheet(isPresented: $showReferral) {
+                if let p = referralProfile {
+                    ReferralView(profile: p)
+                        .environment(tm)
+                }
             }
             .onAppear {
                 apiKey = AIConfig.isConfigured ? "••••••••" : ""
