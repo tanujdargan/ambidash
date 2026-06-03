@@ -55,7 +55,14 @@ final class AppLimitController {
         loadSelection()
         isShielding = UserDefaults.standard.bool(forKey: shieldingKey)
         refreshAuthState()
-        if isShielding { applyShield() }
+        if isShielding {
+            if authState == .approved && blockedCount > 0 {
+                applyShield()
+            } else {
+                isShielding = false
+                UserDefaults.standard.set(false, forKey: shieldingKey)
+            }
+        }
         #else
         authState = .unavailable
         #endif
@@ -82,7 +89,7 @@ final class AppLimitController {
     #if os(iOS)
     private func refreshAuthState() {
         switch AuthorizationCenter.shared.authorizationStatus {
-        case .approved:     authState = .approved
+        case .approved, .approvedWithDataAccess: authState = .approved
         case .denied:       authState = .denied
         case .notDetermined: authState = .notDetermined
         @unknown default:   authState = .notDetermined
@@ -95,7 +102,8 @@ final class AppLimitController {
     /// Start blocking the picked apps.
     func startBlocking() {
         #if os(iOS)
-        guard blockedCount > 0 else { return }
+        refreshAuthState()
+        guard authState == .approved, blockedCount > 0 else { return }
         isShielding = true
         UserDefaults.standard.set(true, forKey: shieldingKey)
         applyShield()
@@ -125,8 +133,13 @@ final class AppLimitController {
     private func persistSelection() {
         guard let data = try? JSONEncoder().encode(selection) else { return }
         UserDefaults.standard.set(data, forKey: selectionKey)
-        // If we're actively blocking, re-apply so a changed picks take effect.
-        if isShielding { applyShield() }
+        if isShielding {
+            if blockedCount == 0 {
+                stopBlocking()
+            } else {
+                applyShield()
+            }
+        }
     }
 
     private func loadSelection() {

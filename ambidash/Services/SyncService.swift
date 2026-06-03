@@ -17,7 +17,7 @@ enum SyncService {
         }
 
         // Pull cloud → local
-        await pullGoalsFromCloud(context: context, localGoals: (profile?.goals ?? nil) ?? [])
+        await pullGoalsFromCloud(context: context, localGoals: (profile?.goals ?? nil) ?? [], profile: profile)
 
         ErrorLogger.info("Sync completed")
     }
@@ -92,7 +92,7 @@ enum SyncService {
 
     // MARK: - Pull (cloud → local) with conflict resolution
 
-    static func pullGoalsFromCloud(context: ModelContext, localGoals: [Goal]) async {
+    static func pullGoalsFromCloud(context: ModelContext, localGoals: [Goal], profile: UserProfile?) async {
         guard let remoteGoals = await SupabaseService.shared.fetchGoals() else { return }
 
         let localIds = Set(localGoals.map { $0.id.uuidString })
@@ -101,7 +101,6 @@ enum SyncService {
             guard let remoteId = remote["id"] as? String else { continue }
 
             if localIds.contains(remoteId) {
-                // Conflict resolution: cloud wins for streak_best (max), local wins for everything else
                 if let local = localGoals.first(where: { $0.id.uuidString == remoteId }) {
                     let remoteBest = remote["streak_best"] as? Int ?? 0
                     if remoteBest > (local.streak?.bestCount ?? 0) {
@@ -109,7 +108,6 @@ enum SyncService {
                     }
                 }
             } else {
-                // New goal from cloud — create locally
                 let title = remote["title"] as? String ?? ""
                 let domainRaw = remote["domain"] as? String ?? "body"
                 let domain = GoalDomain(rawValue: domainRaw) ?? .body
@@ -123,6 +121,9 @@ enum SyncService {
                 goal.streak?.currentCount = remote["streak_current"] as? Int ?? 0
                 goal.streak?.bestCount = remote["streak_best"] as? Int ?? 0
                 context.insert(goal)
+                if let profile {
+                    goal.profile = profile
+                }
             }
         }
 

@@ -14,6 +14,12 @@ struct MentorView: View {
     private var profile: UserProfile? { profiles.first }
     private var snapshot: IntegrationSnapshot? { snapshots.first }
 
+    private var lettersThisWeek: Int {
+        let cal = Calendar.current
+        guard let weekStart = cal.dateInterval(of: .weekOfYear, for: .now)?.start else { return letters.count }
+        return letters.filter { $0.createdAt >= weekStart }.count
+    }
+
     /// Today's planned actions, if a plan exists for today.
     private var todaysActions: [PlannedAction] {
         let cal = Calendar.current
@@ -59,7 +65,7 @@ struct MentorView: View {
                             .tracking(1.6)
                             .foregroundStyle(t.muted)
 
-                        Text("\(letters.count) letters this week.")
+                        Text("\(lettersThisWeek) letters this week.")
                             .font(t.heading(28))
                             .tracking(-0.3)
                             .foregroundStyle(t.ink)

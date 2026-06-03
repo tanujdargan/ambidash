@@ -43,7 +43,7 @@ enum GoalProgressTracker {
         }
 
         let prior7 = (goal.progressEntries ?? [])
-            .filter { $0.date >= Calendar.current.date(byAdding: .day, value: -7, to: today)! }
+            .filter { $0.date >= (Calendar.current.date(byAdding: .day, value: -7, to: today) ?? today.addingTimeInterval(-7 * 86400)) }
             .map(\.score)
         let avg7 = prior7.isEmpty ? score : prior7.reduce(0, +) / prior7.count
         let trend = score - avg7
@@ -54,7 +54,7 @@ enum GoalProgressTracker {
     }
 
     static func recentScores(for goal: Goal, days: Int = 14) -> [Int] {
-        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now)!
+        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: .now) ?? .now.addingTimeInterval(-Double(days) * 86400)
         return (goal.progressEntries ?? [])
             .filter { $0.date >= cutoff }
             .sorted { $0.date < $1.date }
