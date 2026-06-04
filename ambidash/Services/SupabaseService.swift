@@ -127,6 +127,46 @@ final class SupabaseService {
         await post("/rest/v1/daily_plans", body: plan) != nil
     }
 
+    // MARK: - Accountability (v5 social) — real-time partner sync
+
+    /// Push the user's daily check-in (their own code + current streak) so partners can read it.
+    /// Best-effort: a no-op when Supabase isn't configured or the user isn't signed in, so the
+    /// local SwiftData state stays the source of truth and everything works offline.
+    @discardableResult
+    func pushAccountabilityCheckIn(code: String, streak: Int, at date: Date = .now) async -> Bool {
+        guard isConfigured, isAuthenticated else { return false }
+        let body: [String: Any] = [
+            "code": code,
+            "streak": streak,
+            "checked_in_at": ISO8601DateFormatter().string(from: date),
+        ]
+        return await post("/rest/v1/accountability_checkins", body: body, upsert: true) != nil
+    }
+
+    /// Fetch a partner's latest check-in (date + streak) by their code.
+    func fetchPartnerCheckIn(code: String) async -> (lastCheckIn: Date?, streak: Int)? {
+        guard isConfigured else { return nil }
+        let path = "/rest/v1/accountability_checkins?select=*&code=eq.\(code)&order=checked_in_at.desc&limit=1"
+        guard let rows: [[String: Any]] = await get(path), let row = rows.first else { return nil }
+        let streak = row["streak"] as? Int ?? 0
+        let date = (row["checked_in_at"] as? String).flatMap { ISO8601DateFormatter().date(from: $0) }
+        return (date, streak)
+    }
+
+    /// Send an encouragement / celebration message to a partner.
+    @discardableResult
+    func sendEncouragement(toCode: String, fromCode: String, text: String, kind: String) async -> Bool {
+        guard isConfigured, isAuthenticated else { return false }
+        let body: [String: Any] = [
+            "to_code": toCode,
+            "from_code": fromCode,
+            "text": text,
+            "kind": kind,
+            "sent_at": ISO8601DateFormatter().string(from: .now),
+        ]
+        return await post("/rest/v1/encouragements", body: body) != nil
+    }
+
     // MARK: - AI Mentor (via Edge Function)
 
     func callMentor(action: String, context: [String: Any]) async -> String? {

@@ -15,6 +15,10 @@ final class Goal {
     /// a must-not-forget but not-top-priority goal stays in view. CloudKit-additive
     /// (defaulted scalar, no schema migration).
     var isSticky: Bool = false
+    /// v5 — opt-in per-goal visibility to accountability partners. OFF by default so a
+    /// goal is private unless the user explicitly shares it. CloudKit-additive (defaulted
+    /// scalar, no migration).
+    var isSharedWithPartners: Bool = false
     var horizonRaw: String = GoalHorizon.now.rawValue
     var subtitle: String = ""
     // FOUNDATION — free-text description carrying goal-specific context (e.g.
