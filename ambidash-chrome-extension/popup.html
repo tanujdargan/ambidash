@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambidash Blocker</title>
+  <style>
+    :root {
+      --bg: #f7f8fc;
+      --bg-card: #ffffff;
+      --text: #2d3748;
+      --text-muted: #a0aec0;
+      --accent: #6B7FD7;
+      --accent-light: #e8ecf8;
+      --success: #68d391;
+      --success-bg: #f0fff4;
+      --warning: #f6ad55;
+      --warning-bg: #fffaf0;
+      --border: #edf2f7;
+      --radius: 14px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      width: 360px;
+      min-height: 200px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .app-name {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.01em;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-dot.active { background: var(--success); box-shadow: 0 0 6px rgba(104, 211, 145, 0.5); }
+    .status-dot.inactive { background: var(--text-muted); }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-bar.active {
+      background: var(--success-bg);
+      color: #276749;
+    }
+
+    .status-bar.inactive {
+      background: var(--bg);
+      color: var(--text-muted);
+    }
+
+    .section {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .timer {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .timer-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    .timer-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .domain-list {
+      list-style: none;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .domain-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .domain-list li::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+
+    .domain-list .empty {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 8px 0;
+    }
+
+    .domain-list .empty::before { display: none; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .toggle-label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #cbd5e0;
+      border-radius: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: var(--success);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .toggle input:checked ~ .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    .source-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .source-badge.native { background: #ebf8ff; color: #2b6cb0; }
+    .source-badge.local { background: #fefcbf; color: #975a16; }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 20px;
+    }
+
+    .footer a {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover { text-decoration: underline; }
+
+    .btn-refresh {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-refresh:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-refresh:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">Loading...</div>
+
+  <div id="content" style="display: none;">
+    <div class="header">
+      <div class="header-left">
+        <span class="logo">🎯</span>
+        <span class="app-name">Ambidash</span>
+      </div>
+      <div>
+        <span id="source-badge" class="source-badge"></span>
+      </div>
+    </div>
+
+    <div id="status-bar" class="status-bar">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Checking...</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Focus Timer</div>
+      <div class="timer">
+        <span class="timer-value" id="timer-value">--:--</span>
+        <span class="timer-label" id="timer-label">remaining</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Blocked Domains</div>
+      <ul class="domain-list" id="domain-list">
+        <li class="empty">No domains blocked</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="toggle-row">
+        <span class="toggle-label">Website Blocking</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-blocking">
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="options.html" target="_blank" id="btn-options">Settings</a>
+      <button class="btn-refresh" id="btn-refresh">↻ Refresh</button>
+      <a href="#" id="btn-app">Open Ambidash</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

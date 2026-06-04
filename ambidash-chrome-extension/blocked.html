@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stay Focused — Ambidash</title>
+  <style>
+    :root {
+      --bg-primary: #f0f4f8;
+      --bg-card: #ffffff;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --accent: #6B7FD7;
+      --accent-light: #e8ecf8;
+      --accent-glow: rgba(107, 127, 215, 0.15);
+      --success: #68d391;
+      --border: #e2e8f0;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Animated gradient background */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(107, 127, 215, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(104, 211, 145, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(159, 122, 234, 0.06) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 520px;
+      width: 90%;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 48px 40px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .emoji-icon {
+      font-size: 64px;
+      line-height: 1;
+      margin-bottom: 16px;
+      display: block;
+      animation: gentleFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .blocked-domain {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin-bottom: 28px;
+      word-break: break-all;
+    }
+
+    .timer-section {
+      margin-bottom: 28px;
+    }
+
+    .timer-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .timer-display {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .timer-display.no-session {
+      font-size: 16px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .motivational {
+      background: linear-gradient(135deg, rgba(107, 127, 215, 0.06), rgba(104, 211, 145, 0.06));
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .progress-bar-container {
+      margin-bottom: 24px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #9f7aea);
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    /* Breathing animation for the card */
+    .card {
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { box-shadow: var(--shadow); }
+      50% { box-shadow: 0 4px 32px rgba(107, 127, 215, 0.1); }
+    }
+
+    /* Subtle floating particles */
+    .particle {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.1;
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.1; }
+      90% { opacity: 0.1; }
+      100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <!-- Subtle floating particles for calming effect -->
+  <div class="particle" style="left: 10%; animation-duration: 12s; animation-delay: 0s;"></div>
+  <div class="particle" style="left: 25%; animation-duration: 15s; animation-delay: 2s;"></div>
+  <div class="particle" style="left: 50%; animation-duration: 10s; animation-delay: 4s;"></div>
+  <div class="particle" style="left: 75%; animation-duration: 14s; animation-delay: 1s;"></div>
+  <div class="particle" style="left: 90%; animation-duration: 11s; animation-delay: 3s;"></div>
+
+  <div class="container">
+    <div class="card">
+      <span class="emoji-icon" role="img" aria-label="target">🎯</span>
+      <h1>Stay focused!</h1>
+      <p class="subtitle">This site is blocked while you're in a focus session.</p>
+
+      <div id="domain-display" class="blocked-domain" style="display: none;"></div>
+
+      <div id="timer-section" class="timer-section" style="display: none;">
+        <div class="timer-label">Time remaining in focus session</div>
+        <div id="timer-display" class="timer-display">--:--</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-bg">
+            <div id="progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div id="progress-label" class="progress-label"></div>
+        </div>
+      </div>
+
+      <div class="motivational" id="motivational"></div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" id="btn-breathe" type="button">
+          Take a breath 🌿
+        </button>
+      </div>
+
+      <p class="footer-note">
+        You set this boundary for yourself. Trust the process. ✨
+      </p>
+    </div>
+  </div>
+
+  <script src="blocked.js"></script>
+</body>
+</html>
