@@ -114,6 +114,11 @@ struct DashboardView: View {
                             .accessibilityLabel("Settings")
                         }
 
+                        // 1b. v5 adaptive scheduling — one gentle "let's adjust today" nudge when
+                        // the day needs it (rough sleep, slipped blocks, yesterday's unfinished).
+                        // Renders nothing when the day's on track.
+                        AdaptiveNudgeView()
+
                         // 2. Configurable component board. Computes shared data
                         // ONCE (boardData) and renders the ordered components of the
                         // hardcoded "balanced" template via ComponentRegistry,
