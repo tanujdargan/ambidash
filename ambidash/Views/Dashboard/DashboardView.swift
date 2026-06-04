@@ -114,6 +114,10 @@ struct DashboardView: View {
                             .accessibilityLabel("Settings")
                         }
 
+                        // 1b. v5 custom vitals — glanceable chips for the vitals the user tracks.
+                        // Renders nothing until they add one, so calm by default.
+                        CustomVitalsStrip()
+
                         // 2. Configurable component board. Computes shared data
                         // ONCE (boardData) and renders the ordered components of the
                         // hardcoded "balanced" template via ComponentRegistry,
