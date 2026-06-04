@@ -10,6 +10,8 @@ enum BoardTemplateID: String, CaseIterable, Codable, Hashable {
     case athlete
     case founder
     case student
+    case professional
+    case creative
     case minimalist
 
     /// Human-facing name used for a seeded board's `name` and the picker card.
@@ -20,6 +22,8 @@ enum BoardTemplateID: String, CaseIterable, Codable, Hashable {
         case .athlete: "Athlete"
         case .founder: "Founder"
         case .student: "Student"
+        case .professional: "Professional"
+        case .creative: "Creative"
         case .minimalist: "Minimalist"
         }
     }
@@ -32,6 +36,8 @@ enum BoardTemplateID: String, CaseIterable, Codable, Hashable {
         case .athlete: "Body-first. Vitals up top, streaks, and today's plan front and centre."
         case .founder: "Momentum-first. Composite, goals, history trend, and a mentor nudge."
         case .student: "Focus on goals and the day, with a reflection to close it out."
+        case .professional: "Work-first. Today's progress, the day's plan, goals, and the week ahead."
+        case .creative: "Idea-first. Capture inbox, your day, wins, and a reflection to close on."
         case .minimalist: "Just the essentials: your pulse and your latest goals."
         }
     }
@@ -44,13 +50,15 @@ enum BoardTemplateID: String, CaseIterable, Codable, Hashable {
         case .athlete: "figure.run"
         case .founder: "bolt"
         case .student: "book"
+        case .professional: "briefcase"
+        case .creative: "paintbrush.pointed"
         case .minimalist: "minus"
         }
     }
 
     /// Order the templates appear in the picker (Calm first as the default).
     static var pickerOrder: [BoardTemplateID] {
-        [.calm, .balanced, .athlete, .founder, .student, .minimalist]
+        [.calm, .balanced, .athlete, .founder, .student, .professional, .creative, .minimalist]
     }
 }
 
@@ -135,6 +143,30 @@ enum BoardTemplate {
                 ComponentPlacement(.latestGoals, .body, .full),
                 ComponentPlacement(.todayNarrow, .body, .medium),
                 ComponentPlacement(.reflectionPrompt, .body, .full),
+            ]
+
+        case .professional:
+            // Work-first momentum: pulse up top, then today's completion, the day's
+            // plan, goals, and a look at the week's deadlines.
+            return [
+                ComponentPlacement(.compositeScore, .top, .full),
+                ComponentPlacement(.todayProgress, .body, .full),
+                ComponentPlacement(.dailyTimeline, .body, .full),
+                ComponentPlacement(.latestGoals, .body, .full),
+                ComponentPlacement(.weekAhead, .body, .full),
+                ComponentPlacement(.mentorCard, .body, .full),
+            ]
+
+        case .creative:
+            // Idea-first and low-pressure: pulse, an always-there capture inbox, the
+            // day, evidence of what you made (wins), and a reflection to close on.
+            return [
+                ComponentPlacement(.compositeScore, .top, .full),
+                ComponentPlacement(.captureInbox, .body, .full),
+                ComponentPlacement(.dailyTimeline, .body, .full),
+                ComponentPlacement(.winsWall, .body, .full),
+                ComponentPlacement(.reflectionPrompt, .body, .full),
+                ComponentPlacement(.identityLine, .body, .full),
             ]
 
         case .minimalist:
