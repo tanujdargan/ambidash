@@ -168,6 +168,19 @@ struct DashboardView: View {
                     StreakService.scheduleWeeklyReviewReminder()
                     StreakService.scheduleMonthlyReviewReminder()
                     StreakService.scheduleQuarterlyReviewReminder()
+                    // v5 SMART NOTIFICATIONS — adaptive daily check-ins, a learned-optimal goal
+                    // nudge (best energy+adherence hour, dodging calendar-busy spans), and grouped
+                    // streak-at-risk reminders. Recomputed each appear as patterns + calendar shift.
+                    if let prefs = profile?.userPreferences {
+                        let wake = DailyTimeline.minutes(from: prefs.wakeTime) ?? 7 * 60
+                        let sleep = DailyTimeline.minutes(from: prefs.sleepTime) ?? 23 * 60 + 30
+                        let busy = await EventKitService.shared.todayBusyMinuteRanges()
+                            .map { SmartNotificationPlanner.BusyInterval(startMinute: $0.start, endMinute: $0.end) }
+                        SmartNotificationCoordinator.refresh(
+                            context: modelContext, wakeMinutes: wake, sleepMinutes: sleep,
+                            goals: goals, busy: busy
+                        )
+                    }
                 }
                 StreakService.scheduleWarnings(for: goals)
                 StreakService.scheduleDriftNudges(for: goals)
