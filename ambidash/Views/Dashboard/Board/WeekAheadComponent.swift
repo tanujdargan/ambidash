@@ -10,20 +10,40 @@ struct WeekAheadComponent: View {
     @Environment(ThemeManager.self) private var tm
 
     /// Open (incomplete) milestones, soonest deadline first. Windowed to the next
-    /// 7 days in `body` — a #Predicate can't reference `.now` cleanly.
+    /// N days in `body` — a #Predicate can't reference `.now` cleanly.
     @Query(filter: #Predicate<Milestone> { $0.completedAt == nil }, sort: \Milestone.endDate)
     private var openMilestones: [Milestone]
 
-    private let dayCount = 7
+    /// Shared with the Plan Ahead planner so the dashboard window matches the one
+    /// the user set there (1…7). Defaults to a 3-day glance.
+    @AppStorage("multiday_count") private var dayCount = 3
 
     var body: some View {
         let t = tm.resolved
         let cal = Calendar.current
-        let today = cal.startOfDay(for: .now)
-        let days = (0..<dayCount).compactMap { cal.date(byAdding: .day, value: $0, to: today) }
+        let days = MultiDayPlannerService.days(from: .now, count: dayCount)
+        let bigEvent = MultiDayPlannerService.soonestBigEvent(milestones: openMilestones)
 
         VStack(alignment: .leading, spacing: t.space.component) {
             SectionLabel(title: "Week Ahead")
+
+            if let bigEvent {
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar.badge.exclamationmark")
+                        .font(.system(size: 13))
+                        .foregroundStyle(t.accent)
+                    Text("\(bigEvent.title) — \(bigEvent.phrase)")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(t.ink)
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 10).padding(.vertical, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(t.accentSoft)
+                .clipShape(RoundedRectangle(cornerRadius: 9))
+                .accessibilityIdentifier("component.weekAhead.bigEvent")
+            }
 
             VStack(spacing: t.space.tight) {
                 ForEach(Array(days.enumerated()), id: \.offset) { offset, day in

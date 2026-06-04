@@ -28,6 +28,21 @@ final class UserProfile {
     /// The peer code this user accepted (empty = not connected to anyone yet).
     var connectedPeerCode: String = ""
 
+    // v4 #11 REFERRAL — Ambidash grows by invite. This user's own shareable referral
+    // code, the code they joined through, and a confirmed-referral count that drives
+    // milestone tiers. Like the mentor scaffold, cross-user attribution (who actually
+    // joined with my code) needs a backend; `referralCount` is the field that backend
+    // would increment. The local flows — generate code, share, redeem an inviter's
+    // code, claim the welcome perk, and see tier progress — all work on-device today.
+    // CloudKit-additive (defaulted scalars, no migration).
+    var referralCode: String = ""
+    /// The inviter's code this user redeemed (empty = joined organically). One-time.
+    var referredByCode: String = ""
+    /// Confirmed referrals attributed to this user's code (backend-updated; 0 locally).
+    var referralCount: Int = 0
+    /// Whether the one-time "joined via invite" welcome perk has been claimed.
+    var referralWelcomeClaimed: Bool = false
+
     @Relationship(deleteRule: .cascade) var coreAssessment: CoreAssessment?
     @Relationship(deleteRule: .cascade) var workStylePreference: WorkStylePreference?
     // FOUNDATION — the user's daily-rhythm preferences ("Your Day"). Optional +
