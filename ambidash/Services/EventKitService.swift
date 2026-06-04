@@ -44,6 +44,21 @@ final class EventKitService {
         return store.events(matching: predicate)
     }
 
+    /// Today's busy spans as minute-of-day ranges (start, end), skipping all-day and zero-length
+    /// events. Returned as plain tuples so callers (e.g. the smart-notification scheduler) needn't
+    /// import EventKit. Empty when calendar access is off.
+    func todayBusyMinuteRanges() async -> [(start: Int, end: Int)] {
+        guard isCalendarAuthorized else { return [] }
+        let cal = Calendar.current
+        return await fetchTodayEvents().compactMap { ev in
+            guard !ev.isAllDay, let s = ev.startDate, let e = ev.endDate else { return nil }
+            let sm = cal.component(.hour, from: s) * 60 + cal.component(.minute, from: s)
+            let em = cal.component(.hour, from: e) * 60 + cal.component(.minute, from: e)
+            guard em > sm else { return nil }
+            return (sm, em)
+        }
+    }
+
     func computeFreeMinutes(for date: Date) async -> Int {
         let calendar = Calendar.current
         let dayStart = calendar.startOfDay(for: date)
