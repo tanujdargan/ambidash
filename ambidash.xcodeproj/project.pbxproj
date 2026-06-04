@@ -24,6 +24,7 @@
 		10AD8F355FE2CCC0513D0EDF /* QuickCaptureSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0A6D257402FC4E1C367568 /* QuickCaptureSheet.swift */; };
 		1361E1C004DB519EBBF8C1C3 /* ReflectionPhotoButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674702D93B4F67BDEE04EA6F /* ReflectionPhotoButton.swift */; };
 		14F49C8BD75E857B542426DF /* CaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA769C3BB42686A987FE9BF /* CaptureService.swift */; };
+		158226B0DEDDEA4134F65187 /* BoardTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57344FA955874BC5ABAA6749 /* BoardTemplateTests.swift */; };
 		1588B5063ABB996BB8017882 /* ScoreBreakdownCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA435598BE28E5D0A83152A /* ScoreBreakdownCard.swift */; };
 		15971BC033D1BC485E2C999C /* ActualEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52BC660CF7E679BE4155DD60 /* ActualEvent.swift */; };
 		16EF7E91D6ABB5ADFA3A5DA9 /* DictationMicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3336AA08A9393BD6943AB8E2 /* DictationMicButton.swift */; };
@@ -460,6 +461,7 @@
 		554C8FD7A7656DEE2EC30F80 /* MultiDayPlannerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiDayPlannerService.swift; sourceTree = "<group>"; };
 		557698237B86451559706D44 /* AmbidashApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbidashApp.swift; sourceTree = "<group>"; };
 		56C90553BD1F33180D9B0A91 /* GoalProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProgress.swift; sourceTree = "<group>"; };
+		57344FA955874BC5ABAA6749 /* BoardTemplateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardTemplateTests.swift; sourceTree = "<group>"; };
 		5755C1174D7A7D5E393879AF /* MacRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacRootView.swift; sourceTree = "<group>"; };
 		58CA38068162063792691849 /* TargetMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetMath.swift; sourceTree = "<group>"; };
 		59E3057734E7C90C7CD0400A /* WinsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinsService.swift; sourceTree = "<group>"; };
@@ -729,6 +731,7 @@
 				C158F87A34065F652D5220BA /* V3LearningTests.swift */,
 				D34DE94083195252DA16BC2D /* V3LifecycleTests.swift */,
 				064A0D38F26A67B4FD7F5D12 /* V3TestSupport.swift */,
+				57344FA955874BC5ABAA6749 /* BoardTemplateTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1130,8 +1133,6 @@
 			dependencies = (
 			);
 			name = "ambidash-widget";
-			packageProductDependencies = (
-			);
 			productName = "ambidash-widget";
 			productReference = 969354CE05500BD43D3877B2 /* ambidash-widget.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -1148,8 +1149,6 @@
 				D38CDAE4F6E96E9CA26B4595 /* PBXTargetDependency */,
 			);
 			name = ambidashTests;
-			packageProductDependencies = (
-			);
 			productName = ambidashTests;
 			productReference = 1A45E2ECF54D4C884DE22948 /* ambidashTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -1166,8 +1165,6 @@
 			dependencies = (
 			);
 			name = "ambidash-mac";
-			packageProductDependencies = (
-			);
 			productName = "ambidash-mac";
 			productReference = E27F9C408203AE8B7971906E /* ambidash-mac.app */;
 			productType = "com.apple.product-type.application";
@@ -1186,8 +1183,6 @@
 				5D84CE44C95B43693EF80693 /* PBXTargetDependency */,
 			);
 			name = ambidash;
-			packageProductDependencies = (
-			);
 			productName = ambidash;
 			productReference = BE58D6B581720991895E3987 /* ambidash.app */;
 			productType = "com.apple.product-type.application";
@@ -1204,8 +1199,6 @@
 				39BB53AE79612E409C50E3FF /* PBXTargetDependency */,
 			);
 			name = ambidashUITests;
-			packageProductDependencies = (
-			);
 			productName = ambidashUITests;
 			productReference = C256CEFD3EED23BB276B6226 /* ambidashUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -1623,6 +1616,7 @@
 				704D61307A344979980AFD56 /* V3LearningTests.swift in Sources */,
 				A5DD9F8A6B679582E14D4AC8 /* V3LifecycleTests.swift in Sources */,
 				5C6408EF3164DAF2E874F194 /* V3TestSupport.swift in Sources */,
+				158226B0DEDDEA4134F65187 /* BoardTemplateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
