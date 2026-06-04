@@ -34,6 +34,9 @@ enum AppModelContainer {
         CaptureItem.self,
         ActualEvent.self,
         EnergyCheckin.self,
+        RestrictionWindow.self,
+        AppBudget.self,
+        RestrictionOverride.self,
     ]
 
     static let shared: ModelContainer = {

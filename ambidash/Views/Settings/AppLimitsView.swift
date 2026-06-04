@@ -13,6 +13,7 @@ struct AppLimitsView: View {
     @Environment(ThemeManager.self) private var tm
     @State private var controller = AppLimitController.shared
     @State private var showPicker = false
+    @State private var showOverride = false
 
     var body: some View {
         let t = tm.resolved
@@ -152,6 +153,84 @@ struct AppLimitsView: View {
                         .foregroundStyle(t.ink)
                 }
                 .accessibilityIdentifier("applimits.shieldOn")
+
+                Button {
+                    Haptics.light()
+                    showOverride = true
+                } label: {
+                    Label("Override with a reason", systemImage: "hand.raised.slash")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(t.accent)
+                }
+            }
+
+            // v5 scheduled restrictions, budgets, focus session, and the weekly report.
+            t.hair.frame(height: 0.5).padding(.vertical, 4)
+
+            restrictionLink(t, title: "Restriction windows", subtitle: "Block apps on a schedule", icon: "calendar") {
+                RestrictionWindowsView()
+            }
+            restrictionLink(t, title: "Daily budgets", subtitle: "Per-app time limits", icon: "hourglass.bottomhalf.filled") {
+                AppBudgetsView()
+            }
+            restrictionLink(t, title: "Weekly report", subtitle: "Your restriction activity", icon: "chart.bar") {
+                WeeklyRestrictionReportView()
+            }
+
+            focusSessionControl(t)
+        }
+        .sheet(isPresented: $showOverride) {
+            OverrideReasonSheet(sourceName: "Manual shield", sourceKind: "manual")
+        }
+    }
+
+    @ViewBuilder
+    private func restrictionLink<Destination: View>(
+        _ t: ResolvedTheme, title: String, subtitle: String, icon: String,
+        @ViewBuilder destination: () -> Destination
+    ) -> some View {
+        NavigationLink(destination: destination()) {
+            HStack(spacing: 10) {
+                Image(systemName: icon).foregroundStyle(t.accent).frame(width: 24)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(t.body(15)).foregroundStyle(t.ink)
+                    Text(subtitle).font(.caption).foregroundStyle(t.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(t.faint)
+            }
+            .padding(14)
+            .background(t.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func focusSessionControl(_ t: ResolvedTheme) -> some View {
+        if controller.blockedCount > 0 {
+            if controller.isFocusSessionActive {
+                Button {
+                    Haptics.light()
+                    controller.endFocusSession()
+                } label: {
+                    Label("End focus session", systemImage: "stop.circle")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(t.danger)
+                }
+            } else {
+                Menu {
+                    ForEach([25, 50, 90], id: \.self) { mins in
+                        Button("\(mins) minutes") {
+                            Haptics.success()
+                            controller.startFocusSession(minutes: mins)
+                        }
+                    }
+                } label: {
+                    Label("Start a focus session", systemImage: "timer")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(t.accent)
+                }
             }
         }
     }
