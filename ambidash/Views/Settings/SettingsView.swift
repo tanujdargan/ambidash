@@ -230,6 +230,23 @@ struct SettingsView: View {
                         }
                     }
                     .buttonStyle(.plain)
+
+                    NavigationLink {
+                        CustomVitalsView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "heart.text.square")
+                                .foregroundStyle(t.accent)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Vitals")
+                                    .foregroundStyle(t.ink)
+                                Text("Choose what to track — sleep, focus, mood, or your own")
+                                    .font(.caption)
+                                    .foregroundStyle(t.muted)
+                            }
+                        }
+                    }
+                    .accessibilityIdentifier("settings.vitals")
                 }
                 .listRowBackground(t.surface)
 

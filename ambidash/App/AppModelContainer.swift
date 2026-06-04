@@ -36,6 +36,8 @@ enum AppModelContainer {
         EnergyCheckin.self,
         AccountabilityPartner.self,
         EncouragementMessage.self,
+        CustomVital.self,
+        VitalEntry.self,
     ]
 
     static let shared: ModelContainer = {
