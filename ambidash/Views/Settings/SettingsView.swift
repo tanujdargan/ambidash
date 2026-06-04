@@ -213,6 +213,25 @@ struct SettingsView: View {
                 }
                 .listRowBackground(t.surface)
 
+                Section("Insights") {
+                    NavigationLink {
+                        WeeklyDigestView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "chart.bar.doc.horizontal")
+                                .foregroundStyle(t.accent)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Weekly digest")
+                                    .foregroundStyle(t.ink)
+                                Text("Patterns from what you did — productive hours, energy, streaks")
+                                    .font(.caption)
+                                    .foregroundStyle(t.muted)
+                            }
+                        }
+                    }
+                }
+                .listRowBackground(t.surface)
+
                 Section("AI Configuration") {
                     SecureField("Anthropic API Key", text: $apiKey)
                         .textContentType(.password)
