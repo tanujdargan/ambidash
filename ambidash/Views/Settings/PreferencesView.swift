@@ -36,10 +36,18 @@ struct PreferencesView: View {
     @State private var hardConstraints = ""
     @State private var extraContext = ""
 
+    // v5 day alarms — recurring wake/bedtime alarms anchored to the wake/sleep times above.
+    @State private var wakeAlarmEnabled = false
+    @State private var bedtimeAlarmEnabled = false
+    @State private var wakeAlarmMode = "alarm"
+    @State private var bedtimeAlarmMode = "gentle"
+    @State private var syncWakeAlarmToPlan = true
+
     @State private var saved = false
     @State private var didSeed = false
 
     private let energyOptions = ["morning", "afternoon", "evening"]
+    private let alarmModeOptions = ["gentle", "alarm"]
 
     var body: some View {
         let t = tm.resolved
@@ -54,6 +62,40 @@ struct PreferencesView: View {
             Section("Your day") {
                 clockRow("When do you wake up?", value: $wakeTime, t: t)
                 clockRow("When do you go to sleep?", value: $sleepTime, t: t)
+            }
+            .listRowBackground(t.surface)
+
+            Section {
+                Toggle("Wake-up alarm", isOn: $wakeAlarmEnabled)
+                    .tint(t.accent)
+                if wakeAlarmEnabled {
+                    Picker("Style", selection: $wakeAlarmMode) {
+                        ForEach(alarmModeOptions, id: \.self) { Text($0.capitalized).tag($0) }
+                    }
+                    Toggle("Follow today's plan", isOn: $syncWakeAlarmToPlan)
+                        .tint(t.accent)
+                    Text(syncWakeAlarmToPlan
+                         ? "Fires at your first scheduled block, or your wake time if nothing's planned."
+                         : "Fires at your wake time, \(wakeTime).")
+                        .font(.caption)
+                        .foregroundStyle(t.muted)
+                }
+                Toggle("Bedtime reminder", isOn: $bedtimeAlarmEnabled)
+                    .tint(t.accent)
+                if bedtimeAlarmEnabled {
+                    Picker("Style", selection: $bedtimeAlarmMode) {
+                        ForEach(alarmModeOptions, id: \.self) { Text($0.capitalized).tag($0) }
+                    }
+                    Text("A gentle wind-down nudge at \(sleepTime).")
+                        .font(.caption)
+                        .foregroundStyle(t.muted)
+                }
+            } header: {
+                Text("Alarms")
+            } footer: {
+                Text("Wake & bedtime alarms repeat daily. On iOS 26 the alarm style is a genuine system alarm that overrides Silent and Focus; otherwise it's a clearly-labelled reminder.")
+                    .font(.caption2)
+                    .foregroundStyle(t.muted)
             }
             .listRowBackground(t.surface)
 
@@ -211,6 +253,11 @@ struct PreferencesView: View {
             aboutMe = p.aboutMe
             hardConstraints = p.hardConstraints
             extraContext = p.extraContext
+            wakeAlarmEnabled = p.wakeAlarmEnabled
+            bedtimeAlarmEnabled = p.bedtimeAlarmEnabled
+            wakeAlarmMode = p.wakeAlarmModeRaw
+            bedtimeAlarmMode = p.bedtimeAlarmModeRaw
+            syncWakeAlarmToPlan = p.syncWakeAlarmToPlan
         } else {
             // No stored prefs yet — seed from a fresh model so defaults reflect
             // the ideal-day starting values defined on UserPreferences.
@@ -264,8 +311,17 @@ struct PreferencesView: View {
         prefs.aboutMe = aboutMe.trimmingCharacters(in: .whitespacesAndNewlines)
         prefs.hardConstraints = hardConstraints.trimmingCharacters(in: .whitespacesAndNewlines)
         prefs.extraContext = extraContext.trimmingCharacters(in: .whitespacesAndNewlines)
+        prefs.wakeAlarmEnabled = wakeAlarmEnabled
+        prefs.bedtimeAlarmEnabled = bedtimeAlarmEnabled
+        prefs.wakeAlarmModeRaw = wakeAlarmMode
+        prefs.bedtimeAlarmModeRaw = bedtimeAlarmMode
+        prefs.syncWakeAlarmToPlan = syncWakeAlarmToPlan
 
         try? modelContext.save()
+        // Reconcile the recurring day alarms to the just-saved preferences. Plan-sync is
+        // resolved against the live plan at the Today/dashboard seam; here we pass nil so an
+        // enabled wake alarm at least lands on the static wake time immediately.
+        AlarmService.reconcileDayAlarms(prefs: prefs, planWakeMinutes: nil)
         Haptics.success()
         withAnimation { saved = true }
         Task {

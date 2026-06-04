@@ -25,6 +25,23 @@ final class UserPreferences {
     var lastActualWakeMinutes: Int = -1   // -1 = not recorded yet
     var lastWakeRecordDay: Date? = nil
 
+    // v5 DAY ALARMS — dedicated recurring wake/bedtime alarms, distinct from the per-block
+    // timeline alarms (AlarmService). Additive/defaulted (CloudKit-safe) and OFF by default
+    // so nothing changes for existing users until they opt in. When enabled, AlarmService
+    // schedules a genuine recurring alarm/reminder at `wakeTime`/`sleepTime`:
+    //  • wake defaults to an unmissable `alarm` (AlarmKit on iOS 26; time-sensitive reminder
+    //    fallback) — a wake-up you can't sleep through is the whole point.
+    //  • bedtime defaults to a `gentle` wind-down nudge — a calm invitation, not a buzz.
+    // Mode is stored as a PlannedAction.AlarmMode raw string (`off`/`gentle`/`alarm`) so the
+    // existing typed accessor + scheduling path are reused. `syncWakeAlarmToPlan` makes the
+    // wake alarm follow the day's actual first scheduled block when a plan exists, so the
+    // alarm and the plan never drift apart.
+    var wakeAlarmEnabled: Bool = false
+    var bedtimeAlarmEnabled: Bool = false
+    var wakeAlarmModeRaw: String = "alarm"
+    var bedtimeAlarmModeRaw: String = "gentle"
+    var syncWakeAlarmToPlan: Bool = true
+
     // Meal anchors.
     var breakfastTime: String = "08:00"
     var lunchTime: String = "13:00"

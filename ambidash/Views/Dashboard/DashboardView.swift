@@ -114,6 +114,14 @@ struct DashboardView: View {
                             .accessibilityLabel("Settings")
                         }
 
+                        // 1b. Day-alarm status — at-a-glance wake/bedtime alarms. Renders
+                        // nothing unless the user has enabled at least one (no clutter by
+                        // default). Wake follows the plan's first block when sync is on.
+                        DayAlarmStatusStrip(
+                            prefs: profile?.userPreferences,
+                            planWakeMinutes: AlarmService.planWakeMinutes(for: todayPlan?.actions ?? [])
+                        )
+
                         // 2. Configurable component board. Computes shared data
                         // ONCE (boardData) and renders the ordered components of the
                         // hardcoded "balanced" template via ComponentRegistry,
@@ -168,6 +176,13 @@ struct DashboardView: View {
                     StreakService.scheduleWeeklyReviewReminder()
                     StreakService.scheduleMonthlyReviewReminder()
                     StreakService.scheduleQuarterlyReviewReminder()
+                    // v5 DAY ALARMS — reconcile the recurring wake/bedtime alarms against the
+                    // live plan, so a plan-synced wake alarm tracks today's first block.
+                    // Idempotent (cancels + reschedules per kind), safe to run each appear.
+                    if let prefs = profile?.userPreferences {
+                        let planWake = AlarmService.planWakeMinutes(for: todayPlan?.actions ?? [])
+                        AlarmService.reconcileDayAlarms(prefs: prefs, planWakeMinutes: planWake)
+                    }
                 }
                 StreakService.scheduleWarnings(for: goals)
                 StreakService.scheduleDriftNudges(for: goals)
