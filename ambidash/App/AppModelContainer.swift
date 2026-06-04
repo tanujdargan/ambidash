@@ -38,6 +38,9 @@ enum AppModelContainer {
         EncouragementMessage.self,
         CustomVital.self,
         VitalEntry.self,
+        RestrictionWindow.self,
+        AppBudget.self,
+        RestrictionOverride.self,
     ]
 
     static let shared: ModelContainer = {
