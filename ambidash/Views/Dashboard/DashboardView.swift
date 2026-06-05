@@ -189,7 +189,8 @@ struct DashboardView: View {
                     if let prefs = profile?.userPreferences {
                         let planWake = AlarmService.planWakeMinutes(for: todayPlan?.actions ?? [])
                         AlarmService.reconcileDayAlarms(prefs: prefs, planWakeMinutes: planWake)
-                                        // v5 SMART NOTIFICATIONS — adaptive daily check-ins, a learned-optimal goal
+                    }
+                    // v5 SMART NOTIFICATIONS — adaptive daily check-ins, a learned-optimal goal
                     // nudge (best energy+adherence hour, dodging calendar-busy spans), and grouped
                     // streak-at-risk reminders. Recomputed each appear as patterns + calendar shift.
                     if let prefs = profile?.userPreferences {
