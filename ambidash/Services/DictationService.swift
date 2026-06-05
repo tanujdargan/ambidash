@@ -114,8 +114,14 @@ final class DictationService {
     func stop() {
         if audioEngine.isRunning {
             audioEngine.stop()
-            audioEngine.inputNode.removeTap(onBus: 0)
         }
+        // Always remove the tap, even when the engine never started. A partially-failed
+        // start() — e.g. installTap() succeeded but the subsequent engine.start() threw
+        // (routine on the Simulator, which has no real audio input) — leaves the tap in
+        // place while the engine is stopped. The NEXT installTap() on the same bus then
+        // traps with "only one tap may be installed per bus", a hard crash on the user's
+        // second dictation attempt. removeTap on an un-tapped bus is a safe no-op.
+        audioEngine.inputNode.removeTap(onBus: 0)
 
         sfRequest?.endAudio()
         sfTask?.cancel()
@@ -171,7 +177,12 @@ final class DictationService {
 
     private func configureSession() throws {
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+        // `.duckOthers` is only valid with `.playAndRecord`/`.playback`/`.multiRoute`.
+        // Combining it with `.record` makes `setCategory` throw on iOS, aborting the
+        // whole dictation start. Pure `.record` + `.measurement` is the correct config
+        // for on-device speech capture (a recording session interrupts other audio
+        // anyway, which is the expected behavior while dictating).
+        try session.setCategory(.record, mode: .measurement)
         try session.setActive(true, options: .notifyOthersOnDeactivation)
     }
 
@@ -201,6 +212,9 @@ final class DictationService {
         guard format.channelCount > 0 else {
             throw DictationError.recognizerUnavailable
         }
+        // Defensive: clear any tap left by a prior partially-failed session before
+        // installing, so we never trap on a double-install of bus 0.
+        inputNode.removeTap(onBus: 0)
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             self?.sfRequest?.append(buffer)
         }
@@ -336,6 +350,10 @@ private final class ModernDictationSession {
             throw DictationError.recognizerUnavailable
         }
         let converter = AVAudioConverter(from: recordingFormat, to: analyzerFormat)
+
+        // Defensive: clear any tap left by a prior partially-failed session before
+        // installing, so we never trap on a double-install of bus 0.
+        inputNode.removeTap(onBus: 0)
 
         // The tap fires on a realtime audio thread. Capture ONLY Sendable values
         // (the AsyncStream continuation is Sendable; the converter/format are used
