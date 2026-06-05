@@ -215,21 +215,32 @@ final class DictationService {
         // Defensive: clear any tap left by a prior partially-failed session before
         // installing, so we never trap on a double-install of bus 0.
         inputNode.removeTap(onBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
-            self?.sfRequest?.append(buffer)
+        // Capture the request directly — NOT through self — because this closure
+        // fires on the audio realtime thread, and touching self (@MainActor)
+        // from there is a Swift 6 runtime isolation violation.
+        let req = request
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in
+            req.append(buffer)
         }
 
         audioEngine.prepare()
         try audioEngine.start()
 
         sfTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
-            guard let self else { return }
-            if let result {
-                let text = result.bestTranscription.formattedString
-                Task { @MainActor in self.transcript = text }
-            }
-            if error != nil || (result?.isFinal ?? false) {
-                Task { @MainActor in
+            // This callback fires on a BACKGROUND queue. Under Swift 6 strict
+            // concurrency, touching `self` (a @MainActor class) here — even
+            // just guard-let-ing it — triggers a runtime executor check →
+            // SIGTRAP crash. Hop to MainActor immediately; capture only the
+            // Sendable values we need.
+            let text = result?.bestTranscription.formattedString
+            let isFinal = result?.isFinal ?? false
+            let hasError = error != nil
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                if let text {
+                    self.transcript = text
+                }
+                if hasError || isFinal {
                     if self.status == .recording { self.stop() }
                 }
             }
