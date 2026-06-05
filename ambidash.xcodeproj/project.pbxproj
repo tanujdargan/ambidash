@@ -293,6 +293,7 @@
 		BC4AC98DD5E418FD7F722676 /* ambidash-monitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1BC5001B36C295359D09C815 /* ambidash-monitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BDECD238E88E23BB5E5B0B20 /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCC53B3D3072A7E0E3DE094 /* UITestSupport.swift */; };
 		BE73501C3131F86FB28CAC92 /* PlanBlockLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8AC9F008191C831C42134AD /* PlanBlockLiveActivity.swift */; };
+		BED1C548B508D5217FBFD73C /* AdaptiveScheduling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354A89D0F420A134A924EC08 /* AdaptiveScheduling.swift */; };
 		BF2B0E88429885A88C710E84 /* HardModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018C09A0E97620D8DCC1B80C /* HardModeService.swift */; };
 		BF7B417354D625B13969A6E5 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB77796CED406ECEB71F9B1D /* UserProfile.swift */; };
 		C0119CAA64BE7E7F5429950B /* BoardComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2060D32B4E1AF25F7B2F87 /* BoardComponent.swift */; };
@@ -368,6 +369,7 @@
 		F301604950EA01CD399CDED0 /* DisruptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA6F98CB1EB7273C9F13408 /* DisruptionService.swift */; };
 		F31564BAC5DBE4D894A1A59A /* CaptureItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A116922E7C83F18C94B15C /* CaptureItem.swift */; };
 		F50537E6712D7A908FE3CED7 /* WeeklyDigestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A9A8D8E98CF629C187E16B /* WeeklyDigestView.swift */; };
+		F5CA7B892BCB9B1CD778184F /* ActivityInsights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF607C6D23B501659CC0E6E /* ActivityInsights.swift */; };
 		F672462D0640E3EB97773133 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A308453BB4EB34BA47F56D /* RootView.swift */; };
 		F6AAC9D66E41ECFB718042A6 /* DisruptionDiffSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D65BD7D413FE358539710506 /* DisruptionDiffSheet.swift */; };
 		F745A6FBBBED0DDA0232652E /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37AA9719BC37AA893113307C /* Haptics.swift */; };
@@ -1549,6 +1551,8 @@
 				7FB9FB039765EB8D4A481059 /* DisruptionService+Adaptive.swift in Sources */,
 				77C265A9C36E83B8A8ACEDB7 /* PatternCheckInService+Adaptive.swift in Sources */,
 				10D4737759218BA0A102475A /* LearningService+ActivityDigest.swift in Sources */,
+				BED1C548B508D5217FBFD73C /* AdaptiveScheduling.swift in Sources */,
+				F5CA7B892BCB9B1CD778184F /* ActivityInsights.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2013,7 +2017,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = "ambidash-mac/ambidash-mac.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2211,7 +2218,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = "ambidash-mac/ambidash-mac.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
