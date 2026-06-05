@@ -94,3 +94,63 @@ private func day(_ y: Int, _ m: Int, _ d: Int) -> Date {
     #expect(dest === plan)
     #expect(action.plan === plan)
 }
+
+// MARK: - Big event plan adjustment (added during QA — bigEventPlanAdjustments had no coverage)
+
+private func anchoredAction(_ title: String, _ anchorType: String) -> PlannedAction {
+    PlannedAction(title: title, anchorType: anchorType)
+}
+
+@Test func adjustmentSplitsPriorityFromDeferrableWhenImminent() {
+    let now = day(2026, 6, 3)
+    let exam = Milestone(title: "Exam", period: .week, startDate: now, endDate: day(2026, 6, 5)) // +2 days (<=3)
+    let actions = [
+        anchoredAction("Study deep work", "goal_work"),
+        anchoredAction("Tidy room", "routine"),
+        anchoredAction("Lunch", "fixed"),               // neither priority nor deferrable
+    ]
+    let adj = MultiDayPlannerService.bigEventPlanAdjustments(
+        milestones: [exam], todayActions: actions, now: now)
+    #expect(adj?.daysUntil == 2)
+    #expect(adj?.priorityActions == ["Study deep work"])
+    #expect(adj?.deferrableActions == ["Tidy room"])
+    #expect(adj?.suggestion.contains("in 2 days") == true)
+    #expect(adj?.suggestion.contains("defer 1 routine item") == true)
+}
+
+@Test func adjustmentNilWhenNothingImminentOrMilestoneDone() {
+    let now = day(2026, 6, 3)
+    let later = Milestone(title: "Later", period: .week, startDate: now, endDate: day(2026, 6, 20)) // +17 > 3
+    #expect(MultiDayPlannerService.bigEventPlanAdjustments(
+        milestones: [later], todayActions: [anchoredAction("x", "goal_work")], now: now) == nil)
+
+    let done = Milestone(title: "Done", period: .week, startDate: now, endDate: day(2026, 6, 4))
+    done.completedAt = now
+    #expect(MultiDayPlannerService.bigEventPlanAdjustments(
+        milestones: [done], todayActions: [anchoredAction("x", "goal_work")], now: now) == nil)
+}
+
+@Test func adjustmentTodayWordingEndsCleanlyWithNoDeferrables() {
+    let now = day(2026, 6, 3)
+    let launch = Milestone(title: "Launch", period: .week, startDate: now, endDate: day(2026, 6, 3)) // today (delta 0)
+    let adj = MultiDayPlannerService.bigEventPlanAdjustments(
+        milestones: [launch], todayActions: [anchoredAction("Ship it", "goal_work")], now: now)
+    #expect(adj?.daysUntil == 0)
+    #expect(adj?.countdownPhrase == "today")
+    #expect(adj?.deferrableActions.isEmpty == true)
+    // No routine items → suggestion ends with a period, no "defer" clause.
+    #expect(adj?.suggestion.hasSuffix("focus prep today.") == true)
+}
+
+@Test func adjustmentPicksNearestImminentMilestoneByDayThenTitle() {
+    let now = day(2026, 6, 3)
+    let ms = [
+        Milestone(title: "Beta", period: .week, startDate: now, endDate: day(2026, 6, 4)),  // +1
+        Milestone(title: "Alpha", period: .week, startDate: now, endDate: day(2026, 6, 4)), // +1 tie → earlier title
+        Milestone(title: "Gamma", period: .week, startDate: now, endDate: day(2026, 6, 6)), // +3
+    ]
+    let adj = MultiDayPlannerService.bigEventPlanAdjustments(
+        milestones: ms, todayActions: [anchoredAction("x", "goal_work")], now: now)
+    #expect(adj?.milestone.title == "Alpha")
+    #expect(adj?.daysUntil == 1)
+}
