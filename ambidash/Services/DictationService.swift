@@ -1,7 +1,7 @@
 import Foundation
 
 #if os(iOS)
-import Speech
+@preconcurrency import Speech
 @preconcurrency import AVFoundation
 
 /// VOICE DICTATION (on-device, WisprFlow-style).
@@ -364,9 +364,9 @@ private final class ModernDictationSession {
                 let ratio = analyzerFormat.sampleRate / recordingFormat.sampleRate
                 let capacity = AVAudioFrameCount(Double(buffer.frameLength) * ratio) + 1024
                 guard let converted = AVAudioPCMBuffer(pcmFormat: analyzerFormat, frameCapacity: capacity) else { return }
-                var fed = false
+                nonisolated(unsafe) var fed = false
                 var err: NSError?
-                converter.convert(to: converted, error: &err) { _, statusPtr in
+                converter.convert(to: converted, error: &err) { @Sendable _, statusPtr in
                     if fed {
                         statusPtr.pointee = .noDataNow
                         return nil
