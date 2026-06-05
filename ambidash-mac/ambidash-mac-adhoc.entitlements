@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Ad-hoc / local build variant of ambidash-mac.entitlements.
+	     Strips the com.apple.developer.* capabilities (Sign in with Apple, the iCloud
+	     container, and CloudKit) that require a real Apple Developer signing identity
+	     and therefore block ad-hoc ("-") signing. The app falls back to a LOCAL-only
+	     SwiftData store (no CloudKit sync) and disables SIWA, which is the expected
+	     trade-off for a no-certificate local .app. Re-add the developer.* keys (use
+	     ambidash-mac.entitlements) for any signed/distributable build. -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<key>com.apple.security.network.client</key>
+	<true/>
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
+</dict>
+</plist>
