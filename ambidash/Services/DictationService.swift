@@ -2,7 +2,7 @@ import Foundation
 
 #if os(iOS)
 import Speech
-import AVFoundation
+@preconcurrency import AVFoundation
 
 /// VOICE DICTATION (on-device, WisprFlow-style).
 ///
