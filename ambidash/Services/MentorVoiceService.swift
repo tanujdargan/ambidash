@@ -28,7 +28,7 @@ final class MentorVoiceService {
     private var speechDelegate: SpeechDelegate?
     private var currentTask: Task<Void, Never>?
 
-    private let endpoint = "https://tanujdargan--ap-1qdotfq1ag47agzitgiqvh-web.modal.run"
+    private let endpoint = "https://dargantanuj--miso-tts-server-fastapi-app.modal.run/synthesize"
 
     // MARK: - Public API
 
@@ -87,6 +87,15 @@ final class MentorVoiceService {
 
     // MARK: - Networking
 
+    // Modal returns a 303 redirect for async function calls. URLSession follows
+    // 303 by converting POST→GET (per HTTP spec), which Modal rejects. Use a
+    // custom delegate that preserves POST + body through the redirect.
+    private let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForResource = 180
+        return URLSession(configuration: config, delegate: RedirectPreserver(), delegateQueue: nil)
+    }()
+
     private func fetchTTSAudio(text: String) async throws -> Data {
         guard let url = URL(string: endpoint) else {
             throw URLError(.badURL)
@@ -94,16 +103,35 @@ final class MentorVoiceService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "content-type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: [
-            "text": text
-        ])
-        request.timeoutInterval = 30
+        let body = try JSONSerialization.data(withJSONObject: ["text": text])
+        request.httpBody = body
+        request.timeoutInterval = 180
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
         return data
+    }
+
+    private final class RedirectPreserver: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+        nonisolated func urlSession(
+            _ session: URLSession,
+            task: URLSessionTask,
+            willPerformHTTPRedirection response: HTTPURLResponse,
+            newRequest request: URLRequest,
+            completionHandler: @escaping @Sendable (URLRequest?) -> Void
+        ) {
+            var redirected = request
+            if let original = task.originalRequest {
+                redirected.httpMethod = original.httpMethod
+                redirected.httpBody = original.httpBody
+                if let ct = original.value(forHTTPHeaderField: "content-type") {
+                    redirected.setValue(ct, forHTTPHeaderField: "content-type")
+                }
+            }
+            completionHandler(redirected)
+        }
     }
 
     // MARK: - Audio session
