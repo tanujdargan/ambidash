@@ -1,0 +1,9 @@
+{
+  "name": "ambidash.blocker",
+  "description": "Ambidash Website Blocker Native Messaging Host",
+  "path": "/Applications/Ambidash.app/Contents/Library/LoginItems/AmbidashNativeHost.app/Contents/MacOS/AmbidashNativeHost",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://YOUR_EXTENSION_ID_HERE/"
+  ]
+}
