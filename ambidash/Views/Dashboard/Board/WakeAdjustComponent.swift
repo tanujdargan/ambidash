@@ -22,12 +22,22 @@ struct WakeAdjustComponent: View {
         return d >= 60 ? d : nil   // only surface a meaningful (>=1h) drift
     }
 
+    /// Multi-week wake drift result (nil when on-track or insufficient data).
+    private var weekDrift: LearningService.WakeDriftResult? {
+        guard let p = prefs, let target = Self.minutes(p.wakeTime) else { return nil }
+        return LearningService.wakeDriftTrend(
+            recentWakeMinutes: p.recentWakeMinutes,
+            targetWakeMinutes: target
+        )
+    }
+
     var body: some View {
         let t = tm.resolved
         if let p = prefs, let late = lateBy {
             card(p, late: late, t: t)
+        } else if let p = prefs, let drift = weekDrift {
+            weekDriftCard(p, drift: drift, t: t)
         }
-        // else: render nothing — no nudge when you're on track.
     }
 
     @ViewBuilder
@@ -61,6 +71,38 @@ struct WakeAdjustComponent: View {
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("component.wakeAdjust")
+    }
+
+    @ViewBuilder
+    private func weekDriftCard(_ p: UserPreferences, drift: LearningService.WakeDriftResult, t: ResolvedTheme) -> some View {
+        VStack(alignment: .leading, spacing: t.space.component) {
+            SectionLabel(title: "Wake Trend")
+
+            Text("You've woken around \(drift.avgActualFormatted) for \(drift.driftDays) of the last \(drift.windowDays) days \u{2014} your goal is \(p.wakeTime). Would you like to adjust?")
+                .font(t.body(14))
+                .foregroundStyle(t.ink)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 10) {
+                adjustButton("Make \(drift.avgActualFormatted) my goal", t: t) {
+                    p.wakeTime = Self.clock(drift.avgActualMinutes)
+                    try? modelContext.save()
+                }
+                adjustButton("Help me fix my routine", t: t) {
+                    if let s = Self.minutes(p.sleepTime) {
+                        p.sleepTime = Self.clock(max(0, s - 30))
+                        try? modelContext.save()
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(t.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("component.wakeAdjust.weekDrift")
     }
 
     @ViewBuilder

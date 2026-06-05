@@ -167,6 +167,87 @@ final class SupabaseService {
         return await post("/rest/v1/encouragements", body: body) != nil
     }
 
+    // MARK: - Mentor Matching
+
+    @discardableResult
+    func registerMentorPreference(
+        code: String,
+        optIn: String,
+        isMentor: Bool,
+        progressDays: Int,
+        goalDomains: [String]
+    ) async -> Bool {
+        guard isConfigured, isAuthenticated else { return false }
+        let body: [String: Any] = [
+            "code": code,
+            "user_id": userId ?? "",
+            "opt_in": optIn,
+            "is_mentor": isMentor,
+            "progress_days": progressDays,
+            "goal_domains": goalDomains,
+            "updated_at": ISO8601DateFormatter().string(from: .now),
+        ]
+        return await post("/rest/v1/mentor_profiles", body: body, upsert: true) != nil
+    }
+
+    func fetchAvailableMentors(myDomains: [String]) async -> [[String: Any]]? {
+        guard isConfigured else { return nil }
+        return await get("/rest/v1/mentor_profiles?select=*&is_mentor=eq.true&opt_in=eq.seekMatch&order=progress_days.desc&limit=20")
+    }
+
+    @discardableResult
+    func requestMentorMatch(menteeCode: String, mentorCode: String) async -> Bool {
+        guard isConfigured, isAuthenticated else { return false }
+        let body: [String: Any] = [
+            "mentee_code": menteeCode,
+            "mentor_code": mentorCode,
+            "status": "pending",
+            "requested_at": ISO8601DateFormatter().string(from: .now),
+        ]
+        return await post("/rest/v1/mentor_matches", body: body) != nil
+    }
+
+    func fetchMyMentorMatch(code: String) async -> [String: Any]? {
+        guard isConfigured else { return nil }
+        let results: [[String: Any]]? = await get("/rest/v1/mentor_matches?select=*&or=(mentee_code.eq.\(code),mentor_code.eq.\(code))&status=eq.active&limit=1")
+        return results?.first
+    }
+
+    @discardableResult
+    func shareMentorSnapshot(
+        fromCode: String,
+        toCode: String,
+        snapshot: [String: Any]
+    ) async -> Bool {
+        guard isConfigured, isAuthenticated else { return false }
+        var body = snapshot
+        body["from_code"] = fromCode
+        body["to_code"] = toCode
+        body["shared_at"] = ISO8601DateFormatter().string(from: .now)
+        return await post("/rest/v1/mentor_snapshots", body: body) != nil
+    }
+
+    // MARK: - Social Feed
+
+    @discardableResult
+    func pushFeedEvent(code: String, kind: String, title: String, detail: String? = nil) async -> Bool {
+        guard isConfigured, isAuthenticated else { return false }
+        let body: [String: Any] = [
+            "code": code,
+            "kind": kind,
+            "title": title,
+            "detail": detail ?? "",
+            "created_at": ISO8601DateFormatter().string(from: .now),
+        ]
+        return await post("/rest/v1/social_feed", body: body) != nil
+    }
+
+    func fetchPartnerFeed(codes: [String], limit: Int = 30) async -> [[String: Any]]? {
+        guard isConfigured, !codes.isEmpty else { return nil }
+        let codeList = codes.joined(separator: ",")
+        return await get("/rest/v1/social_feed?select=*&code=in.(\(codeList))&order=created_at.desc&limit=\(limit)")
+    }
+
     // MARK: - AI Mentor (via Edge Function)
 
     func callMentor(action: String, context: [String: Any]) async -> String? {

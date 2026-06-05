@@ -283,6 +283,39 @@ enum ComponentRegistry {
             defaultConfig: "{}",
             isSingleton: true
         ),
+        ComponentDescriptor(
+            kind: .activityPatterns,
+            title: "Activity Patterns",
+            sfSymbol: "chart.line.uptrend.xyaxis",
+            category: .insights,
+            blurb: "Your detected productivity, energy, and screen-time patterns — confidence-gated and never punitive.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
+            kind: .bigEventAlert,
+            title: "Big Event",
+            sfSymbol: "calendar.badge.exclamationmark",
+            category: .daily,
+            blurb: "When a milestone deadline is close, suggests how to adjust today's plan.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
+        ComponentDescriptor(
+            kind: .unwellBanner,
+            title: "Recovery",
+            sfSymbol: "heart",
+            category: .daily,
+            blurb: "A gentle recovery banner when you're not feeling well — essentials only, no rush.",
+            defaultSection: .body,
+            supportedSizes: [.medium, .full],
+            defaultConfig: "{}",
+            isSingleton: true
+        ),
     ]
 
     static func descriptor(for kind: ComponentKind) -> ComponentDescriptor? {
@@ -365,6 +398,12 @@ enum ComponentRegistry {
             IdentityLineComponent(boardData: boardData)
         case .reflectionPrompt:
             ReflectionPromptComponent(boardData: boardData)
+        case .activityPatterns:
+            UnavailableComponentCard(kindRaw: component.kindRaw)
+        case .bigEventAlert:
+            UnavailableComponentCard(kindRaw: component.kindRaw)
+        case .unwellBanner:
+            UnwellBannerComponent()
         case .unknown:
             UnavailableComponentCard(kindRaw: component.kindRaw)
         }

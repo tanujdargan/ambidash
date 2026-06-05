@@ -51,6 +51,13 @@ struct MentorView: View {
     /// and entering the composer can auto-focus the field.
     @FocusState private var composerFocused: Bool
 
+    /// Voice mentor — TTS playback of mentor letters + on-device fallback.
+    @State private var voiceService = MentorVoiceService()
+    /// The ID of the letter currently being spoken, so only its card shows stop UI.
+    @State private var speakingLetterID: UUID?
+    /// Presents the voice conversation sheet ("Talk to M.").
+    @State private var showConversation = false
+
     var body: some View {
         let t = tm.resolved
         NavigationStack {
@@ -162,6 +169,22 @@ struct MentorView: View {
                             .disabled(isSendingReply || replyText.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showConversation = true
+                    } label: {
+                        Image(systemName: "waveform.circle")
+                            .font(.system(size: 18))
+                            .foregroundStyle(tm.resolved.accent)
+                    }
+                    .accessibilityLabel("Talk to M.")
+                }
+            }
+            .sheet(isPresented: $showConversation) {
+                MentorConversationView()
+            }
+            .onDisappear {
+                voiceService.stop()
             }
         }
     }
@@ -254,6 +277,7 @@ struct MentorView: View {
 
     @ViewBuilder
     private func mentorLetter(_ letter: MentorFeedback, t: ResolvedTheme) -> some View {
+        let isSpeakingThis = speakingLetterID == letter.id && voiceService.state != .idle
         VStack(alignment: .leading, spacing: 8) {
             Text(letter.createdAt.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated).hour().minute()).uppercased())
                 .font(.system(size: 10, weight: .medium, design: .monospaced))
@@ -270,10 +294,23 @@ struct MentorView: View {
                     .lineSpacing(4)
                     .foregroundStyle(t.ink)
 
-                Text("— M.")
-                    .font(.system(size: 13, design: .serif))
-                    .italic()
-                    .foregroundStyle(t.muted)
+                HStack(spacing: 8) {
+                    Text("— M.")
+                        .font(.system(size: 13, design: .serif))
+                        .italic()
+                        .foregroundStyle(t.muted)
+
+                    Spacer()
+
+                    // Voice playback button
+                    Button {
+                        handleVoiceTap(letter: letter)
+                    } label: {
+                        voiceButtonLabel(isSpeakingThis: isSpeakingThis, t: t)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(isSpeakingThis ? "Stop reading" : "Read aloud")
+                }
             }
             .padding(16)
             .background(t.surface)
@@ -284,6 +321,41 @@ struct MentorView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5)
             )
+        }
+    }
+
+    @ViewBuilder
+    private func voiceButtonLabel(isSpeakingThis: Bool, t: ResolvedTheme) -> some View {
+        ZStack {
+            Circle()
+                .fill(isSpeakingThis ? t.accent.opacity(0.15) : Color.clear)
+                .frame(width: 28, height: 28)
+
+            if voiceService.state == .loading && isSpeakingThis {
+                ProgressView()
+                    .controlSize(.small)
+                    .tint(t.accent)
+            } else {
+                Image(systemName: isSpeakingThis ? "stop.fill" : "speaker.wave.2")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(isSpeakingThis ? t.accent : t.muted)
+                    .symbolEffect(.variableColor.iterative, isActive: isSpeakingThis && voiceService.state == .playing)
+            }
+        }
+        .contentShape(Circle())
+    }
+
+    private func handleVoiceTap(letter: MentorFeedback) {
+        if speakingLetterID == letter.id && voiceService.state != .idle {
+            // Currently speaking this letter — stop.
+            voiceService.stop()
+            speakingLetterID = nil
+            Haptics.light()
+        } else {
+            // Start speaking this letter (stops any prior).
+            speakingLetterID = letter.id
+            voiceService.speak(letter.content)
+            Haptics.light()
         }
     }
 

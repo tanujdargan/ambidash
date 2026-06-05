@@ -69,6 +69,7 @@ enum ProgressLogService {
         } else {
             goal.streak?.recordActivity()
         }
+        pushFeedEventIfConnected(title: goal.title, context: context)
         refreshWidget(context: context)
     }
 
@@ -99,6 +100,7 @@ enum ProgressLogService {
         }
         #endif
 
+        pushFeedEventIfConnected(title: goal.title, context: context)
         refreshWidget(context: context)
         return log
     }
@@ -118,6 +120,16 @@ enum ProgressLogService {
             ? String(Int(value))
             : String(format: "%.1f", value)
         return unit.isEmpty ? number : "\(number) \(unit)"
+    }
+
+    // MARK: - Social feed
+
+    private static func pushFeedEventIfConnected(title: String, context: ModelContext) {
+        let descriptor = FetchDescriptor<UserProfile>()
+        guard let profile = (try? context.fetch(descriptor))?.first else { return }
+        let code = profile.referralCode
+        guard !code.isEmpty else { return }
+        Task { await SupabaseService.shared.pushFeedEvent(code: code, kind: "completed", title: title) }
     }
 
     // MARK: - Widget refresh

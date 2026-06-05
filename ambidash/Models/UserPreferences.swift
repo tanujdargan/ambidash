@@ -24,6 +24,12 @@ final class UserPreferences {
     // CloudKit-additive (defaulted scalar + optional date, no migration).
     var lastActualWakeMinutes: Int = -1   // -1 = not recorded yet
     var lastWakeRecordDay: Date? = nil
+    // Multi-week wake drift: rolling 7-day history of actual wake minutes (newest first).
+    var recentWakeMinutes: [Int] = []
+
+    // "I'm unwell" recovery mode: lightens the day and shows a recovery banner.
+    var isUnwellMode: Bool = false
+    var unwellSince: Date?
 
     // v5 DAY ALARMS — dedicated recurring wake/bedtime alarms, distinct from the per-block
     // timeline alarms (AlarmService). Additive/defaulted (CloudKit-safe) and OFF by default

@@ -46,6 +46,29 @@ struct AccountabilityView: View {
         let t = tm.resolved
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
+                NavigationLink {
+                    SocialFeedView().environment(tm)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "bell.badge.fill")
+                            .font(.system(size: 14))
+                            .foregroundStyle(t.accent)
+                        Text("Activity Feed")
+                            .font(t.heading(15))
+                            .foregroundStyle(t.ink)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(t.faint)
+                    }
+                    .padding(16)
+                    .background(t.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("accountability.feedLink")
+
                 scoreCard(t)
                 inviteCard(t)
                 partnersSection(t)
@@ -155,6 +178,7 @@ struct AccountabilityView: View {
         let from = myCode
         Task {
             await SupabaseService.shared.sendEncouragement(toCode: partner.code, fromCode: from, text: text, kind: kind.rawValue)
+            await SupabaseService.shared.pushFeedEvent(code: from, kind: "encouragement", title: text)
         }
     }
 

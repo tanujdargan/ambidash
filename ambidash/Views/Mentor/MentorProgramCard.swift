@@ -12,6 +12,7 @@ struct MentorProgramCard: View {
     @Bindable var profile: UserProfile
 
     @State private var showInvite = false
+    @State private var showMatching = false
     private let mentorTarget = 30
 
     private var progress: Double {
@@ -55,6 +56,27 @@ struct MentorProgramCard: View {
             .buttonStyle(.scalePress)
             .accessibilityIdentifier("mentor.inviteButton")
 
+            if profile.mentorOptInRaw == "seekMatch" || unlocked {
+                Button {
+                    Haptics.light()
+                    showMatching = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "person.line.dotted.person.fill")
+                            .font(.system(size: 13))
+                        Text(unlocked ? "Mentor dashboard" : "Find a mentor")
+                            .font(.system(size: 14, weight: .medium))
+                    }
+                    .foregroundStyle(t.ink)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 11)
+                    .background(t.sunken)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.scalePress)
+                .accessibilityIdentifier("mentor.findButton")
+            }
+
             t.hair.frame(height: 0.5).padding(.vertical, 2)
 
             // Mentee → mentor progression — an incentive to reach, not a barrier to entry.
@@ -95,6 +117,9 @@ struct MentorProgramCard: View {
         .accessibilityIdentifier("mentor.program")
         .sheet(isPresented: $showInvite) {
             MentorInviteSheet(profile: profile).environment(tm)
+        }
+        .sheet(isPresented: $showMatching) {
+            MentorMatchingView().environment(tm)
         }
     }
 

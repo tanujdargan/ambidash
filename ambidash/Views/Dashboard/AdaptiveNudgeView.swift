@@ -98,6 +98,33 @@ struct AdaptiveNudgeView: View {
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(t.hair, lineWidth: 0.5))
             .accessibilityIdentifier("adaptive.nudge")
         }
+
+        if let p = prefs, !p.isUnwellMode {
+            unwellLink(t)
+        }
+    }
+
+    @ViewBuilder
+    private func unwellLink(_ t: ResolvedTheme) -> some View {
+        Button {
+            Haptics.light()
+            if let p = prefs {
+                p.isUnwellMode = true
+                p.unwellSince = .now
+                try? modelContext.save()
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "heart")
+                    .font(.system(size: 11))
+                Text("I\u{2019}m not feeling well")
+                    .font(.system(size: 12))
+            }
+            .foregroundStyle(t.muted)
+            .padding(.top, 4)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("adaptive.unwellToggle")
     }
 
     // MARK: - Data

@@ -293,6 +293,42 @@ enum LearningService {
         if sorted.count % 2 == 1 { return sorted[mid] }
         return (sorted[mid - 1] + sorted[mid]) / 2
     }
+
+    // MARK: - Multi-week wake drift
+
+    /// Detects whether the user has consistently woken later than their target over
+    /// a multi-day window. Returns nil if on-track or insufficient data.
+    static func wakeDriftTrend(
+        recentWakeMinutes: [Int],
+        targetWakeMinutes: Int,
+        threshold: Int = 30,
+        minDriftDays: Int = 5
+    ) -> WakeDriftResult? {
+        let validDays = recentWakeMinutes.prefix(7)
+        guard validDays.count >= 5 else { return nil }
+        let lateDays = validDays.filter { $0 - targetWakeMinutes >= threshold }
+        guard lateDays.count >= minDriftDays else { return nil }
+        let avgActual = lateDays.reduce(0, +) / lateDays.count
+        return WakeDriftResult(
+            driftDays: lateDays.count,
+            windowDays: validDays.count,
+            avgActualMinutes: avgActual,
+            targetMinutes: targetWakeMinutes
+        )
+    }
+
+    struct WakeDriftResult {
+        let driftDays: Int
+        let windowDays: Int
+        let avgActualMinutes: Int
+        let targetMinutes: Int
+
+        var avgActualFormatted: String {
+            let h = avgActualMinutes / 60
+            let m = avgActualMinutes % 60
+            return String(format: "%d:%02d", h, m)
+        }
+    }
 }
 
 // MARK: - LearnedProfile

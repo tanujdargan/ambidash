@@ -82,6 +82,16 @@ enum ComponentKind: String, CaseIterable, Codable, Hashable {
     /// week", and a gentle weekly "your week in wins" review surface (WinsWeekSheet)
     /// groups the week's wins by day.
     case winsWall
+    /// Detected productivity/energy/screen-time patterns from logged history — a
+    /// read-only insight surface. Confidence-gated; nothing renders until there's
+    /// enough data to ground a genuine pattern.
+    case activityPatterns
+    /// Big-event countdown + plan adjustment when a milestone deadline is <=3 days
+    /// away. Calm by default: renders nothing when no big events are imminent.
+    case bigEventAlert
+    /// "I'm unwell" recovery banner — shows when the user enters recovery mode,
+    /// with a gentle "I'm feeling better" dismissal.
+    case unwellBanner
     /// Fallback for raw values this build doesn't understand.
     case unknown
 }

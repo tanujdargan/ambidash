@@ -54,4 +54,25 @@ enum AdaptiveScheduling {
         let m = ((base + minutes) % 1440 + 1440) % 1440
         return DailyTimeline.Entry.format(m)
     }
+
+    /// Suggestions for when the user is in "I'm unwell" recovery mode. Cuts the day
+    /// to at most 2 essential blocks and frames everything gently.
+    static func unwellModeSuggestions(plannedBlocks: Int) -> [AdaptiveSuggestion] {
+        guard plannedBlocks > 0 else { return [] }
+        let cut = max(0, plannedBlocks - 2)
+        let body = cut > 0
+            ? "Take it easy today. We've lightened your plan to just the essentials \u{2014} \(cut) \(cut == 1 ? "block" : "blocks") moved to another day."
+            : "Take it easy today. Here\u{2019}s what still matters."
+        return [
+            AdaptiveSuggestion(
+                kind: .healthLighten,
+                title: "Recovery mode",
+                body: body,
+                symbol: "heart",
+                options: [
+                    AdaptiveOption(id: "keep", label: "Sounds good", isPrimary: true),
+                ]
+            )
+        ]
+    }
 }

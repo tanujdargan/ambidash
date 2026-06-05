@@ -13,8 +13,12 @@ enum WakeTracker {
         if let last = prefs.lastWakeRecordDay, cal.isDateInToday(last) { return }
         let now = Date()
         let comps = cal.dateComponents([.hour, .minute], from: now)
-        prefs.lastActualWakeMinutes = (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
+        let wakeMin = (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
+        prefs.lastActualWakeMinutes = wakeMin
         prefs.lastWakeRecordDay = cal.startOfDay(for: now)
+        // Maintain a rolling 7-day history for multi-week drift detection.
+        prefs.recentWakeMinutes.insert(wakeMin, at: 0)
+        if prefs.recentWakeMinutes.count > 7 { prefs.recentWakeMinutes = Array(prefs.recentWakeMinutes.prefix(7)) }
         try? context.save()
     }
 }

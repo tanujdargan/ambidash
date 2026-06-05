@@ -52,6 +52,60 @@ enum MultiDayPlannerService {
         return dest
     }
 
+    /// When a milestone is <=3 days away, returns planning suggestions that prioritize
+    /// preparation for that event over routine tasks. Routine/fixed anchors are
+    /// deferrable; goal-work tied to the milestone (or untied goal-work) is kept.
+    /// Returns nil when nothing is imminent.
+    static func bigEventPlanAdjustments(
+        milestones: [Milestone],
+        todayActions: [PlannedAction],
+        now: Date = .now,
+        calendar: Calendar = .current
+    ) -> BigEventAdjustment? {
+        let today = calendar.startOfDay(for: now)
+        let imminent: [(Milestone, Int)] = milestones.compactMap { m in
+            guard m.completedAt == nil else { return nil }
+            let day = calendar.startOfDay(for: m.endDate)
+            let delta = calendar.dateComponents([.day], from: today, to: day).day ?? -1
+            guard delta >= 0, delta <= 3 else { return nil }
+            return (m, delta)
+        }
+        guard let (milestone, days) = imminent.sorted(by: {
+            $0.1 != $1.1 ? $0.1 < $1.1 : $0.0.title < $1.0.title
+        }).first else { return nil }
+
+        var priority: [String] = []
+        var deferrable: [String] = []
+
+        for action in todayActions {
+            let kind = action.anchorKind
+            let tiedToEvent = action.goalID != nil && action.goalID == milestone.goal?.id
+            if kind == .goalWork || tiedToEvent {
+                priority.append(action.title)
+            } else if kind == .routine {
+                deferrable.append(action.title)
+            }
+        }
+
+        let eventPhrase: String
+        switch days {
+        case 0: eventPhrase = "today"
+        case 1: eventPhrase = "tomorrow"
+        default: eventPhrase = "in \(days) days"
+        }
+
+        let suggestion = "\(milestone.title) is \(eventPhrase) \u{2014} focus prep today"
+            + (deferrable.isEmpty ? "." : ", defer \(deferrable.count) routine \(deferrable.count == 1 ? "item" : "items").")
+
+        return BigEventAdjustment(
+            milestone: milestone,
+            daysUntil: days,
+            priorityActions: priority,
+            deferrableActions: deferrable,
+            suggestion: suggestion
+        )
+    }
+
     /// The soonest open (incomplete) milestone deadline within `horizonDays`, as a
     /// big-event countdown. Past-due deadlines are excluded (a future-facing nudge),
     /// ties break on the earlier endDate then title for determinism. Returns nil
@@ -80,6 +134,23 @@ struct BigEventCountdown: Equatable {
 
     /// "Today" / "Tomorrow" / "in N days" — the human countdown phrase.
     var phrase: String {
+        switch daysUntil {
+        case 0: return "today"
+        case 1: return "tomorrow"
+        default: return "in \(daysUntil) days"
+        }
+    }
+}
+
+/// The result of big-event plan adjustment: which actions to keep and which can wait.
+struct BigEventAdjustment {
+    let milestone: Milestone
+    let daysUntil: Int
+    let priorityActions: [String]
+    let deferrableActions: [String]
+    let suggestion: String
+
+    var countdownPhrase: String {
         switch daysUntil {
         case 0: return "today"
         case 1: return "tomorrow"
