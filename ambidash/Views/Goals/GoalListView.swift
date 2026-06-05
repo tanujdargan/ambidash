@@ -55,16 +55,14 @@ struct GoalListView: View {
                     goalContent(t)
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAddGoal = true } label: {
-                        Image(systemName: "plus")
-                            .foregroundStyle(t.ink)
-                    }
-                    .accessibilityLabel("Add goal")
-                    .accessibilityIdentifier("goals.add")
-                }
-            }
+            // This screen draws its own large custom header, like DashboardView.
+            // A `.toolbar` with no `.navigationTitle` makes the system nav bar
+            // render at an indeterminate/collapsed height with a transparent
+            // background, and the custom header lays out UNDERNEATH it (the reported
+            // "content hidden behind the nav bar"). Hide the system bar entirely and
+            // host the "+" inline in the header instead. NavigationStack is retained
+            // because `.navigationDestination` still needs it.
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showAddGoal) {
                 AddGoalView()
             }
@@ -83,17 +81,29 @@ struct GoalListView: View {
     @ViewBuilder
     private func goalContent(_ t: ResolvedTheme) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header
-            VStack(alignment: .leading, spacing: 4) {
-                Text("YOUR GOALS")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .tracking(1.6)
-                    .foregroundStyle(t.muted)
+            // Header — custom large title with an inline "+" add affordance, hosted
+            // here because the system navigation bar is hidden (see the
+            // .toolbar(.hidden) above). Mirrors DashboardView's inline-header pattern.
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("YOUR GOALS")
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .tracking(1.6)
+                        .foregroundStyle(t.muted)
 
-                Text("As you've named them.")
-                    .font(t.heading(28))
-                    .tracking(-0.3)
-                    .foregroundStyle(t.ink)
+                    Text("As you've named them.")
+                        .font(t.heading(28))
+                        .tracking(-0.3)
+                        .foregroundStyle(t.ink)
+                }
+                Spacer(minLength: 8)
+                Button { showAddGoal = true } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16))
+                        .foregroundStyle(t.ink)
+                }
+                .accessibilityLabel("Add goal")
+                .accessibilityIdentifier("goals.add")
             }
             .padding(.horizontal, 22)
             .padding(.top, 6)
