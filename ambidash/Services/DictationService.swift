@@ -252,10 +252,14 @@ final class DictationService {
     @available(iOS 26.0, *)
     private func startModern() async throws {
         let session = try await ModernDictationSession()
-        session.onUpdate = { [weak self] text in self?.transcript = text }
+        session.onUpdate = { [weak self] text in
+            Task { @MainActor in self?.transcript = text }
+        }
         session.onFinish = { [weak self] in
-            guard let self else { return }
-            if self.status == .recording { self.stop() }
+            Task { @MainActor in
+                guard let self else { return }
+                if self.status == .recording { self.stop() }
+            }
         }
         try configureSession()
         try await session.start(engine: audioEngine)
@@ -297,9 +301,8 @@ private final class ModernDictationSession {
     private var recognizerTask: Task<Void, Never>?
     private var finalizedText: String = ""
 
-    /// Marshalled back onto the MainActor controller (set after init).
-    var onUpdate: (@MainActor (String) -> Void)?
-    var onFinish: (@MainActor () -> Void)?
+    var onUpdate: (@Sendable (String) -> Void)?
+    var onFinish: (@Sendable () -> Void)?
 
     init() async throws {
         let locale = Locale.current
@@ -335,26 +338,53 @@ private final class ModernDictationSession {
             throw DictationError.modelUnavailable
         }
 
-        // Consume transcriber results -> coalesce volatile + finalized text.
+        // Consume transcriber results. The async sequence yields on an internal
+        // Speech framework queue. We iterate in a nonisolated Task and hop to
+        // MainActor for every state mutation to avoid isolation violations.
+        let transcriber = self.transcriber
         recognizerTask = Task { [weak self] in
-            guard let self else { return }
             do {
-                for try await result in self.transcriber.results {
+                for try await result in transcriber.results {
                     let piece = String(result.text.characters)
-                    if result.isFinal {
-                        self.finalizedText += piece
-                        self.onUpdate?(self.finalizedText)
-                    } else {
-                        self.onUpdate?(self.finalizedText + piece)
+                    let isFinal = result.isFinal
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        if isFinal {
+                            self.finalizedText += piece
+                            self.onUpdate?(self.finalizedText)
+                        } else {
+                            self.onUpdate?(self.finalizedText + piece)
+                        }
                     }
                 }
             } catch {
-                self.onFinish?()
+                await MainActor.run { [weak self] in
+                    self?.onFinish?()
+                }
             }
         }
 
         try await analyzer.start(inputSequence: stream)
 
+        // The tap + converter setup MUST happen outside MainActor isolation.
+        // AVAudioConverter created on MainActor becomes actor-isolated; calling
+        // .convert() from the audio realtime thread then trips Swift 6's
+        // dispatch_assert_queue_fail. The nonisolated static helper ensures
+        // everything the tap closure captures is free of actor isolation.
+        try Self.installAudioTap(
+            engine: engine,
+            analyzerFormat: analyzerFormat,
+            continuation: continuation
+        )
+    }
+
+    /// Install the audio tap + converter entirely outside MainActor so nothing
+    /// the realtime audio callback captures carries actor isolation.
+    nonisolated private static func installAudioTap(
+        engine: AVAudioEngine,
+        analyzerFormat: AVAudioFormat,
+        continuation: AsyncStream<AnalyzerInput>.Continuation
+    ) throws {
         let inputNode = engine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         guard recordingFormat.channelCount > 0 else {
@@ -362,13 +392,7 @@ private final class ModernDictationSession {
         }
         let converter = AVAudioConverter(from: recordingFormat, to: analyzerFormat)
 
-        // Defensive: clear any tap left by a prior partially-failed session before
-        // installing, so we never trap on a double-install of bus 0.
         inputNode.removeTap(onBus: 0)
-
-        // The tap fires on a realtime audio thread. Capture ONLY Sendable values
-        // (the AsyncStream continuation is Sendable; the converter/format are used
-        // single-threaded by the audio engine) and never touch actor state here.
         inputNode.installTap(onBus: 0, bufferSize: 4096, format: recordingFormat) { buffer, _ in
             let outBuffer: AVAudioPCMBuffer
             if let converter {
