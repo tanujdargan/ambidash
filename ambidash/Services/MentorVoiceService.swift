@@ -43,6 +43,9 @@ final class MentorVoiceService {
             do {
                 let audioData = try await self.fetchTTSAudio(text: text)
                 guard !Task.isCancelled else { return }
+                guard audioData.count > 100 else {
+                    throw URLError(.zeroByteResource)
+                }
                 try self.configureAudioSession()
                 let audioPlayer = try AVAudioPlayer(data: audioData)
                 let delegate = PlayerDelegate { [weak self] in
@@ -55,7 +58,7 @@ final class MentorVoiceService {
                 self.state = .playing
             } catch {
                 guard !Task.isCancelled else { return }
-                // Fallback to on-device
+                print("[MentorVoice] TTS failed, falling back to on-device: \(error)")
                 self.speakOnDevice(text)
             }
         }
@@ -108,7 +111,12 @@ final class MentorVoiceService {
         request.timeoutInterval = 180
 
         let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+        guard let http = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        guard http.statusCode == 200 else {
+            let body = String(data: data.prefix(200), encoding: .utf8) ?? ""
+            print("[MentorVoice] TTS HTTP \(http.statusCode): \(body)")
             throw URLError(.badServerResponse)
         }
         return data

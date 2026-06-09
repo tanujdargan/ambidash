@@ -114,9 +114,25 @@ struct MentorConversationView: View {
                 // Track live transcript — we don't commit here, only on stop.
             }
             .onChange(of: voiceService.state) { _, newState in
-                // When TTS finishes speaking, return to idle.
-                if newState == .idle && phase == .speaking {
-                    phase = .idle
+                if phase == .speaking {
+                    if newState == .idle {
+                        // M. finished speaking — auto-listen for the next turn.
+                        phase = .idle
+                        Task {
+                            try? await Task.sleep(for: .milliseconds(400))
+                            guard phase == .idle else { return }
+                            phase = .listening
+                            Haptics.light()
+                            await dictation.start()
+                            if dictation.status != .recording && dictation.status != .preparing {
+                                phase = .idle
+                            }
+                        }
+                    } else if case .error(let msg) = newState {
+                        // TTS failed — show what M. said as text, move on.
+                        phase = .idle
+                        print("[MentorConversation] TTS error: \(msg)")
+                    }
                 }
             }
             .onDisappear { cleanup() }
