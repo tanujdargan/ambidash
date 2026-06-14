@@ -1,0 +1,77 @@
+name: CI
+
+# Phase 0 — build + unit-test on every push to main and every PR. Complements the
+# existing Xcode Cloud TestFlight pipeline with a fast, public build/test gate.
+#
+# ADVISORY for now: GitHub's macOS runner ships a slightly older iOS SDK point-release
+# (e.g. 26.2) than the project's dev/ship SDK (26.5 / Xcode Cloud). Until they're
+# aligned, the build/test steps are `continue-on-error` so an SDK-skew failure doesn't
+# red-flag every PR — the authoritative gates remain the local build on the dedicated
+# sim and Xcode Cloud. Errors are surfaced in the logs for diagnosis. Drop the
+# continue-on-error once the runner SDK matches the project's.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & Unit Test (iOS Simulator)
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode + check for the iOS 26 SDK
+        id: xc
+        run: |
+          LATEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          echo "Using $LATEST"
+          sudo xcode-select -s "$LATEST"
+          xcodebuild -version
+          if xcodebuild -showsdks 2>/dev/null | grep -qiE 'iphonesimulator2[6-9]'; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice title=CI soft-skipped::Runner lacks an iOS 26 SDK; build/test skipped until GitHub ships one."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pick an available iPhone simulator
+        id: sim
+        if: steps.xc.outputs.skip == 'false'
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -E 'iPhone (1[0-9]|2[0-9])' | tail -1 | sed -E 's/ \([0-9A-F-]+\).*//; s/^[[:space:]]*//')
+          [ -z "$DEVICE" ] && DEVICE="iPhone 16 Pro"
+          echo "device=$DEVICE" >> "$GITHUB_OUTPUT"
+          echo "Using simulator: $DEVICE"
+
+      - name: Build
+        id: build
+        if: steps.xc.outputs.skip == 'false'
+        continue-on-error: true   # advisory until runner SDK == project SDK (26.5)
+        run: |
+          set -o pipefail
+          xcodebuild -project ambidash.xcodeproj -scheme ambidash \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -derivedDataPath .ci-derived CODE_SIGNING_ALLOWED=NO build \
+            2>&1 | grep -E 'error:|warning: .*unavailable|is only available|BUILD (SUCCEEDED|FAILED)' | tail -60 \
+            || xcodebuild -project ambidash.xcodeproj -scheme ambidash \
+                 -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+                 -derivedDataPath .ci-derived CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -40
+
+      - name: Unit tests
+        if: steps.xc.outputs.skip == 'false' && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild -project ambidash.xcodeproj -scheme ambidash \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -derivedDataPath .ci-derived CODE_SIGNING_ALLOWED=NO \
+            -only-testing:ambidashTests test \
+            2>&1 | grep -E '✘|Test run with|TEST (SUCCEEDED|FAILED)' | tail -40

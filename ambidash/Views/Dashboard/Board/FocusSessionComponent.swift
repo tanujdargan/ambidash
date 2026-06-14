@@ -276,7 +276,10 @@ struct FocusSessionComponent: View {
             }
 
             // Body-double presence (local stub) + optional AI check-in line.
-            presenceRow(t)
+            // Phase 0 finish-or-hide: gated OFF until there's a real presence backend.
+            if FeatureFlags.isEnabled(.bodyDoubling) {
+                presenceRow(t)
+            }
 
             // Controls.
             HStack(spacing: 10) {

@@ -44,6 +44,7 @@ enum CaptureService {
         )
         context.insert(item)
         try? context.save()
+        ActivationCounters.record(.firstCapture)   // on-device funnel only
         return item
     }
 

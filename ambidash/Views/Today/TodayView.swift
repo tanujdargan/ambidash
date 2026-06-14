@@ -648,6 +648,11 @@ struct TodayView: View {
                 CarryOverService.carryForward(into: plan, from: prior, context: modelContext)
             }
             try? modelContext.save()
+            // Phase 0 — persist the morning plan as THE original, so the notification
+            // "I feel better" action can restore it later; and count the activation
+            // moment (on-device only, never sent anywhere).
+            PlanSnapshotService.captureOriginal(plan)
+            ActivationCounters.record(.firstPlanGenerated)
             // ACTION-FIRST NOTIFICATIONS — now that today's plan exists, schedule the
             // escalating reminder chain (day-before → 2h → 15m → now-with-physical-
             // step) for every future goal-work block. Idempotent per block; back-off

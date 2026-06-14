@@ -523,7 +523,7 @@ enum DisruptionService {
 
     /// A reversible snapshot of one action's mutable scheduling/lifecycle state,
     /// captured BEFORE a diff is applied so DECLINE / undo restores it exactly.
-    struct ActionSnapshot: Equatable {
+    struct ActionSnapshot: Codable, Equatable {
         let id: UUID
         let timeSlot: String
         let scheduleCue: String

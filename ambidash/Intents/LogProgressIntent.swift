@@ -80,6 +80,7 @@ struct LogProgressIntent: AppIntent {
             MentorFeedback.self,
             ProgressLog.self,
             Milestone.self,
+            CaptureItem.self,
         ])
         let configuration = ModelConfiguration(schema: schema)
         return try ModelContainer(for: schema, configurations: [configuration])
@@ -115,6 +116,15 @@ struct AmbidashShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Today's Plan",
             systemImageName: "calendar"
+        )
+        AppShortcut(
+            intent: CaptureIntent(),
+            phrases: [
+                "Capture a thought in \(.applicationName)",
+                "Add to my \(.applicationName) inbox",
+            ],
+            shortTitle: "Capture",
+            systemImageName: "square.and.pencil"
         )
     }
 }
