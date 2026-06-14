@@ -56,7 +56,7 @@ struct MentorProgramCard: View {
             .buttonStyle(.scalePress)
             .accessibilityIdentifier("mentor.inviteButton")
 
-            if profile.mentorOptInRaw == "seekMatch" || unlocked {
+            if FeatureFlags.isEnabled(.mentorMatching) && (profile.mentorOptInRaw == "seekMatch" || unlocked) {
                 Button {
                     Haptics.light()
                     showMatching = true

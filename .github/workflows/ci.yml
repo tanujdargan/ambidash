@@ -1,0 +1,61 @@
+name: CI
+
+# Phase 0 — build + unit-test on every push to main and every PR. Complements the
+# existing Xcode Cloud TestFlight pipeline with a fast, public build/test gate so a
+# solo founder isn't hand-verifying every change.
+#
+# NOTE: the app targets iOS 26 / Swift 6, so the runner needs an Xcode 26 image. GitHub
+# macOS runners may lag; pin `runs-on` / the Xcode path below once a 26 image is available.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & Unit Test (iOS Simulator)
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          LATEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          echo "Using $LATEST"
+          sudo xcode-select -s "$LATEST"
+          xcodebuild -version
+          swift --version
+
+      - name: Pick an available iPhone simulator
+        id: sim
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -E 'iPhone 1[0-9]' | tail -1 | sed -E 's/ \([0-9A-F-]+\).*//; s/^[[:space:]]*//')
+          [ -z "$DEVICE" ] && DEVICE="iPhone 15"
+          echo "device=$DEVICE" >> "$GITHUB_OUTPUT"
+          echo "Using simulator: $DEVICE"
+
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild -project ambidash.xcodeproj -scheme ambidash \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -derivedDataPath .ci-derived \
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tail -40
+
+      - name: Unit tests
+        run: |
+          set -o pipefail
+          xcodebuild -project ambidash.xcodeproj -scheme ambidash \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -derivedDataPath .ci-derived \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:ambidashTests \
+            test 2>&1 | tail -60

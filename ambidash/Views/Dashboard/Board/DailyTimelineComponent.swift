@@ -20,6 +20,7 @@ import WidgetKit
 /// default; all motion routes through `MotionPreference`.
 struct DailyTimelineComponent: View {
     @Environment(ThemeManager.self) private var tm
+    @Environment(\.modelContext) private var modelContext
     let boardData: BoardData
 
     /// The block the user tapped — drives the detail sheet.
@@ -161,10 +162,23 @@ struct DailyTimelineComponent: View {
         guard boardData.todayPlan != nil, !blocks.isEmpty else { return }
         guard let pending = PendingGentleAction.take() else { return }
         switch pending {
-        case .restorePlan, .replan:
+        case .restorePlan:
+            // "I feel better" → restore the persisted morning plan directly (reversing
+            // any disruption deferrals). If there's no saved original, fall back to a
+            // fresh, gentle re-plan rather than doing nothing.
+            if let plan = boardData.todayPlan,
+               let snap = PlanSnapshotService.original(for: plan.date), !snap.isEmpty {
+                DisruptionService.revert(snap, in: plan)
+                try? modelContext.save()
+                Haptics.success()
+            } else {
+                disruptionTrigger = .manual
+            }
+        case .replan:
+            // "Move my plan" → the keep/move/defer re-plan diff.
             disruptionTrigger = .manual
         case .triage:
-            // Surface the overwhelmed / "collapse to one thing" framing.
+            // "Just one thing" → collapse to the single protected block.
             disruptionTrigger = .missedBlocks(count: 1)
         }
         #endif

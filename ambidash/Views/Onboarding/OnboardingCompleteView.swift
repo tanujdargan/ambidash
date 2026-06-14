@@ -41,6 +41,7 @@ struct OnboardingCompleteView: View {
                     Haptics.success()
                     profile?.onboardingComplete = true
                     try? modelContext.save()
+                    ActivationCounters.record(.onboardingCompleted)   // on-device funnel start
                     onboardingComplete = true
                 }
                 .padding(.horizontal, 32)

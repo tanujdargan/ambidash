@@ -137,25 +137,28 @@ struct SettingsView: View {
                 }
                 .listRowBackground(t.surface)
 
-                Section("Accountability") {
-                    NavigationLink {
-                        AccountabilityView()
-                    } label: {
-                        HStack {
-                            Image(systemName: "person.2")
-                                .foregroundStyle(t.accent)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Accountability partners")
-                                    .foregroundStyle(t.ink)
-                                Text("Pair with a friend, share goals, cheer each other on")
-                                    .font(.caption)
-                                    .foregroundStyle(t.muted)
+                // Phase 0 finish-or-hide: social/accountability is backend-thin; gated OFF for v1.
+                if FeatureFlags.isEnabled(.socialFeed) {
+                    Section("Accountability") {
+                        NavigationLink {
+                            AccountabilityView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "person.2")
+                                    .foregroundStyle(t.accent)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Accountability partners")
+                                        .foregroundStyle(t.ink)
+                                    Text("Pair with a friend, share goals, cheer each other on")
+                                        .font(.caption)
+                                        .foregroundStyle(t.muted)
+                                }
                             }
                         }
+                        .accessibilityIdentifier("settings.accountability")
                     }
-                    .accessibilityIdentifier("settings.accountability")
+                    .listRowBackground(t.surface)
                 }
-                .listRowBackground(t.surface)
 
                 Section("Appearance") {
                     Picker("Palette", selection: Binding(
