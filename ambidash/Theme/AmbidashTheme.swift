@@ -9,6 +9,11 @@ import AppKit
 
 enum ThemePalette: String, CaseIterable, Codable, Identifiable {
     case yellow, cool, forest, rose
+    // Premium "luxury" palettes. Each curated set ships four colors; the theme model is
+    // (bg, ink, accent) + derived neutrals, so we map each palette to its three dominant
+    // roles (lightest = bg / light surface, darkest = ink / dark surface, signature = accent).
+    // Dark mode swaps bg<->ink automatically (see ResolvedTheme), so both tones stay in play.
+    case cherry, laurel, azure, mahogany, crimson
 
     var id: String { rawValue }
 
@@ -18,6 +23,11 @@ enum ThemePalette: String, CaseIterable, Codable, Identifiable {
         case .cool: "Cool"
         case .forest: "Forest"
         case .rose: "Rose"
+        case .cherry: "Cherry"
+        case .laurel: "Laurel"
+        case .azure: "Azure"
+        case .mahogany: "Mahogany"
+        case .crimson: "Crimson"
         }
     }
 
@@ -27,6 +37,16 @@ enum ThemePalette: String, CaseIterable, Codable, Identifiable {
         case .cool:   (0xECEEEF, 0x11161B, 0x5C7F8B)
         case .forest: (0xEDEEE5, 0x13180F, 0x6B7A4A)
         case .rose:   (0xF2EBE7, 0x1C1614, 0xA55E5B)
+        // 01 Cotton / Cherry Red / Maroon / Noir Black
+        case .cherry:   (0xEDEBDE, 0x1B1716, 0x810100)
+        // 02 Light Cream / Deep Bluish / Moderate Green / Laurel Green
+        case .laurel:   (0xFBF6F0, 0x0D3A35, 0x276152)
+        // 03 Floral White / Deep Blue / Powder Blue / Pale Brown
+        case .azure:    (0xFEFAEF, 0x182350, 0xB9915E)
+        // 04 Golf (Cryola) / Black Bean / Mahogany / Cadmium Orange
+        case .mahogany: (0xE8C581, 0x3D1202, 0xE58423)
+        // 05 Varden / Cosmos Blue / Gochujang Red / Crimson Blaze
+        case .crimson:  (0xFEF0D5, 0x002F49, 0xC1121F)
         }
     }
 }
