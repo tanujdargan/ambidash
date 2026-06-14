@@ -11,15 +11,9 @@ struct CardView<Content: View>: View {
     }
 
     var body: some View {
-        let t = tm.resolved
         content
             .padding(18)
-            .background(t.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(t.hair, lineWidth: 0.5)
-            )
+            .glassCard(cornerRadius: 16)
             .scaleOnPress()
     }
 }

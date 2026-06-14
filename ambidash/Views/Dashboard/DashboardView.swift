@@ -82,7 +82,7 @@ struct DashboardView: View {
         let t = tm.resolved
         NavigationStack {
             ZStack {
-                t.bg.ignoresSafeArea()
+                GlassBackground()
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: t.space.section) {
