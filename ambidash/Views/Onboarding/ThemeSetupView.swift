@@ -28,7 +28,8 @@ struct ThemeSetupView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             SectionLabel(title: "Palette")
 
-                            HStack(spacing: 10) {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                              HStack(spacing: 10) {
                                 ForEach(ThemePalette.allCases) { palette in
                                     let (bg, ink, accent) = palette.colors
                                     let isSelected = tm.palette == palette
@@ -56,6 +57,8 @@ struct ThemeSetupView: View {
                                         }
                                     }
                                 }
+                              }
+                              .padding(.vertical, 2)
                             }
                         }
                         .fadeSlideIn(delay: 0.1)
