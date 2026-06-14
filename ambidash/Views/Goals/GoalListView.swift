@@ -47,7 +47,7 @@ struct GoalListView: View {
         let t = tm.resolved
         NavigationStack {
             ZStack {
-                t.bg.ignoresSafeArea()
+                GlassBackground()
 
                 if goals.isEmpty {
                     emptyState(t)

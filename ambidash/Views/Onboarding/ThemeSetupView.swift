@@ -177,12 +177,7 @@ struct ThemeSetupView: View {
                             }
                             .padding(18)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(t.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .stroke(t.hair, lineWidth: 0.5)
-                            )
+                            .glassCard(cornerRadius: 16, tinted: true)
                         }
                         .fadeSlideIn(delay: 0.3)
 
@@ -206,7 +201,7 @@ struct ThemeSetupView: View {
                 .padding(.horizontal, 22)
                 .padding(.bottom, 16)
             }
-            .background(t.bg)
+            .background { GlassBackground() }
             .navigationDestination(isPresented: $showOnboarding) {
                 WelcomeView()
             }

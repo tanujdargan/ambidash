@@ -62,7 +62,7 @@ struct MentorView: View {
         let t = tm.resolved
         NavigationStack {
             ZStack {
-                t.bg.ignoresSafeArea()
+                GlassBackground()
 
                 VStack(spacing: 0) {
                     // Header

@@ -173,6 +173,7 @@
 		69276BA87C76F543520EF985 /* ActivityPatternsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372B846142BC764DCCB9710E /* ActivityPatternsComponent.swift */; };
 		693CDACD45B1F0C89694331B /* LearningService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F5C1ECCD414504B91EC33E /* LearningService.swift */; };
 		699992BFD9C0774B643FDC5C /* Milestone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D891A1947E80BFB8666418 /* Milestone.swift */; };
+		69B503F423D523ABBC84D487 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D623BD485B7258713B7F5DE9 /* LiquidGlass.swift */; };
 		6A8B83B632D6FCEBA454DE99 /* VitalStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D3FD6EBF58E9ABFF22DE022 /* VitalStats.swift */; };
 		6B8E7A8EAB4E94775C5A55F7 /* AddMilestoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73799477BA830D472F63AFD6 /* AddMilestoneView.swift */; };
 		6C0968691A8AE3AAE173450F /* LifeMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8317D048458A2563CC8F3A /* LifeMapView.swift */; };
@@ -290,6 +291,7 @@
 		B0F4103388681FB943D0A562 /* DisruptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA6F98CB1EB7273C9F13408 /* DisruptionService.swift */; };
 		B1F4FDEAFE606FE4F6154C6C /* QRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C6747C2A3E97592EA65780B /* QRCode.swift */; };
 		B1F54A1AB0D75E32C18911E8 /* MotionPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CCA9EB090C0B07F883749A /* MotionPreference.swift */; };
+		B23A643961AF6DB6845AD3C7 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D623BD485B7258713B7F5DE9 /* LiquidGlass.swift */; };
 		B2BCF63F688CFCE616767EE1 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AFD66F9A9C15CB9E46793D /* SyncService.swift */; };
 		B2D60D03C3173E6720FAB7B5 /* BoardTaxonomy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F593CC7D580A6B2E8B7E652E /* BoardTaxonomy.swift */; };
 		B34A6D1180B7985F9692070C /* LearningService+ActivityDigest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23295341BA2664E33B064D5 /* LearningService+ActivityDigest.swift */; };
@@ -715,6 +717,7 @@
 		D3FABF1DD8803FB51DBD8ECD /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionService.swift; sourceTree = "<group>"; };
 		D45E866B8C0DAA8861F70564 /* GoalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStatus.swift; sourceTree = "<group>"; };
 		D483C88508E54DD19FA11AD1 /* EditableComponentRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableComponentRow.swift; sourceTree = "<group>"; };
+		D623BD485B7258713B7F5DE9 /* LiquidGlass.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
 		D63E369ECA76257E2E050CE5 /* MilestoneProgressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneProgressService.swift; sourceTree = "<group>"; };
 		D65BD7D413FE358539710506 /* DisruptionDiffSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisruptionDiffSheet.swift; sourceTree = "<group>"; };
 		D75F4CEBFD96B0E1ADBDD364 /* MacDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacDashboardView.swift; sourceTree = "<group>"; };
@@ -1146,6 +1149,7 @@
 				079C72EA0A694EB8858FDFBC /* Components.swift */,
 				0ABCB96FD0B43019990AE873 /* EmptyState.swift */,
 				FF2AF8E56C4665AA67BD16BE /* ShimmerView.swift */,
+				D623BD485B7258713B7F5DE9 /* LiquidGlass.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -1629,6 +1633,7 @@
 				4837C9703ECF76EC8C117C04 /* WealthDomainModule.swift in Sources */,
 				E4DEE7CCFEF2A9A59BEF9558 /* FinanceModels.swift in Sources */,
 				1E61D6741D3745BC1F0E7CC4 /* FinanceLogic.swift in Sources */,
+				69B503F423D523ABBC84D487 /* LiquidGlass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1865,6 +1870,7 @@
 				0CB0EE2319D614861C849EB8 /* WealthDomainModule.swift in Sources */,
 				5D54339999F0F3F88D4F4190 /* FinanceModels.swift in Sources */,
 				7715CC9ADEC5D3336DD124F3 /* FinanceLogic.swift in Sources */,
+				B23A643961AF6DB6845AD3C7 /* LiquidGlass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
