@@ -41,6 +41,9 @@ enum AppModelContainer {
         RestrictionWindow.self,
         AppBudget.self,
         RestrictionOverride.self,
+        FinanceAccount.self,
+        FinanceTransaction.self,
+        BudgetCategory.self,
     ]
 
     static let shared: ModelContainer = {
